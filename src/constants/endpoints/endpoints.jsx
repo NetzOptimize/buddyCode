@@ -1,0 +1,25 @@
+import {BASE_URL} from '@env';
+
+export const ENDPOINT = {
+  LOGIN: BASE_URL + '/v1/app/auth/login',
+  USER_DETAILS: BASE_URL + '/v1/app/user',
+  LIKE_COMMENT: BASE_URL + '/v1/app/trip_comment_likes/create',
+  DELETE_ACCOUNT: BASE_URL + '/v1/app/user',
+  DELETE_COMMENT: BASE_URL + '/v1/app/trip_comment/delete',
+  UPDATE_PROFILE: BASE_URL + '/v1/app/auth/update-profile',
+  GET_TRIPS: BASE_URL + '/v1/app/trip_creation/my_trips',
+  LIKE_TRIP: BASE_URL + '/v1/app/trip_likes/create',
+  GET_COMMENTS: BASE_URL + '/v1/app/trip_comment/get',
+  ADD_COMMENT: BASE_URL + '/v1/app/trip_comment/create',
+  GET_BUDDY_DETAILS: BASE_URL + '/v1/app/user',
+  GET_BUDDY_TRIPS: BASE_URL + '/v1/app/trip_creation/my_trips',
+  GET_CHAT_LIST: BASE_URL + '/v1/app/chats',
+  UPDATE_PROFILE: BASE_URL + '/v1/app/auth/update-profile',
+  BLOCK_USER: BASE_URL + '/v1/app/user/block',
+  UNBLOCK_USER: BASE_URL + '/v1/app/user/unblock',
+  GET_BLOCKED_USERS: BASE_URL + '/v1/app/user/get-blocked-users',
+  GET_TRIP_DETAILS: BASE_URL + '/v1/app/trip_creation',
+  GET_PAYMENT_DETAILS: BASE_URL + '/v1/app/event-payment/get/trip_id',
+  GET_TRIP_INVITES: BASE_URL + '/v1/app/trip_request/sendToUser',
+  TRIP_INVITE_ACTION: BASE_URL + '/v1/app/trip_request/update',
+};
