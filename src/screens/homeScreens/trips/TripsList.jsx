@@ -12,8 +12,6 @@ import WideBG from '../../../components/background/WideBG';
 import {AuthContext} from '../../../context/AuthContext';
 import {useFocusEffect} from '@react-navigation/native';
 
-import {differenceInDays} from 'date-fns';
-
 import {COLORS, FONTS} from '../../../constants/theme/theme';
 import TripListHeader from '../../../components/trip/TripListHeader';
 import TripListCard from '../../../components/trip/TripListCard';

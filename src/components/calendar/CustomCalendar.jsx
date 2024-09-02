@@ -73,14 +73,14 @@ function CustomCalendar({
         color = 'white';
     }
 
-    if (!formattedEvents[value.event_date]) {
-      formattedEvents[value.event_date] = {
+    if (!formattedEvents[value?.event_date]) {
+      formattedEvents[value?.event_date] = {
         dots: [{color}],
-        selected: selectedDate === value.event_date ? true : false,
+        selected: selectedDate === value?.event_date ? true : false,
       };
     } else {
-      if (formattedEvents[value.event_date].dots.length < 3) {
-        formattedEvents[value.event_date].dots.push({color});
+      if (formattedEvents[value?.event_date]?.dots.length < 3) {
+        formattedEvents[value?.event_date]?.dots.push({color});
       }
     }
   });
@@ -88,7 +88,7 @@ function CustomCalendar({
   return (
     <Calendar
       markedDates={formattedEvents}
-      current={new Date(minDate)?.toISOString().slice(0, 10)}
+      current={new Date(minDate)?.toISOString()?.slice(0, 10)}
       renderHeader={date => {
         const month = date.toString('MMMM');
         const year = date.toString('yyyy');

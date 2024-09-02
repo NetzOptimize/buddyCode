@@ -33,6 +33,7 @@ import FriendReq from '../screens/homeScreens/chat/Requests/FriendReq';
 import TripsList from '../screens/homeScreens/trips/TripsList';
 import ViewMyTrip from '../screens/homeScreens/trips/viewMyTrip';
 import TripRequests from '../screens/homeScreens/trips/TripRequests';
+import AllTripPayments from '../screens/homeScreens/trips/AllTripPayments';
 
 // **icons
 var chat = require('../../assets/Images/bottomTab/chat.png');
@@ -103,6 +104,10 @@ const TripsStack = () => {
       <Stack.Screen name={SCREENS.TRIPS_LIST} component={TripsList} />
       <Stack.Screen name={SCREENS.VIEW_MY_TRIP} component={ViewMyTrip} />
       <Stack.Screen name={SCREENS.TRIP_REQUESTS} component={TripRequests} />
+      <Stack.Screen
+        name={SCREENS.ALL_TRIP_PAYMENTS}
+        component={AllTripPayments}
+      />
     </Stack.Navigator>
   );
 };

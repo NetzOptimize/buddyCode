@@ -22,4 +22,5 @@ export const ENDPOINT = {
   GET_PAYMENT_DETAILS: BASE_URL + '/v1/app/event-payment/get/trip_id',
   GET_TRIP_INVITES: BASE_URL + '/v1/app/trip_request/sendToUser',
   TRIP_INVITE_ACTION: BASE_URL + '/v1/app/trip_request/update',
+  GET_EVENT_PAYMENTS: BASE_URL + '/v1/app/event-payment/get/trip_id',
 };

@@ -30,6 +30,7 @@ import CustomCalendar from '../../../components/calendar/CustomCalendar';
 import TripBudget from './TripBudget';
 
 var chatIcon = require('../../../../assets/Images/chat.png');
+var plus = require('../../../../assets/Images/plus.png');
 
 const ViewMyTrip = ({route, navigation}) => {
   const {tripData, isMyTrip} = route.params;
@@ -78,6 +79,11 @@ const ViewMyTrip = ({route, navigation}) => {
         />
         {isMyTrip ? <EditTripButton /> : <LeaveTripButton />}
       </View>
+      <TripNavigationBtns
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -87,11 +93,6 @@ const ViewMyTrip = ({route, navigation}) => {
             color="#7879F1"
           />
         }>
-        <TripNavigationBtns
-          currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
-        />
-
         {currentTab == 0 && (
           <View style={{marginTop: 16}}>
             <TripCoverImage
@@ -133,21 +134,36 @@ const ViewMyTrip = ({route, navigation}) => {
 
         {currentTab == 2 && (
           <View style={{marginTop: 16}}>
-            <CustomCalendar
-              minDate={tripInfo?.trip?.trip_starting_time}
-              maxDate={tripInfo?.trip?.trip_ending_time}
-              eventDates={myEventDates}
-              setShowAllEvents={setShowAllEvents}
-            />
-
-            {tripInfo?.events?.map(data => (
-              <TripCard key={data?._id} eventData={data} tripInfo={tripInfo} />
-            ))}
+            {tripInfo && (
+              <>
+                <CustomCalendar
+                  minDate={tripInfo?.trip?.trip_starting_time}
+                  maxDate={tripInfo?.trip?.trip_ending_time}
+                  eventDates={myEventDates}
+                  setShowAllEvents={setShowAllEvents}
+                />
+                <View style={{gap: 16}}>
+                  {tripInfo?.events?.map(data => (
+                    <TripCard
+                      key={data?._id}
+                      eventData={data}
+                      tripInfo={tripInfo}
+                    />
+                  ))}
+                </View>
+              </>
+            )}
           </View>
         )}
 
         <View style={{height: 110}} />
       </ScrollView>
+
+      {currentTab == 2 && (
+        <TouchableOpacity style={styles.addChatButton}>
+          <Image source={plus} style={{width: 32, height: 32}} />
+        </TouchableOpacity>
+      )}
     </RegularBG>
   );
 };
@@ -187,6 +203,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.LIGHT,
     marginTop: 16,
+  },
+  addChatButton: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#7879F1',
+    borderRadius: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: 'black',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    position: 'absolute',
+    bottom: 116,
+    right: 0,
   },
 });
 

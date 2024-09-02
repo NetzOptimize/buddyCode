@@ -18,4 +18,5 @@ export const SCREENS = {
   DELETE_STEP2: 'deleteStep2',
   TRIP_REQUESTS: 'tripRequests',
   FRIEND_REQ: 'FriendReq',
+  ALL_TRIP_PAYMENTS: 'allTripPayments',
 };
