@@ -1,4 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+
 import {
   ScrollView,
   StyleSheet,
@@ -23,8 +25,6 @@ import {
 import {COLORS, FONTS} from '../../../constants/theme/theme';
 import TripBudgetBar from '../../../components/trip/TripBudgetBar';
 import TripBuddies from '../../../components/trip/View/TripBuddies';
-import MyOptionsBtn from '../../../components/profileComponents/MyOptionsBtn';
-import TripCardOptions from '../../../components/trip/View/TripCardOptions';
 import TripCard from '../../../components/trip/View/TripCard';
 import CustomCalendar from '../../../components/calendar/CustomCalendar';
 import TripBudget from './TripBudget';
@@ -42,15 +42,17 @@ const ViewMyTrip = ({route, navigation}) => {
   const [currentTab, setCurrentTab] = useState(0);
   const [tripCover, setTripCover] = useState(null);
 
-  useEffect(() => {
-    if (tripData?._id) {
-      dispatch(fetchTripData(tripData?._id));
-    }
+  useFocusEffect(
+    useCallback(() => {
+      if (tripData?._id) {
+        dispatch(fetchTripData(tripData?._id));
+      }
 
-    return () => {
-      dispatch(resetTripData());
-    };
-  }, [dispatch, tripData]);
+      return () => {
+        dispatch(resetTripData());
+      };
+    }, []),
+  );
 
   const formatTripName = name => {
     const TripName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
