@@ -44,7 +44,7 @@ const SignUp = ({navigation}) => {
         <View>
           <Text style={styles.heading}>Register as a traveler!</Text>
           <Text style={styles.subHeading}>
-            Create account to start your journey.
+            Create account to start your journey
           </Text>
         </View>
 
