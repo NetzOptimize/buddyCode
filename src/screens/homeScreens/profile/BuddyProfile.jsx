@@ -81,8 +81,10 @@ const BuddyProfile = ({route, navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(fetchBuddyDetails(buddyData?.id));
-      GetBuddyTrips(buddyData?.id);
+      dispatch(
+        fetchBuddyDetails(buddyData?.id ? buddyData?.id : buddyData?._id),
+      );
+      GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
       VerifyToken(authToken);
     }, [buddyData?.id]),
   );
@@ -110,33 +112,43 @@ const BuddyProfile = ({route, navigation}) => {
   };
 
   async function handleFollowUnfollow(buddyId) {
-    let formData = new FormData();
-    formData.append('following', buddyId);
+    console.log(buddyId);
+
+    const userData = {
+      followee: buddyId,
+    };
 
     setFollowLoading(true);
 
     try {
       const response = await axios({
-        method: 'put',
-        url: ENDPOINT.UPDATE_PROFILE,
-        data: formData,
+        method: 'POST',
+        url: ENDPOINT.FOLLOW_USER,
+        data: userData,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
           Authorization: 'Bearer ' + authToken,
         },
       });
 
-      VerifyToken(authToken);
+      console.log('response:', response.data);
+
+      // VerifyToken(authToken);
       setIsFollowed(prevValue => !prevValue);
       dispatch(fetchBuddyDetails(buddyId));
     } catch (error) {
-      console.log('Failed to follow or unfollow:', error);
+      console.log(
+        'Failed to follow or unfollow:',
+        error.response.data,
+        ENDPOINT.FOLLOW_USER,
+        userData,
+      );
     } finally {
       setFollowLoading(false);
     }
   }
 
-  let isPrivate = true;
+  let isPrivate = buddyDetails?.user?.is_private;
 
   return (
     <RegularBG>
@@ -146,13 +158,21 @@ const BuddyProfile = ({route, navigation}) => {
           <View style={styles.actionButtonsBox}>
             {isFollowed ? (
               <FollowedButton
-                onPress={() => handleFollowUnfollow(buddyData?.id)}
+                onPress={() =>
+                  handleFollowUnfollow(
+                    buddyData?.id ? buddyData?.id : buddyData?._id,
+                  )
+                }
                 loading={followLoading}
                 disabled={followLoading}
               />
             ) : (
               <FollowButton
-                onPress={() => handleFollowUnfollow(buddyData?.id)}
+                onPress={() =>
+                  handleFollowUnfollow(
+                    buddyData?.id ? buddyData?.id : buddyData?._id,
+                  )
+                }
                 loading={followLoading}
                 disabled={followLoading}
               />

@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import BackButton from '../../../components/buttons/BackButton';
 import RegularBG from '../../../components/background/RegularBG';
 import {AuthContext} from '../../../context/AuthContext';
 import TripPaymentCard from '../../../components/trip/TripPaymentCard';
 
 const AllTripPayments = ({navigation, route}) => {
-  const {paymentDetails} = route.params;
+  const {paymentList} = route.params;
 
   return (
     <RegularBG>
@@ -17,11 +17,15 @@ const AllTripPayments = ({navigation, route}) => {
         />
       </View>
 
-      <View style={{marginTop: 20, gap: 16}}>
-        {paymentDetails?.map((data, i) => (
-          <TripPaymentCard key={i} paymentDetail={data} />
-        ))}
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={{marginTop: 20, gap: 16}}>
+          {paymentList?.map((data, i) => (
+            <TripPaymentCard key={i} paymentDetail={data} />
+          ))}
+        </View>
+
+        <View style={{height: 110}} />
+      </ScrollView>
     </RegularBG>
   );
 };

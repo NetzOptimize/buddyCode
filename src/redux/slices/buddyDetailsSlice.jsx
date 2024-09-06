@@ -9,6 +9,8 @@ import {ENDPOINT} from '../../constants/endpoints/endpoints';
 export const fetchBuddyDetails = createAsyncThunk(
   'buddyDetails/fetchBuddyDetails',
   async (buddyId, {rejectWithValue}) => {
+    console.log(`${ENDPOINT.GET_BUDDY_DETAILS}/${buddyId}`);
+
     try {
       const authToken = await AsyncStorage.getItem('authToken');
       const response = await axios.get(
@@ -18,6 +20,7 @@ export const fetchBuddyDetails = createAsyncThunk(
           timeout: 10000,
         },
       );
+
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

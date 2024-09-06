@@ -13,33 +13,17 @@ import {SCREENS} from '../../../constants/screens/screen';
 import TripPaymentCard from '../../../components/trip/TripPaymentCard';
 
 const TripBudget = ({tripInfo}) => {
-  const {authToken} = useContext(AuthContext);
-
-  const [paymentDetails, setPaymentDetails] = useState([]);
+  const {paymentList, getPaymentList, getPendingPayments} =
+    useContext(AuthContext);
 
   useFocusEffect(
     useCallback(() => {
-      getPaymentDetails();
+      getPaymentList(tripInfo?.trip?._id);
+      getPendingPayments(tripInfo?.trip?._id);
 
       return () => {};
     }, []),
   );
-
-  function getPaymentDetails() {
-    const url = `${ENDPOINT.GET_EVENT_PAYMENTS}/${tripInfo?.trip?._id}?page=1&limit=100`;
-    axios
-      .get(url, {
-        headers: {
-          Authorization: 'Bearer ' + authToken,
-        },
-      })
-      .then(res => {
-        setPaymentDetails(res.data.data.payments.docs.reverse());
-      })
-      .catch(e => {
-        console.log('Get Single Trip error', e.response.data);
-      });
-  }
 
   return (
     <>
@@ -50,7 +34,7 @@ const TripBudget = ({tripInfo}) => {
           style={styles.ViewBtn}
           onPress={() =>
             NavigationService.navigate(SCREENS.ALL_TRIP_PAYMENTS, {
-              paymentDetails: paymentDetails,
+              paymentList: paymentList,
             })
           }>
           <Text style={styles.viewAll}>View All</Text>
@@ -58,8 +42,8 @@ const TripBudget = ({tripInfo}) => {
       </View>
 
       <View style={{marginTop: 20, gap: 16}}>
-        {paymentDetails?.slice(0, 3).map((data, i) => (
-          <TripPaymentCard key={i} paymentDetail={data} />
+        {paymentList?.slice(0, 3).map((data, i) => (
+          <TripPaymentCard key={i} paymentDetail={data} disabled={true} />
         ))}
       </View>
     </>

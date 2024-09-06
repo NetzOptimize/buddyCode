@@ -45,8 +45,8 @@ const TripsList = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        await GetTrips(myUserDetails.user._id, 'current', 1);
-        await GetTripInvites(myUserDetails.user._id);
+        await GetTrips(myUserDetails?.user?._id, 'current', 1);
+        await GetTripInvites(myUserDetails?.user?._id);
       };
 
       fetchData();
@@ -108,8 +108,8 @@ const TripsList = () => {
           <RefreshControl
             refreshing={loading}
             onRefresh={() => {
-              GetTrips(myUserDetails.user._id, 'current', 1);
-              GetTripInvites(myUserDetails.user._id);
+              GetTrips(myUserDetails?.user?._id, 'current', 1);
+              GetTripInvites(myUserDetails?.user?._id);
             }}
             color="#7879F1"
           />

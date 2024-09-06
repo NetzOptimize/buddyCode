@@ -79,7 +79,7 @@ const TripRequests = ({navigation}) => {
       timeout: 1000,
     })
       .then(res => {
-        GetTripInvites(myUserDetails.user._id);
+        GetTripInvites(myUserDetails?.user?._id);
 
         Toast.show({
           type: action == 'approved' ? 'success' : 'error',

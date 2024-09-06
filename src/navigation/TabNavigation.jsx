@@ -54,11 +54,13 @@ import {
   handleNotificationPermission,
   handleMediaLibraryPermission,
 } from '../config/autoMediaPermission';
+import BuddySearch from '../components/home/BuddySearch';
 
 const MyProfileStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name={SCREENS.MY_PROFILE} component={MyProfile} />
+      <Stack.Screen name={'BuddySearch'} component={BuddySearch} />
       <Stack.Screen
         name={SCREENS.PROFILE_SETTINGS}
         component={ProfileSettings}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -12,15 +12,19 @@ import BackButton from '../../../../../../components/buttons/BackButton';
 import {COLORS, FONTS} from '../../../../../../constants/theme/theme';
 import {SCREENS} from '../../../../../../constants/screens/screen';
 import PrivacyModal from '../../../../../../components/modal/PrivacyModal';
+import {AuthContext} from '../../../../../../context/AuthContext';
 
 var arrow = require('../../../../../../../assets/Images/arrowGrey.png');
 
 const PrivacySettings = ({navigation}) => {
+  const {myUserDetails} = useContext(AuthContext);
+
   const [showModal, setShowModal] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(myUserDetails?.user?.is_private);
 
-  const [isPrivate, setIsPrivate] = useState(false);
-
-  const toggleSwitch = () => setIsPrivate(previousState => !previousState);
+  useEffect(() => {
+    setIsPrivate(myUserDetails?.user?.is_private);
+  }, []);
 
   return (
     <RegularBG>

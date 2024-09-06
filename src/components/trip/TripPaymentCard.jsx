@@ -6,7 +6,7 @@ import {COLORS, FONTS} from '../../constants/theme/theme';
 var noDP = require('../../../assets/Images/noDP.png');
 var arrowDown = require('../../../assets/Images/arrowDown.png');
 
-const TripPaymentCard = ({paymentDetail}) => {
+const TripPaymentCard = ({paymentDetail, disabled = false}) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const eventDate = new Date(paymentDetail?.transaction_time);
@@ -115,7 +115,8 @@ const TripPaymentCard = ({paymentDetail}) => {
       style={styles.recentActivity}
       onPress={() => {
         setShowDetails(true);
-      }}>
+      }}
+      disabled={disabled}>
       <FastImage
         source={
           paymentDetail.user.profile_image

@@ -32,6 +32,7 @@ import ProfileTripCard from '../../../components/profileComponents/ProfileTripCa
 import {useDispatch} from 'react-redux';
 import {fetchTripComments} from '../../../redux/slices/tripCommentsSlice';
 import CommentBottomSheet from '../../../components/profileComponents/CommentBottomSheet';
+import NavigationService from '../../../config/NavigationService';
 
 const MyProfile = () => {
   const {
@@ -72,7 +73,14 @@ const MyProfile = () => {
       <RegularBG>
         <Spinner visible={logoutLoader} color={COLORS.THANOS} size={'large'} />
         <View style={{marginTop: 14}}>
-          <SearchButton onPress={() => console.log('navigate to search')} />
+          <SearchButton
+            onPress={() =>
+              NavigationService.navigate('BuddySearch', {
+                isForChat: false,
+                isForTrip: false,
+              })
+            }
+          />
         </View>
         <ScrollView
           showsVerticalScrollIndicator={false}

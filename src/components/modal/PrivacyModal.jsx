@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {COLORS, FONTS} from '../../constants/theme/theme';
 import BlockButton from '../buttons/BlockButton';
-import Toast from 'react-native-toast-message';
+import Toast, {ErrorToast} from 'react-native-toast-message';
 import {AuthContext} from '../../context/AuthContext';
 import {ENDPOINT} from '../../constants/endpoints/endpoints';
 import axios from 'axios';
@@ -51,6 +51,26 @@ const PrivacyModal = ({visible, onClose, setIsPrivate, isPrivate}) => {
     },
   ];
 
+  async function TogglePrivacy() {
+    try {
+      const response = await axios({
+        method: 'put',
+        url: ENDPOINT.TOGGLE_PRIVACY,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authToken,
+        },
+      });
+
+      console.log('is Private');
+
+      setIsPrivate(!isPrivate);
+      onClose();
+    } catch (error) {
+      console.log('could not switch privacy', error);
+    }
+  }
+
   return (
     <Modal
       visible={visible}
@@ -90,10 +110,7 @@ const PrivacyModal = ({visible, onClose, setIsPrivate, isPrivate}) => {
 
             <LearnMoreButton
               title={isPrivate ? 'Switch to public' : 'Switch to private'}
-              onPress={() => {
-                setIsPrivate(!isPrivate);
-                onClose();
-              }}
+              onPress={TogglePrivacy}
             />
           </View>
         </View>

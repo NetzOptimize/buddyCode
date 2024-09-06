@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useContext} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 
 import {
@@ -28,6 +28,8 @@ import TripBuddies from '../../../components/trip/View/TripBuddies';
 import TripCard from '../../../components/trip/View/TripCard';
 import CustomCalendar from '../../../components/calendar/CustomCalendar';
 import TripBudget from './TripBudget';
+import PaymentModal from '../../../components/trip/Payment/PaymentModal';
+import {AuthContext} from '../../../context/AuthContext';
 
 var chatIcon = require('../../../../assets/Images/chat.png');
 var plus = require('../../../../assets/Images/plus.png');
@@ -35,12 +37,15 @@ var plus = require('../../../../assets/Images/plus.png');
 const ViewMyTrip = ({route, navigation}) => {
   const {tripData, isMyTrip} = route.params;
 
+  const {isPaymentPending} = useContext(AuthContext);
+
   const dispatch = useDispatch();
 
   const {tripInfo, loading, error} = useSelector(state => state.tripDetails);
   const [showAllEvents, setShowAllEvents] = useState(true);
   const [currentTab, setCurrentTab] = useState(0);
   const [tripCover, setTripCover] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -161,11 +166,32 @@ const ViewMyTrip = ({route, navigation}) => {
         <View style={{height: 110}} />
       </ScrollView>
 
+      {currentTab == 1 && (
+        <View style={styles.paymentBtnsContainer}>
+          <TouchableOpacity style={styles.viewPaymentButton}>
+            <Text style={styles.viewPaymentText}>View My Payments</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.addPaymentButton}
+            onPress={() => setShowPaymentModal(true)}>
+            {isPaymentPending && <View style={styles.redDot} />}
+            <Text style={styles.addPaymentText}>Add Payment</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {currentTab == 2 && (
         <TouchableOpacity style={styles.addChatButton}>
           <Image source={plus} style={{width: 32, height: 32}} />
         </TouchableOpacity>
       )}
+
+      <PaymentModal
+        visible={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        tripId={tripInfo?.trip?._id}
+      />
     </RegularBG>
   );
 };
@@ -221,6 +247,52 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 116,
     right: 0,
+  },
+  paymentBtnsContainer: {
+    position: 'absolute',
+    bottom: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    gap: 16,
+  },
+  addPaymentButton: {
+    backgroundColor: 'white',
+    padding: 20,
+    paddingTop: 12,
+    paddingBottom: 12,
+    borderRadius: 100,
+    alignSelf: 'center',
+    position: 'relative',
+  },
+  viewPaymentButton: {
+    backgroundColor: '#646464',
+    padding: 20,
+    paddingTop: 12,
+    paddingBottom: 12,
+    borderRadius: 100,
+    alignSelf: 'center',
+    position: 'relative',
+  },
+  addPaymentText: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 14,
+    color: COLORS.GREY_LIGHT,
+  },
+  viewPaymentText: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 14,
+    color: COLORS.LIGHT,
+  },
+  redDot: {
+    width: 8,
+    height: 8,
+    backgroundColor: COLORS.ERROR,
+    borderRadius: 100,
+    position: 'absolute',
+    right: 16,
+    top: 8,
   },
 });
 

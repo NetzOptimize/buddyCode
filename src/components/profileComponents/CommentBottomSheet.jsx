@@ -37,7 +37,7 @@ function CommentBox({comment, tripId}) {
   const dispatch = useDispatch();
   const likedCommentToCheck = comment._id;
 
-  const isLiked = myUserDetails.likedComments?.some(
+  const isLiked = myUserDetails?.likedComments?.some(
     likedTrip => likedTrip.comment_id?._id === likedCommentToCheck,
   );
 
@@ -123,7 +123,7 @@ function CommentBox({comment, tripId}) {
             <Text style={styles.likeCount}>{likeCount}</Text>
           </TouchableOpacity>
 
-          {myUserDetails.user._id == comment?.user_id._id && (
+          {myUserDetails?.user?._id == comment?.user_id._id && (
             <TouchableOpacity
               onPress={() => deleteComment(comment?._id)}
               style={{alignItems: 'center'}}>
@@ -169,7 +169,7 @@ const CommentBottomSheet = ({visible, onClose}) => {
 
     const formData = new FormData();
     formData.append('trip_id', tripComments.tripId);
-    formData.append('user_id', myUserDetails.user._id);
+    formData.append('user_id', myUserDetails?.user?._id);
     formData.append('description', myComment);
 
     axios

@@ -1,4 +1,6 @@
-import {BASE_URL} from '@env';
+// import {BASE_URL} from '@env';
+
+const BASE_URL = 'http://192.168.18.187:4000/api';
 
 export const ENDPOINT = {
   LOGIN: BASE_URL + '/v1/app/auth/login',
@@ -23,4 +25,11 @@ export const ENDPOINT = {
   GET_TRIP_INVITES: BASE_URL + '/v1/app/trip_request/sendToUser',
   TRIP_INVITE_ACTION: BASE_URL + '/v1/app/trip_request/update',
   GET_EVENT_PAYMENTS: BASE_URL + '/v1/app/event-payment/get/trip_id',
+  GET_PENDING_PAYMENTS: BASE_URL + '/v1/app/trip_creation',
+  TOGGLE_PRIVACY: BASE_URL + '/v1/app/user/change-privacy',
+  PENDING_PAYMENT: BASE_URL + '/v1/app/event-payment/update',
+  SEARCH_USERS: BASE_URL + '/v1/app/user/search/users',
+  GET_FOLLOWERS: BASE_URL + '/v1/app/followings/get-followers',
+  GET_FOLLOWING: BASE_URL + '/v1/app/followings/get-followings',
+  FOLLOW_USER: BASE_URL + '/v1/app/followings/follow-user',
 };

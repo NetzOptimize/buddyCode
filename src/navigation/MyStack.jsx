@@ -13,6 +13,7 @@ import {SCREENS} from '../constants/screens/screen';
 import SplashScreen from '../components/background/SplashScreen';
 
 import TabNavigation from './TabNavigation';
+F;
 import {COLORS} from '../constants/theme/theme';
 
 export default function MyStack() {

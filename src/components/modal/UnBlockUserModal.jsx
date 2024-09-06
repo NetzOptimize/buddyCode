@@ -25,7 +25,13 @@ import {AuthContext} from '../../context/AuthContext';
 const UnBlockUserModal = ({visible, onClose, blockedUserData}) => {
   const {authToken} = useContext(AuthContext);
 
+  console.log(blockedUserData);
+
   const dispatch = useDispatch();
+
+  function getFullName(firstName, lastName) {
+    return `${firstName} ${lastName}`;
+  }
 
   async function UnBlockUser() {
     const userData = {
@@ -69,16 +75,27 @@ const UnBlockUserModal = ({visible, onClose, blockedUserData}) => {
             </TouchableOpacity>
           </View>
           <View style={{paddingLeft: 20, paddingRight: 20}}>
-            <Text style={styles.name}>Unblock Justin Stanton?</Text>
+            <Text style={styles.name}>
+              Unblock{' '}
+              {getFullName(
+                blockedUserData?.first_name,
+                blockedUserData?.last_name,
+              )}
+              ?
+            </Text>
             <Text style={styles.BodyText}>
-              Justin Stanton will now be able to request to follow and message
-              you. They won’t be notified that you unblocked them
+              {getFullName(
+                blockedUserData?.first_name,
+                blockedUserData?.last_name,
+              )}{' '}
+              will now be able to request to follow and message you. They won’t
+              be notified that you unblocked them
             </Text>
           </View>
 
           <View style={styles.restBody}>
             <BlockButton title={'Unblock'} onPress={UnBlockUser} />
-            <ActionButton title={'Cancel'} />
+            <ActionButton title={'Cancel'} onPress={onClose} />
           </View>
         </View>
       </SafeAreaView>

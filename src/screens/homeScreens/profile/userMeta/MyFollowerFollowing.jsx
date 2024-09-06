@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,6 +17,9 @@ import FollowListItem from '../../../../components/profileComponents/FollowListI
 import {AuthContext} from '../../../../context/AuthContext';
 import NavigationService from '../../../../config/NavigationService';
 import {SCREENS} from '../../../../constants/screens/screen';
+
+import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
+import axios from 'axios';
 
 const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
   const handleTabChange = tabName => {
@@ -60,42 +63,78 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
 };
 
 const MyFollowerFollowing = ({navigation, route}) => {
-  const {myUserDetails} = useContext(AuthContext);
+  const {myUserDetails, authToken} = useContext(AuthContext);
 
   const {currentTab} = route.params;
 
   const [activeTab, setActiveTab] = useState(currentTab);
 
+  const [followers, setFollowers] = useState(null);
+  const [following, setFollowing] = useState(null);
+
+  useEffect(() => {
+    function getFollowers() {
+      const url = ENDPOINT.GET_FOLLOWERS;
+
+      axios
+        .get(url, {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        })
+        .then(res => {
+          setFollowers(res.data.data.docs);
+        })
+        .catch(err => {
+          console.log('failed to get followers', err.response.data);
+        });
+    }
+
+    function getFollowing() {
+      const url = ENDPOINT.GET_FOLLOWING;
+
+      axios
+        .get(url, {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        })
+        .then(res => {
+          setFollowing(res.data.data.docs);
+        })
+        .catch(err => {
+          console.log('failed to get followers', err.response.data);
+        });
+    }
+
+    getFollowers();
+    getFollowing();
+  }, []);
+
   let currentTabList;
 
   if (activeTab == 'Followers') {
-    currentTabList = myUserDetails?.user?.followers?.map(data => (
+    currentTabList = followers?.map(data => (
       <FollowListItem
         key={data?._id}
         data={data}
         type={activeTab}
-        isFollowing={myUserDetails?.user?.following?.some(
-          item => item?._id == data?._id,
-        )}
+        isFollowing={following?.some(item => item?._id == data?._id)}
         onViewProfile={() =>
           NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
             buddyData: data,
-            followed: myUserDetails?.user?.following?.some(
-              item => item?._id == data?._id,
-            ),
+            followed: following?.some(item => item?._id == data?._id),
           })
         }
       />
     ));
   } else if (activeTab == 'Following') {
-    currentTabList = myUserDetails?.user?.following?.map(data => (
+    currentTabList = following?.map(data => (
       <FollowListItem
         key={data?._id}
         data={data}
         type={activeTab}
-        isFollowing={myUserDetails?.user?.following?.some(
-          item => item?._id == data?._id,
-        )}
+        isFollowing={following?.some(item => item?._id == data?._id)}
         onViewProfile={() =>
           NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
             buddyData: data,

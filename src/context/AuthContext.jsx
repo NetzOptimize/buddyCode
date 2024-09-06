@@ -29,10 +29,18 @@ export const AuthProvider = ({children}) => {
   const [blockUserData, setBlockUserData] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [tripInvites, setTripInvites] = useState(null);
+  const [eventData, setEventData] = useState([]);
+  const [isPaymentPending, setIsPaymentPending] = useState(null);
+  const [paymentList, setPaymentList] = useState([]);
 
   const [showBlockReportPopUp, setShowBlockReportPopUp] = useState({
     type: null,
     state: false,
+  });
+
+  const [searchResult, setSearchResult] = useState({
+    docs: [],
+    hasNextPage: false,
   });
 
   // ** common loader
@@ -235,6 +243,99 @@ export const AuthProvider = ({children}) => {
       });
   };
 
+  function getPaymentList(tripId) {
+    const url = `${ENDPOINT.GET_EVENT_PAYMENTS}/${tripId}?page=1&limit=100`;
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        setPaymentList(res.data.data.payments.docs.reverse());
+      })
+      .catch(e => {
+        console.log('Get Single Trip error', e.response.data);
+      });
+  }
+
+  const getPendingPayments = tripId => {
+    const url = `${ENDPOINT.GET_PENDING_PAYMENTS}/${tripId}/events`;
+
+    console.log(url);
+
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        const eventData = res.data.data.events;
+        setIsPaymentPending(
+          eventData.some(event =>
+            event.event_payment_data.some(
+              payment =>
+                payment?.status == 'pending' &&
+                payment?.user_id?._id === myUserDetails?.user?._id,
+            ),
+          ),
+        );
+
+        setEventData(
+          res.data.data.events.filter(event => {
+            return event.members.some(
+              member => member._id === myUserDetails?.user?._id,
+            );
+          }),
+        );
+      })
+      .catch(e => {
+        console.log(
+          'Get Single Trip error',
+          e?.response?.data ? e?.response?.data : e,
+        );
+      });
+  };
+
+  const SearchUsers = (search, page) => {
+    const searchUserURL = ENDPOINT.SEARCH_USERS;
+    let searchText = search?.trim();
+
+    axios
+      .get(searchUserURL, {
+        params: {
+          search: searchText,
+          page: page,
+        },
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        let mySearchResult = res.data.data.docs;
+
+        mySearchResult.sort((a, b) => {
+          const nameA = a.first_name || '';
+          const nameB = b.first_name || '';
+
+          return nameA.localeCompare(nameB);
+        });
+
+        mySearchResult = mySearchResult.filter(
+          user => user.first_name && user.last_name,
+        );
+
+        setSearchResult(prevSearchResult => ({
+          docs: [...prevSearchResult?.docs, ...mySearchResult],
+          hasNextPage: res.data.data.hasNextPage,
+        }));
+      })
+      .catch(error => {
+        console.log('search error:', error.response.data);
+      });
+  };
+
   // ** agora function
   const chatClient = ChatClient.getInstance();
   const chatManager = chatClient.chatManager;
@@ -354,6 +455,17 @@ export const AuthProvider = ({children}) => {
         setSelectedDate,
         tripInvites,
         GetTripInvites,
+        isPaymentPending,
+        setIsPaymentPending,
+        eventData,
+        setEventData,
+        getPaymentList,
+        getPendingPayments,
+        paymentList,
+        setPaymentList,
+        searchResult,
+        setSearchResult,
+        SearchUsers,
       }}>
       {children}
     </AuthContext.Provider>
