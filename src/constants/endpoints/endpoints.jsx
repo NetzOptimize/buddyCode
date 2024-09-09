@@ -1,6 +1,6 @@
 // import {BASE_URL} from '@env';
 
-const BASE_URL = 'http://192.168.18.187:4000/api';
+const BASE_URL = 'http://api.buddypassadmin.com:4000/api';
 
 export const ENDPOINT = {
   LOGIN: BASE_URL + '/v1/app/auth/login',
@@ -9,6 +9,7 @@ export const ENDPOINT = {
   DELETE_ACCOUNT: BASE_URL + '/v1/app/user',
   DELETE_COMMENT: BASE_URL + '/v1/app/trip_comment/delete',
   UPDATE_PROFILE: BASE_URL + '/v1/app/auth/update-profile',
+  GET_PREFERENCES: BASE_URL + '/v1/app/preferences',
   GET_TRIPS: BASE_URL + '/v1/app/trip_creation/my_trips',
   LIKE_TRIP: BASE_URL + '/v1/app/trip_likes/create',
   GET_COMMENTS: BASE_URL + '/v1/app/trip_comment/get',
@@ -16,7 +17,6 @@ export const ENDPOINT = {
   GET_BUDDY_DETAILS: BASE_URL + '/v1/app/user',
   GET_BUDDY_TRIPS: BASE_URL + '/v1/app/trip_creation/my_trips',
   GET_CHAT_LIST: BASE_URL + '/v1/app/chats',
-  UPDATE_PROFILE: BASE_URL + '/v1/app/auth/update-profile',
   BLOCK_USER: BASE_URL + '/v1/app/user/block',
   UNBLOCK_USER: BASE_URL + '/v1/app/user/unblock',
   GET_BLOCKED_USERS: BASE_URL + '/v1/app/user/get-blocked-users',
@@ -31,5 +31,22 @@ export const ENDPOINT = {
   SEARCH_USERS: BASE_URL + '/v1/app/user/search/users',
   GET_FOLLOWERS: BASE_URL + '/v1/app/followings/get-followers',
   GET_FOLLOWING: BASE_URL + '/v1/app/followings/get-followings',
-  FOLLOW_USER: BASE_URL + '/v1/app/followings/follow-user',
+  FOLLOW_USER: BASE_URL + '/v1/app/followings/follow-users',
+  CREATE_TRIP: BASE_URL + '/v1/app/trip_creation/create',
+  UPDATE_TRIP: BASE_URL + '/v1/app/trip_creation/update',
+  LEAVE_TRIP: BASE_URL + '/v1/app/trip_creation/leave',
+  REMOVE_BUBBLE: BASE_URL + '/v1/app/chats/update-chat',
+  ADD_ONE_CHAT: BASE_URL + '/v1/app/chats/create/group-to-one',
+  SEND_NOTIFICAION: BASE_URL + '/v1/app/notification/send',
+  UPDATE_CHAT: BASE_URL + '/v1/app/chats/update-chat',
+  ADD_EVENT: BASE_URL + '/v1/app/trip_events/create',
+  DELETE_EVENT: BASE_URL + '/v1/app/trip_events',
+  UPDATE_EVENT: BASE_URL + '/v1/app/trip_events/update',
+  GET_PENDING_FOLLOW_REQ: BASE_URL + '/v1/app/followings/get-pending-requests',
+  GET_SENT_FOLLOW_REQ: BASE_URL + '/v1/app/followings/get-sent-requests',
+  FOLLOW_REQ_ACTION: BASE_URL + '/v1/app/followings/change-status',
+  GET_CHAT: BASE_URL + '/v1/app/chats/get',
+  CREATE_POLL: BASE_URL + '/v1/app/poll/create',
+  GET_POLLS: BASE_URL + '/v1/app/poll/get',
+  ADD_VOTE: BASE_URL + '/v1/app/poll/vote/create',
 };

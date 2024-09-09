@@ -1,13 +1,15 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useCallback} from 'react';
 import {
   Image,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
   Text,
+  TouchableOpacity,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+
 import RegularBG from '../../../../../components/background/RegularBG';
 import BackButton from '../../../../../components/buttons/BackButton';
 import {AuthContext} from '../../../../../context/AuthContext';
@@ -27,14 +29,13 @@ import {ENDPOINT} from '../../../../../constants/endpoints/endpoints';
 
 var noDP = require('../../../../../../assets/Images/noDP.png');
 var editPic = require('../../../../../../assets/Images/editPic.png');
+var edit = require('../../../../../../assets/Images/edit.png');
 
 import axios from 'axios';
 import OpenCamModal from '../../../../../components/modal/OpenCamModal';
-import {
-  handleCameraPermission,
-  handleMediaLibraryPermission,
-} from '../../../../../config/mediaPermission';
+import {handleCameraPermission} from '../../../../../config/mediaPermission';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {SCREENS} from '../../../../../constants/screens/screen';
 
 const schema = yup.object().shape({
   firstName: yup.string().required('First name is required'),
@@ -122,9 +123,22 @@ const EditDP = ({source, setSource}) => {
 };
 
 const EditProfile = ({navigation}) => {
-  const {myUserDetails, authToken, loading, setLoading} =
-    useContext(AuthContext);
+  const {
+    myUserDetails,
+    authToken,
+    loading,
+    setLoading,
+    myPreferences,
+    setMyPreferences,
+    VerifyToken,
+  } = useContext(AuthContext);
   const phoneInput = React.useRef(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      VerifyToken(authToken);
+    }, [authToken]),
+  );
 
   const {
     control,
@@ -141,6 +155,7 @@ const EditProfile = ({navigation}) => {
 
   useEffect(() => {
     setCurrentDP(myUserDetails?.user?.profile_image);
+    setMyPreferences(myUserDetails?.user?.preferences);
     setEmail(myUserDetails?.user?.email);
     setValue('firstName', myUserDetails?.user?.first_name);
     setValue('lastName', myUserDetails?.user?.last_name);
@@ -172,11 +187,13 @@ const EditProfile = ({navigation}) => {
       formData.append('profile_image', {
         uri: currentDP,
         type: 'image/jpeg',
-        name: 'profile_image.jpg', // Better to use dynamic names
+        name: 'profile_image.jpg',
       });
     }
 
     setLoading(true);
+
+    console.log('hit update profile');
 
     try {
       await axios({
@@ -187,14 +204,15 @@ const EditProfile = ({navigation}) => {
           'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + authToken,
         },
+        timeout: 10000,
       });
       console.log('profile update success');
       navigation.goBack();
     } catch (err) {
-      console.log('update user error:', err);
+      console.log('update user error:', err?.response?.data);
       Toast.show({
         type: 'error',
-        text2: err.response.data.message,
+        text2: 'could not update profile.',
       });
     } finally {
       setLoading(false);
@@ -316,6 +334,36 @@ const EditProfile = ({navigation}) => {
               )}
             />
           </View>
+
+          <View>
+            <TouchableOpacity
+              style={styles.preferenceBtn}
+              onPress={() => {
+                navigation.navigate(SCREENS.USER_PREFERENCES);
+              }}>
+              <Image source={edit} style={styles.preferenceIcon} />
+              <Text style={styles.preferenceText}>Travel Preferences</Text>
+            </TouchableOpacity>
+
+            <View style={styles.preferencesContainer}>
+              {myPreferences?.map((data, i) => {
+                return (
+                  <LinearGradient
+                    key={i}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    colors={['#3CFFD0', '#FE4EED']}
+                    style={styles.LinearGradientStyle2}>
+                    <View style={styles.tagBoxContianer}>
+                      <Text style={styles.tagText} key={i}>
+                        {data.name}
+                      </Text>
+                    </View>
+                  </LinearGradient>
+                );
+              })}
+            </View>
+          </View>
         </View>
 
         <View style={{marginTop: 32}}>
@@ -395,6 +443,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.LIGHT,
   },
+  preferencesContainer: {
+    width: 330,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingTop: 5,
+    alignItems: 'center',
+  },
+  LinearGradientStyle2: {
+    borderRadius: 100,
+    paddingLeft: 1,
+    paddingRight: 1,
+    paddingTop: 1,
+    paddingBottom: 1,
+    marginTop: 10,
+    marginLeft: 5,
+    marginRight: 5,
+  },
+  tagBoxContianer: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 3,
+    paddingBottom: 3,
+    borderRadius: 100,
+    borderColor: '#F2F2F2',
+    backgroundColor: '#3A3A3A',
+  },
+  tagText: {
+    fontFamily: 'Montserrat-SemiBold',
+    fontSize: 10,
+    color: '#F2F2F2',
+  },
+  preferenceBtn: {flexDirection: 'row', alignItems: 'center', gap: 4},
+  preferenceText: {
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 12,
+    color: '#F2F2F2',
+  },
+  preferenceIcon: {width: 12, height: 12},
 });
 
 export default EditProfile;

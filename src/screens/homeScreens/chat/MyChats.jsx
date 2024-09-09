@@ -22,9 +22,20 @@ import {AuthContext} from '../../../context/AuthContext';
 import ChatListItem from '../../../components/chat/ChatListItem';
 import NavigationService from '../../../config/NavigationService';
 import {SCREENS} from '../../../constants/screens/screen';
+import {ChatPushManager} from 'react-native-agora-chat';
+import {ENDPOINT} from '../../../constants/endpoints/endpoints';
+import axios from 'axios';
 
 const MyChats = () => {
-  const {myUserDetails} = useContext(AuthContext);
+  const {
+    myUserDetails,
+    GetFollowRequests,
+    followReq,
+    sentFollowReq,
+    GetSentFollowRequests,
+    setLocalGroupDetails,
+    authToken,
+  } = useContext(AuthContext);
 
   const dispatch = useDispatch();
   const {chatList} = useSelector(state => state.chatList);
@@ -37,6 +48,8 @@ const MyChats = () => {
     useCallback(() => {
       dispatch(fetchChatList(myUserDetails?.user?._id));
       setShowPendingChats(false);
+      GetFollowRequests();
+      GetSentFollowRequests();
     }, [myUserDetails?.user?._id]),
   );
 
@@ -117,7 +130,7 @@ const MyChats = () => {
       id: 1,
       name: 'Friends requests',
       image: require('../../../../assets/Images/friendReq.png'),
-      length: 12,
+      length: followReq.length + sentFollowReq.length,
       action: () => {
         NavigationService.navigate(SCREENS.FRIEND_REQ);
       },
@@ -152,6 +165,59 @@ const MyChats = () => {
       },
     },
   ];
+
+  function handleOpenChat(chatData) {
+    if (chatData.chatType === 'group') {
+      handleOpenGroupChat(chatData._id);
+    } else {
+      if (myUserDetails?.user?._id === chatData?.from_user_id) {
+        NavigationService.navigate(SCREENS.ONE_CHAT, {
+          agoraTargetUsername: chatData.to_user.agoraDetails[0].username,
+          name: `${chatData.to_user.first_name} ${chatData.to_user.last_name}`,
+          chatID: chatData._id,
+          chatUserID: chatData.to_user_id,
+          profileImage: chatData.to_user.profile_image,
+          username: chatData.to_user.username,
+          is_chat_approved: true,
+        });
+      } else {
+        NavigationService.navigate(SCREENS.ONE_CHAT, {
+          agoraTargetUsername: chatData.from_user.agoraDetails[0].username,
+          name: `${chatData.to_user.first_name} ${chatData.to_user.last_name}`,
+          chatID: chatData._id,
+          chatUserID: chatData.from_user_id,
+          profileImage: chatData.from_user.profile_image,
+          username: chatData.from_user.username,
+          is_chat_approved: chatData.is_chat_approved,
+        });
+      }
+    }
+  }
+
+  function handleOpenGroupChat(chatId) {
+    const url = `${ENDPOINT.GET_CHAT}/${myUserDetails?.user?._id}`;
+
+    axios
+      .get(url, {
+        params: {
+          chatId: chatId,
+        },
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('get chat data success');
+        setLocalGroupDetails({
+          chatData: res.data.data.chat,
+          tripId: res.data.data.trip_id._id,
+        });
+        NavigationService.navigate(SCREENS.GROUP_CHAT);
+      })
+      .catch(err => {
+        console.log('Failed to get chat', err.response.data);
+      });
+  }
 
   return (
     <RegularBG>
@@ -217,7 +283,11 @@ const MyChats = () => {
           ? approvedChat
           : filteredChats
         )?.map((chatData, i) => (
-          <ChatListItem key={i} chatData={chatData} />
+          <ChatListItem
+            key={i}
+            chatData={chatData}
+            onPress={() => handleOpenChat(chatData)}
+          />
         ))}
 
         <View style={{height: 104}} />

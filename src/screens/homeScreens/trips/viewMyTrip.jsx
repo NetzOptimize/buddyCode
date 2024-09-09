@@ -9,6 +9,7 @@ import {
   Text,
   Image,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import RegularBG from '../../../components/background/RegularBG';
 import BackButton from '../../../components/buttons/BackButton';
@@ -30,6 +31,12 @@ import CustomCalendar from '../../../components/calendar/CustomCalendar';
 import TripBudget from './TripBudget';
 import PaymentModal from '../../../components/trip/Payment/PaymentModal';
 import {AuthContext} from '../../../context/AuthContext';
+import axios from 'axios';
+import {ENDPOINT} from '../../../constants/endpoints/endpoints';
+import Toast from 'react-native-toast-message';
+import {SCREENS} from '../../../constants/screens/screen';
+import CreateEvent from '../../../components/trip/Events/CreateEvent';
+import EditEvent from '../../../components/trip/Events/EditEvent';
 
 var chatIcon = require('../../../../assets/Images/chat.png');
 var plus = require('../../../../assets/Images/plus.png');
@@ -37,7 +44,13 @@ var plus = require('../../../../assets/Images/plus.png');
 const ViewMyTrip = ({route, navigation}) => {
   const {tripData, isMyTrip} = route.params;
 
-  const {isPaymentPending} = useContext(AuthContext);
+  const {
+    isPaymentPending,
+    selectedDate,
+    setSelectedDate,
+    authToken,
+    setMyTrips,
+  } = useContext(AuthContext);
 
   const dispatch = useDispatch();
 
@@ -46,6 +59,7 @@ const ViewMyTrip = ({route, navigation}) => {
   const [currentTab, setCurrentTab] = useState(0);
   const [tripCover, setTripCover] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(null);
+  const [createEvent, setCreateEvent] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -66,8 +80,8 @@ const ViewMyTrip = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    setTripCover(tripData?.trip_image);
-  }, [tripData]);
+    setTripCover(tripInfo?.trip?.trip_image);
+  }, [tripInfo]);
 
   let myEventDates;
 
@@ -77,14 +91,166 @@ const ViewMyTrip = ({route, navigation}) => {
     });
   }
 
+  const leaveAlert = () => {
+    Alert.alert(
+      `Leave ${formatTripName(tripData.trip_name)} ?`,
+      `Are you sure you want to leave this trip?`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('No Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: () => {
+            LEAVE_TRIP();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  function LEAVE_TRIP() {
+    axios({
+      method: 'DELETE',
+      url: `${ENDPOINT.LEAVE_TRIP}/${tripInfo?.trip?._id}`,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        removeTripById(tripInfo?.trip?._id);
+
+        Toast.show({
+          type: 'info',
+          text1: 'Trip Left',
+          text2: `You left the trip "${tripData?.trip_name}".`,
+        });
+      })
+      .catch(err => {
+        console.log('could not leave trip', err?.response?.data, err);
+
+        Toast.show({
+          type: 'error',
+          text2: 'Could Not Remove Buddy',
+        });
+      });
+  }
+
+  function removeTripById(tripId) {
+    setMyTrips(prevState => {
+      const updatedTrips = prevState.trips.filter(trip => trip._id !== tripId);
+
+      return {
+        ...prevState,
+        trips: updatedTrips,
+      };
+    });
+    navigation.goBack();
+  }
+
+  const [completedEvents, setCompletedEvents] = useState([]);
+  const [todayEvents, setTodayEvents] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+
+  useEffect(() => {
+    // Filter completed, today, and upcoming events
+    const completed = [];
+    const today = [];
+    const upcoming = [];
+    const currentDate = new Date();
+
+    tripInfo?.events?.forEach(event => {
+      const eventDate = new Date(event.event_date);
+      const endTime = new Date(event.end_time);
+
+      const currentDateWithoutTime = currentDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+      const eventDateWithoutTime = eventDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+
+      // Check if event date and time are passed
+      const isEventDatePassed =
+        currentDateWithoutTime > eventDateWithoutTime ||
+        (currentDate.toDateString() === eventDate.toDateString() &&
+          currentDate.getHours() > endTime.getHours()) ||
+        (currentDate.toDateString() === eventDate.toDateString() &&
+          currentDate.getHours() === endTime.getHours() &&
+          currentDate.getMinutes() > endTime.getMinutes());
+
+      const isEventToday =
+        currentDate.toDateString() === eventDate.toDateString();
+
+      if (isEventDatePassed) {
+        completed.push(event);
+      } else if (isEventToday) {
+        today.push(event);
+      } else {
+        upcoming.push(event);
+      }
+    });
+
+    // Sort today and upcoming events
+    today.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+    upcoming.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+
+    setCompletedEvents(completed);
+    setTodayEvents(today);
+    setUpcomingEvents(upcoming);
+  }, [tripInfo?.events]);
+
+  const filterTodayEvents = todayEvents?.filter(event => {
+    const eventDate = event.event_date.split('T')[0];
+    return eventDate === selectedDate;
+  });
+
+  const filterCompletedEvents = completedEvents?.filter(event => {
+    const eventDate = event.event_date.split('T')[0];
+    return eventDate === selectedDate;
+  });
+
+  const filterUpcomingEvents = upcomingEvents?.filter(event => {
+    const eventDate = event.event_date.split('T')[0];
+    return eventDate === selectedDate;
+  });
+
+  let EventBuddies = [tripInfo?.trip?.owner];
+
+  tripInfo?.trip?.members?.forEach(element => {
+    EventBuddies.push(element);
+  });
+
   return (
     <RegularBG>
       <View style={styles.headerContainer}>
         <BackButton
-          title={formatTripName(tripData.trip_name)}
+          title={formatTripName(
+            tripInfo ? tripInfo?.trip.trip_name : tripData.trip_name,
+          )}
           onPress={() => navigation.goBack()}
         />
-        {isMyTrip ? <EditTripButton /> : <LeaveTripButton />}
+        {isMyTrip ? (
+          <EditTripButton
+            onPress={() =>
+              navigation.navigate(SCREENS.EDIT_TRIP, {
+                tripData: tripInfo,
+              })
+            }
+          />
+        ) : (
+          <LeaveTripButton onPress={leaveAlert} />
+        )}
       </View>
       <TripNavigationBtns
         currentTab={currentTab}
@@ -106,6 +272,7 @@ const ViewMyTrip = ({route, navigation}) => {
               tripData={tripData}
               source={tripCover}
               setSource={setTripCover}
+              tripInfo={tripInfo}
             />
 
             {tripInfo && (
@@ -149,14 +316,88 @@ const ViewMyTrip = ({route, navigation}) => {
                   eventDates={myEventDates}
                   setShowAllEvents={setShowAllEvents}
                 />
-                <View style={{gap: 16}}>
-                  {tripInfo?.events?.map(data => (
-                    <TripCard
-                      key={data?._id}
-                      eventData={data}
-                      tripInfo={tripInfo}
-                    />
-                  ))}
+
+                {tripInfo?.events?.length !== 0 && (
+                  <TouchableOpacity
+                    style={styles.viewAllEventsBtn}
+                    onPress={() => {
+                      setShowAllEvents(true);
+                      setSelectedDate(null);
+                    }}>
+                    <Text style={styles.viewAllText}>View All</Text>
+                  </TouchableOpacity>
+                )}
+
+                {(showAllEvents
+                  ? todayEvents.length > 0
+                  : filterTodayEvents.length > 0) && (
+                  <View style={styles.dividerContainer}>
+                    <View style={styles.hr} />
+                    <Text style={styles.eventLabel}>On going Events</Text>
+                    <View style={styles.hr} />
+                  </View>
+                )}
+
+                <View style={{gap: 16, marginTop: 16}}>
+                  {todayEvents.length > 0 &&
+                    (showAllEvents ? todayEvents : filterTodayEvents).map(
+                      data => (
+                        <TripCard
+                          key={data?._id}
+                          eventData={data}
+                          tripInfo={tripInfo}
+                        />
+                      ),
+                    )}
+                </View>
+
+                {(showAllEvents
+                  ? upcomingEvents.length > 0
+                  : filterUpcomingEvents.length > 0) && (
+                  <View style={styles.dividerContainer}>
+                    <View style={[styles.hr, {width: '25%'}]} />
+                    <Text style={styles.eventLabel}>Up Coming Events</Text>
+                    <View style={[styles.hr, {width: '25%'}]} />
+                  </View>
+                )}
+
+                <View style={{gap: 16, marginTop: 16}}>
+                  {upcomingEvents.length > 0 &&
+                    (showAllEvents ? upcomingEvents : filterUpcomingEvents).map(
+                      data => (
+                        <TripCard
+                          key={data?._id}
+                          eventData={data}
+                          tripInfo={tripInfo}
+                        />
+                      ),
+                    )}
+                </View>
+
+                {(showAllEvents
+                  ? completedEvents.length > 0
+                  : filterCompletedEvents.length > 0) && (
+                  <View style={styles.dividerContainer}>
+                    <View style={[styles.hr, {width: '30%'}]} />
+                    <Text style={styles.eventLabel}>Past Events</Text>
+                    <View style={[styles.hr, {width: '30%'}]} />
+                  </View>
+                )}
+
+                <View style={{gap: 16, marginTop: 16}}>
+                  {completedEvents.length > 0 &&
+                    (showAllEvents
+                      ? completedEvents
+                      : filterCompletedEvents
+                    ).map(data => (
+                      <TripCard
+                        key={data?._id}
+                        eventData={data}
+                        tripInfo={tripInfo}
+                        isComplete={true}
+                        EventBuddies={EventBuddies}
+                      />
+                    ))}
                 </View>
               </>
             )}
@@ -182,7 +423,9 @@ const ViewMyTrip = ({route, navigation}) => {
       )}
 
       {currentTab == 2 && (
-        <TouchableOpacity style={styles.addChatButton}>
+        <TouchableOpacity
+          style={styles.addChatButton}
+          onPress={() => setCreateEvent(true)}>
           <Image source={plus} style={{width: 32, height: 32}} />
         </TouchableOpacity>
       )}
@@ -191,6 +434,15 @@ const ViewMyTrip = ({route, navigation}) => {
         visible={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         tripId={tripInfo?.trip?._id}
+      />
+
+      <CreateEvent
+        visible={createEvent}
+        onClose={() => setCreateEvent(false)}
+        minDate={tripInfo?.trip?.trip_starting_time}
+        maxDate={tripInfo?.trip?.trip_ending_time}
+        tripId={tripInfo?.trip?._id}
+        EventBuddies={EventBuddies}
       />
     </RegularBG>
   );
@@ -293,6 +545,38 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     top: 8,
+  },
+  viewAllText: {
+    fontFamily: 'Montserrat-SemiBold',
+    fontSize: 12,
+    color: 'white',
+  },
+  viewAllEventsBtn: {
+    alignSelf: 'flex-end',
+    backgroundColor: COLORS.THANOS,
+    padding: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 1000,
+  },
+
+  hr: {
+    width: '30%',
+    backgroundColor: COLORS.SWEDEN,
+    height: 0.5,
+    marginTop: 2,
+    borderRadius: 1000,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  eventLabel: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 14,
+    color: COLORS.SWEDEN,
   },
 });
 

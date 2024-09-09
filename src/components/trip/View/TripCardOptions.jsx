@@ -10,9 +10,19 @@ import {
 } from 'react-native-popup-menu';
 
 import {COLORS, FONTS} from '../../../constants/theme/theme';
+import axios from 'axios';
+import {ENDPOINT} from '../../../constants/endpoints/endpoints';
+import {AuthContext} from '../../../context/AuthContext';
 var optionsBtn = require('../../../../assets/Images/moreButton.png');
 
-const TripCardOptions = () => {
+import {useDispatch} from 'react-redux';
+import {fetchTripData} from '../../../redux/slices/tripDetailsSlice';
+
+const TripCardOptions = ({eventId, tripId, onEdit}) => {
+  const dispatch = useDispatch();
+
+  const {authToken} = useContext(AuthContext);
+
   const options = [
     {
       id: 1,
@@ -24,15 +34,55 @@ const TripCardOptions = () => {
       id: 2,
       title: 'Edit Event',
       image: require('../../../../assets/Images/edit.png'),
-      action: () => {},
+      action: () => {
+        onEdit();
+      },
     },
     {
       id: 3,
       title: 'Delete Event',
       image: require('../../../../assets/Images/deleteEvent.png'),
-      action: () => console.log('pressed'),
+      action: () => DeleteEventAlert(),
     },
   ];
+
+  const DeleteEventAlert = () => {
+    Alert.alert(
+      `Delete Event?`,
+      `Are you sure you want to delete this event?`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('No Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: () => {
+            DeleteEvent(eventId);
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  function DeleteEvent(eventId) {
+    axios
+      .delete(`${ENDPOINT.DELETE_EVENT}/${eventId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('event deleted');
+        dispatch(fetchTripData(tripId));
+      })
+      .catch(err => {
+        console.log('Could not delete trip event', err.response.data);
+      });
+  }
 
   return (
     <Menu style={{alignSelf: 'flex-end'}}>

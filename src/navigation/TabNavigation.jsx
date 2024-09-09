@@ -24,6 +24,7 @@ import BuddyFollowerFollowing from '../screens/homeScreens/profile/userMeta/Budd
 import BuddyProfile from '../screens/homeScreens/profile/BuddyProfile';
 import FAQsScreen from '../screens/homeScreens/profile/options/settings/FAQsScreen';
 import EditProfile from '../screens/homeScreens/profile/options/editProfile';
+import UserPreferences from '../screens/homeScreens/profile/options/editProfile/UserPreferences';
 
 // **chat screens
 import MyChats from '../screens/homeScreens/chat/MyChats';
@@ -76,6 +77,7 @@ const MyProfileStack = () => {
       <Stack.Screen name={SCREENS.FAQ} component={FAQsScreen} />
       <Stack.Screen name={SCREENS.BLOCKED_LIST} component={BlockedList} />
       <Stack.Screen name={SCREENS.EDIT_PROFILE} component={EditProfile} />
+      <Stack.Screen name={SCREENS.USER_PREFERENCES} component={UserPreferences} />
       <Stack.Screen name={SCREENS.DELETE_STEP1} component={DeleteStep1} />
       <Stack.Screen name={SCREENS.DELETE_STEP2} component={DeleteStep2} />
       <Stack.Screen

@@ -101,79 +101,108 @@ const TripsList = () => {
           />
         </View>
       )}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps={'always'}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={() => {
-              GetTrips(myUserDetails?.user?._id, 'current', 1);
-              GetTripInvites(myUserDetails?.user?._id);
-            }}
-            color="#7879F1"
+      {MapTheseTrips?.length == 0 ? (
+        <View style={styles.noTripsContainer}>
+          <View style={{position: 'absolute', top: 16, right: 0}}>
+            <TouchableOpacity
+              style={styles.searchBtn}
+              onPress={() => NavigationService.navigate(SCREENS.TRIP_REQUESTS)}>
+              {tripInvites && <View style={styles.notificationDot} />}
+              <Image source={bell} style={{width: 20, height: 20}} />
+            </TouchableOpacity>
+          </View>
+          <Image
+            source={require('../../../../assets/Images/suitcase.png')}
+            style={{width: 40, height: 40}}
           />
-        }>
-        {NextTrip && (
-          <>
-            {!showSearch && <TripListHeader Trip={NextTrip} />}
-            <View
-              style={
-                showSearch ? styles.searchTripCardBox : styles.tripCardContainer
-              }>
-              <View style={styles.topBtnsContainer}>
-                <TouchableOpacity style={styles.tabButton}>
-                  <Text style={styles.tabText}>My Trips</Text>
-                </TouchableOpacity>
-
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-                  <TouchableOpacity
-                    style={styles.searchBtn}
-                    onPress={() =>
-                      NavigationService.navigate(SCREENS.TRIP_REQUESTS)
-                    }>
-                    {tripInvites && <View style={styles.notificationDot} />}
-                    <Image source={bell} style={{width: 20, height: 20}} />
+          <Text style={styles.noTripsText}>No Trips Yet</Text>
+        </View>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps={'always'}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => {
+                GetTrips(myUserDetails?.user?._id, 'current', 1);
+                GetTripInvites(myUserDetails?.user?._id);
+              }}
+              color="#7879F1"
+            />
+          }>
+          {NextTrip && (
+            <>
+              {!showSearch && <TripListHeader Trip={NextTrip} />}
+              <View
+                style={
+                  showSearch
+                    ? styles.searchTripCardBox
+                    : styles.tripCardContainer
+                }>
+                <View style={styles.topBtnsContainer}>
+                  <TouchableOpacity style={styles.tabButton}>
+                    <Text style={styles.tabText}>My Trips</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={showSearch ? styles.closeSearch : styles.searchBtn}
-                    onPress={() => {
-                      setShowSearch(prev => !prev);
-                      setSearchText('');
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 8,
                     }}>
-                    <Image
-                      source={showSearch ? close : searchIcon}
-                      style={{width: 20, height: 20}}
+                    <TouchableOpacity
+                      style={styles.searchBtn}
+                      onPress={() =>
+                        NavigationService.navigate(SCREENS.TRIP_REQUESTS)
+                      }>
+                      {tripInvites && <View style={styles.notificationDot} />}
+                      <Image source={bell} style={{width: 20, height: 20}} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={showSearch ? styles.closeSearch : styles.searchBtn}
+                      onPress={() => {
+                        setShowSearch(prev => !prev);
+                        setSearchText('');
+                      }}>
+                      <Image
+                        source={showSearch ? close : searchIcon}
+                        style={{width: 20, height: 20}}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={{gap: 10, marginTop: 20}}>
+                  {MapTheseTrips?.map(data => (
+                    <TripListCard
+                      key={data?._id}
+                      Trip={data}
+                      onPress={() =>
+                        NavigationService.navigate(SCREENS.VIEW_MY_TRIP, {
+                          tripData: data,
+                          isMyTrip:
+                            data?.owner?._id == myUserDetails?.user?._id,
+                        })
+                      }
                     />
-                  </TouchableOpacity>
+                  ))}
                 </View>
               </View>
+            </>
+          )}
 
-              <View style={{gap: 10, marginTop: 20}}>
-                {MapTheseTrips?.map(data => (
-                  <TripListCard
-                    key={data?._id}
-                    Trip={data}
-                    onPress={() =>
-                      NavigationService.navigate(SCREENS.VIEW_MY_TRIP, {
-                        tripData: data,
-                        isMyTrip: data?.owner?._id == myUserDetails?.user?._id,
-                      })
-                    }
-                  />
-                ))}
-              </View>
-            </View>
-          </>
-        )}
-
-        <View style={{height: 110}} />
-      </ScrollView>
+          <View style={{height: 110}} />
+        </ScrollView>
+      )}
 
       {!isKeyboardVisible && (
-        <TouchableOpacity style={styles.addChatButton} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.addChatButton}
+          onPress={() => {
+            NavigationService.navigate(SCREENS.CREATE_TRIP);
+          }}>
           <Image source={plus} style={{width: 32, height: 32}} />
         </TouchableOpacity>
       )}
@@ -254,6 +283,19 @@ const styles = StyleSheet.create({
     top: 5,
     zIndex: 100,
     right: 10,
+  },
+  noTripsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '92%',
+    alignSelf: 'center',
+    position: 'relative',
+  },
+  noTripsText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 20,
+    color: COLORS.VISION,
   },
 });
 

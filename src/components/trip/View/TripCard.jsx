@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, View, Text, Image} from 'react-native';
 import TripCardOptions from './TripCardOptions';
 import {COLORS, FONTS} from '../../../constants/theme/theme';
+import EditEvent from '../Events/EditEvent';
+import FastImage from 'react-native-fast-image';
 
 var noDP = require('../../../../assets/Images/noDP.png');
 
-const TripCard = ({tripInfo, eventData}) => {
+const TripCard = ({tripInfo, eventData, isComplete = false}) => {
   let TimeTitle = (
     <Text style={styles.timeTitle}>
       {`${new Date(eventData.start_time).toLocaleTimeString([], {
@@ -29,38 +31,74 @@ const TripCard = ({tripInfo, eventData}) => {
     </Text>
   );
 
+  const [editEvent, setEditEvent] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const dateString = eventData?.event_date;
+  const dateWithoutTime = dateString.split('T')[0];
+
+  let EventBuddies = [tripInfo?.trip?.owner];
+
+  tripInfo?.trip?.members?.forEach(element => {
+    EventBuddies.push(element);
+  });
+
   return (
-    <View style={styles.eventCardBody}>
-      <View style={styles.eventTimeOpBox}>
-        <View style={styles.timeBox}>
-          <View style={styles.timeDot} />
-          {TimeTitle}
+    <>
+      <View
+        style={
+          isComplete ? styles.completeEventCardBody : styles.eventCardBody
+        }>
+        <View style={styles.eventTimeOpBox}>
+          <View style={styles.timeBox}>
+            <View style={styles.timeDot} />
+            {TimeTitle}
+          </View>
+          <TripCardOptions
+            eventId={eventData?._id}
+            tripId={tripInfo?.trip?._id}
+            onEdit={() => {
+              setEditEvent(true);
+              setEditData(eventData);
+            }}
+          />
         </View>
-        <TripCardOptions />
-      </View>
-      <Text style={styles.eventTitle}>{eventData.event_name}</Text>
+        <Text style={styles.eventTitle}>{eventData.event_name}</Text>
 
-      <View style={styles.eventTimeOpBox}>
-        <Text style={styles.eventLocation}>📍 {eventData?.event_location}</Text>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          {eventData.members.slice(0, 5).map((data, i) => (
-            <Image
-              key={i}
-              source={data.profile_image ? {uri: data.profile_image} : noDP}
-              style={styles.imgStyle}
-            />
-          ))}
+        <View style={styles.eventTimeOpBox}>
+          <Text style={styles.eventLocation}>
+            📍 {eventData?.event_location}
+          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            {eventData.members.slice(0, 5).map((data, i) => (
+              <FastImage
+                key={i}
+                source={data.profile_image ? {uri: data.profile_image} : noDP}
+                style={styles.imgStyle}
+              />
+            ))}
 
-          {eventData.members.length > 5 && (
-            <View style={styles.eventMembersBox}>
-              <Text style={styles.extraText}>
-                +{eventData.members.length - 5}
-              </Text>
-            </View>
-          )}
+            {eventData.members.length > 5 && (
+              <View style={styles.eventMembersBox}>
+                <Text style={styles.extraText}>
+                  +{eventData.members.length - 5}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
-    </View>
+      <EditEvent
+        visible={editEvent}
+        onClose={() => setEditEvent(false)}
+        minDate={tripInfo?.trip?.trip_starting_time}
+        maxDate={tripInfo?.trip?.trip_ending_time}
+        tripId={tripInfo?.trip?._id}
+        EventBuddies={EventBuddies}
+        eventData={editData}
+        date={dateWithoutTime}
+      />
+    </>
   );
 };
 
@@ -69,6 +107,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 105,
     backgroundColor: COLORS.GREY_LIGHT,
+    borderRadius: 10,
+    padding: 6,
+    justifyContent: 'space-between',
+    zIndex: 1,
+  },
+  completeEventCardBody: {
+    width: '100%',
+    height: 105,
+    backgroundColor: '#232323',
     borderRadius: 10,
     padding: 6,
     justifyContent: 'space-between',

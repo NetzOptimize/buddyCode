@@ -50,14 +50,10 @@ const BuddyProfile = ({route, navigation}) => {
     VerifyToken,
     setBlockUserData,
   } = useContext(AuthContext);
-  const {buddyData, followed} = route.params;
+  const {buddyData} = route.params;
 
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
-
-  useEffect(() => {
-    setIsFollowed(followed);
-  }, [followed]);
 
   useEffect(() => {
     if (
@@ -131,10 +127,12 @@ const BuddyProfile = ({route, navigation}) => {
         },
       });
 
-      console.log('response:', response.data);
+      if (response.data.data.status !== 'pending') {
+        setIsFollowed(prevValue => !prevValue);
+      }else if(response.data.data.status == 'pending'){
+        console.log('requested')
+      }
 
-      // VerifyToken(authToken);
-      setIsFollowed(prevValue => !prevValue);
       dispatch(fetchBuddyDetails(buddyId));
     } catch (error) {
       console.log(

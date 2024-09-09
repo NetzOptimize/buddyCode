@@ -8,25 +8,40 @@ import {
   ImageBackground,
 } from 'react-native';
 import {COLORS, FONTS} from '../../../constants/theme/theme';
+import {useSelector} from 'react-redux';
 
 var location = require('../../../../assets/Images/location.png');
 var cam = require('../../../../assets/Images/cam.png');
 var deleteIcon = require('../../../../assets/Images/delete.png');
 
 const TripCoverImage = ({tripData, source, setSource}) => {
-  const tripStartingTime = new Date(tripData?.trip_starting_time);
+  const {tripInfo, loading, error} = useSelector(state => state.tripDetails);
+
+  const tripStartingTime = new Date(
+    tripInfo
+      ? tripInfo?.trip?.trip_starting_time
+      : tripData?.trip_starting_time,
+  );
+
   const daysUntilTrip = Math.ceil(
     (tripStartingTime - new Date()) / (1000 * 60 * 60 * 24),
   );
 
-  const StartDate = new Date(tripData?.trip_starting_time);
+  const StartDate = new Date(
+    tripInfo
+      ? tripInfo?.trip?.trip_starting_time
+      : tripData?.trip_starting_time,
+  );
+
   const formattedStartDate = StartDate.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
 
-  const endDate = new Date(tripData?.trip_ending_time);
+  const endDate = new Date(
+    tripInfo ? tripInfo?.trip?.trip_ending_time : tripData?.trip_ending_time,
+  );
   const formattedEndDate = endDate.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -44,13 +59,19 @@ const TripCoverImage = ({tripData, source, setSource}) => {
 
           <View style={styles.daysLocationBox}>
             <View style={styles.bgDaysUntil}>
-              <Text style={styles.daysUntilText}>in {daysUntilTrip} days</Text>
+              <Text style={styles.daysUntilText}>
+                {daysUntilTrip < 0
+                  ? 'on going trip'
+                  : `in ${daysUntilTrip} days`}
+              </Text>
             </View>
 
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <Image source={location} style={{width: 12, height: 12}} />
               <Text style={styles.locationText}>
-                {tripData?.destination[0]}
+                {tripInfo
+                  ? tripInfo?.trip?.destination[0]
+                  : tripData?.destination[0]}
               </Text>
             </View>
           </View>
@@ -83,13 +104,17 @@ const TripCoverImage = ({tripData, source, setSource}) => {
           <View style={styles.overLay} />
           <View style={styles.daysLocationBox}>
             <View style={styles.bgDaysUntil}>
-              <Text style={styles.daysUntilText}>in {daysUntilTrip} days</Text>
+              <Text style={styles.daysUntilText}>
+                {daysUntilTrip < 0 ? 'on going' : `in ${daysUntilTrip} days`}
+              </Text>
             </View>
 
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <Image source={location} style={{width: 12, height: 12}} />
               <Text style={styles.locationText}>
-                {tripData?.destination[0]}
+                {tripInfo
+                  ? tripInfo?.trip?.destination[0]
+                  : tripData?.destination[0]}
               </Text>
             </View>
           </View>

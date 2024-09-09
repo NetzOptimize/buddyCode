@@ -11,9 +11,13 @@ import SignUp from '../screens/signup';
 import {SCREENS} from '../constants/screens/screen';
 
 import SplashScreen from '../components/background/SplashScreen';
+import CreateTrip from '../screens/homeScreens/trips/creation/CreateTrip';
 
 import TabNavigation from './TabNavigation';
 import {COLORS} from '../constants/theme/theme';
+import EditTrip from '../screens/homeScreens/trips/creation/EditTrip';
+import OneChat from '../screens/homeScreens/chat/OneChat';
+import GroupChat from '../screens/homeScreens/chat/GroupChat';
 
 export default function MyStack() {
   const {authToken, showSplash} = useContext(AuthContext);
@@ -29,6 +33,10 @@ export default function MyStack() {
     NavigationStack = (
       <>
         <Stack.Screen name={'TabNavigation'} component={TabNavigation} />
+        <Stack.Screen name={SCREENS.CREATE_TRIP} component={CreateTrip} />
+        <Stack.Screen name={SCREENS.EDIT_TRIP} component={EditTrip} />
+        <Stack.Screen name={SCREENS.ONE_CHAT} component={OneChat} />
+        <Stack.Screen name={SCREENS.GROUP_CHAT} component={GroupChat} />
       </>
     );
   }

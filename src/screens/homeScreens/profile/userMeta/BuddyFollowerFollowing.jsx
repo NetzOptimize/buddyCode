@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -20,6 +20,9 @@ import {SCREENS} from '../../../../constants/screens/screen';
 
 import {useSelector} from 'react-redux';
 import {fetchBuddyDetails} from '../../../redux/slices/buddyDetailsSlice';
+
+import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
+import axios from 'axios';
 
 const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
   const handleTabChange = tabName => {
@@ -55,18 +58,59 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
 };
 
 const BuddyFollowerFollowing = ({navigation, route}) => {
-  const {myUserDetails} = useContext(AuthContext);
+  const {myUserDetails, authToken} = useContext(AuthContext);
 
   const {buddyDetails} = useSelector(state => state.buddyDetails);
 
   const {currentTab} = route.params;
 
   const [activeTab, setActiveTab] = useState(currentTab);
+  const [followers, setFollowers] = useState(null);
+  const [following, setFollowing] = useState(null);
+
+  useEffect(() => {
+    function getFollowers() {
+      const url = `${ENDPOINT.GET_FOLLOWERS}/${buddyDetails?.user?._id}`;
+
+      axios
+        .get(url, {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        })
+        .then(res => {
+          setFollowers(res.data.data.docs);
+        })
+        .catch(err => {
+          console.log('failed to get followers', err.response.data);
+        });
+    }
+
+    function getFollowing() {
+      const url = `${ENDPOINT.GET_FOLLOWING}/${buddyDetails?.user?._id}`;
+
+      axios
+        .get(url, {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        })
+        .then(res => {
+          setFollowing(res.data.data.docs);
+        })
+        .catch(err => {
+          console.log('failed to get followers', err.response.data);
+        });
+    }
+
+    getFollowers();
+    getFollowing();
+  }, []);
 
   let currentTabList;
 
   if (activeTab == 'Followers') {
-    currentTabList = buddyDetails?.user?.followers?.map(data => (
+    currentTabList = followers?.map(data => (
       <FollowListItem
         key={data?._id}
         data={data}
@@ -85,7 +129,7 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
       />
     ));
   } else if (activeTab == 'Following') {
-    currentTabList = buddyDetails?.user?.following?.map(data => (
+    currentTabList = following?.map(data => (
       <FollowListItem
         key={data?._id}
         data={data}

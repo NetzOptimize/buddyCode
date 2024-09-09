@@ -22,6 +22,8 @@ export const AuthProvider = ({children}) => {
   // ** user details
   const [authToken, setAuthToken] = useState(null);
   const [myUserDetails, setMyUserDetails] = useState(null);
+  const [myPreferences, setMyPreferences] = useState(null);
+
   const [logoutLoader, setLogoutLoader] = useState(false);
   const [myTrips, setMyTrips] = useState({trips: [], hasNextPage: false});
   const [myAllTrips, setMyAllTrips] = useState({trips: [], hasNextPage: false});
@@ -32,6 +34,9 @@ export const AuthProvider = ({children}) => {
   const [eventData, setEventData] = useState([]);
   const [isPaymentPending, setIsPaymentPending] = useState(null);
   const [paymentList, setPaymentList] = useState([]);
+  const [followReq, setFollowReq] = useState([]);
+  const [sentFollowReq, setSentFollowReq] = useState([]);
+  const [localGroupDetails, setLocalGroupDetails] = useState(null);
 
   const [showBlockReportPopUp, setShowBlockReportPopUp] = useState({
     type: null,
@@ -45,6 +50,11 @@ export const AuthProvider = ({children}) => {
 
   // ** common loader
   const [loading, setLoading] = useState(false);
+
+  // ** Poll Choice  //
+  const [ChatIDForPolls, setChatIDForPolls] = useState(null);
+  const [pollType, setPollType] = useState('Question type');
+  const [PollsVisible, setPollsVisible] = useState(false);
 
   useEffect(() => {
     if (authToken) {
@@ -160,7 +170,7 @@ export const AuthProvider = ({children}) => {
         };
       });
     } catch (error) {
-      console.log('Error fetching trips:', error);
+      console.log('Error fetching trips:', error?.response?.data);
     }
   }
 
@@ -203,7 +213,7 @@ export const AuthProvider = ({children}) => {
         };
       });
     } catch (error) {
-      console.log('get trips error:', error.response.data);
+      console.log('get trips error:', error?.response?.data);
     }
   }
 
@@ -261,8 +271,6 @@ export const AuthProvider = ({children}) => {
 
   const getPendingPayments = tripId => {
     const url = `${ENDPOINT.GET_PENDING_PAYMENTS}/${tripId}/events`;
-
-    console.log(url);
 
     axios
       .get(url, {
@@ -427,6 +435,218 @@ export const AuthProvider = ({children}) => {
       });
   };
 
+  const UpdateChatRemoveBubble = (chatID, fromUserID, toUserID) => {
+    const updateChatURL = `${ENDPOINT.REMOVE_BUBBLE}/${chatID}`;
+
+    let formData = new FormData();
+
+    formData.append('from_user_id', fromUserID);
+    formData.append('to_user_id', toUserID);
+    formData.append('message_count[][userId]', myUserDetails?.user._id);
+    formData.append('message_count[][count]', 'null');
+
+    axios({
+      method: 'PATCH',
+      url: updateChatURL,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        console.log('update remove chat bubble success');
+      })
+      .catch(error => {
+        console.log('Failed to remove chat bubble:', error);
+      });
+  };
+  const UpdateGroupChatRemoveBubble = chatID => {
+    const updateChatURL = `${ENDPOINT.REMOVE_BUBBLE}/${chatID}`;
+
+    let formData = new FormData();
+
+    formData.append('from_user_id', myUserDetails?.user._id);
+    formData.append('message_count[][userId]', myUserDetails?.user._id);
+    formData.append('message_count[][count]', 'null');
+
+    const TIMEOUT_DURATION = 15000;
+
+    axios({
+      method: 'PATCH',
+      url: updateChatURL,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+      timeout: TIMEOUT_DURATION,
+    })
+      .then(res => {
+        console.log('update remove group chat bubble success');
+      })
+      .catch(error => {
+        console.log('Failed to remove chat bubble:', error);
+      });
+  };
+
+  const AddOneChat = (
+    fromUserID,
+    toUserID,
+    lastMessage,
+    conversationId,
+    count,
+  ) => {
+    const AddChatURL = ENDPOINT.ADD_ONE_CHAT;
+
+    let formData = new FormData();
+
+    formData.append('to_user_id', toUserID);
+    formData.append('chatType', 'one-to-one');
+    formData.append('last_message', lastMessage);
+    formData.append('conversationId', conversationId);
+    formData.append('owner', fromUserID);
+    formData.append('message_count[][userId]', toUserID);
+    formData.append('message_count[][count]', count);
+
+    axios({
+      method: 'POST',
+      url: AddChatURL,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        console.log('Added One to One Chat');
+      })
+      .catch(error => {
+        console.log(
+          'Failed to add One to One Chat',
+          error.response.data.message,
+        );
+        if (error.response.data.message === 'Chat already exists!') {
+          UpdateChat(
+            error.response.data.data._id,
+            fromUserID,
+            toUserID,
+            lastMessage,
+          );
+        }
+      });
+  };
+
+  const UpdateChat = (chatID, fromUserID, toUserID, lastMessage) => {
+    const updateChatURL = `${ENDPOINT.UPDATE_CHAT}/${chatID}`;
+
+    let formData = new FormData();
+
+    formData.append('from_user_id', fromUserID);
+    formData.append('to_user_id', toUserID);
+    formData.append('last_message', lastMessage);
+    formData.append('message_count[][userId]', toUserID);
+    formData.append('message_count[][count]', 1);
+
+    axios({
+      method: 'PATCH',
+      url: updateChatURL,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        console.log('update chat success');
+      })
+      .catch(error => {
+        console.log('Failed to update the chat:', error);
+      });
+  };
+
+  const UpdateGroupChat = (chatID, fromUserID, lastMessage, messageCount) => {
+    const updateChatURL = `${ENDPOINT.UPDATE_CHAT}/${chatID}`;
+
+    let formData = new FormData();
+
+    formData.append('from_user_id', fromUserID);
+    formData.append('last_message_sender', myUserDetails?.user.username);
+    formData.append('last_message', lastMessage);
+
+    messageCount.forEach(function (value, index) {
+      console.log('helloasdasd', value.user_id);
+      formData.append(`message_count[${index}][userId]`, value.user_id);
+      formData.append(`message_count[${index}][count]`, 1);
+    });
+
+    axios({
+      method: 'PATCH',
+      url: updateChatURL,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        console.log('send message group chat  success');
+      })
+      .catch(error => {
+        console.log('Failed to update the chat:', error);
+      });
+  };
+
+  function GetFollowRequests() {
+    axios
+      .get(ENDPOINT.GET_PENDING_FOLLOW_REQ, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        setFollowReq(res.data.data.docs);
+      })
+      .catch(err => {
+        console.log('failed to get follow requests');
+      });
+  }
+
+  function GetFollowRequests() {
+    axios
+      .get(ENDPOINT.GET_PENDING_FOLLOW_REQ, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        setFollowReq(res.data.data.docs);
+      })
+      .catch(err => {
+        console.log('failed to get follow requests');
+      });
+  }
+
+  function GetSentFollowRequests() {
+    axios
+      .get(ENDPOINT.GET_SENT_FOLLOW_REQ, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        setSentFollowReq(res.data.data.docs);
+      })
+      .catch(err => {
+        console.log('failed to get follow requests');
+      });
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -466,6 +686,25 @@ export const AuthProvider = ({children}) => {
         searchResult,
         setSearchResult,
         SearchUsers,
+        myPreferences,
+        setMyPreferences,
+        setMyTrips,
+        UpdateChatRemoveBubble,
+        AddOneChat,
+        followReq,
+        GetFollowRequests,
+        sentFollowReq,
+        GetSentFollowRequests,
+        localGroupDetails,
+        setLocalGroupDetails,
+        pollType,
+        setPollType,
+        ChatIDForPolls,
+        setChatIDForPolls,
+        PollsVisible,
+        setPollsVisible,
+        UpdateGroupChatRemoveBubble,
+        UpdateGroupChat,
       }}>
       {children}
     </AuthContext.Provider>
