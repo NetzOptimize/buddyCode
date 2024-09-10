@@ -39,7 +39,7 @@ const CustomPhoneInput = ({
 
 const styles = StyleSheet.create({
   phoneInputContainer: {
-    height: 50,
+    height: 60,
     width: '100%',
     borderRadius: 100,
     alignSelf: 'center',

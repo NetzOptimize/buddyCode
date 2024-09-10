@@ -65,87 +65,138 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
   const {currentTab} = route.params;
 
   const [activeTab, setActiveTab] = useState(currentTab);
-  const [followers, setFollowers] = useState(null);
-  const [following, setFollowing] = useState(null);
+  const [followers, setFollowers] = useState({
+    docs: [],
+    hasNextPage: null,
+  });
+  const [following, setFollowing] = useState({
+    docs: [],
+    hasNextPage: null,
+  });
+
+  const [followingPage, setFollowingPage] = useState(1);
+  const [followerPage, setFollowerPage] = useState(1);
 
   useEffect(() => {
-    function getFollowers() {
-      const url = `${ENDPOINT.GET_FOLLOWERS}/${buddyDetails?.user?._id}`;
+    getFollowers(followerPage);
+    getFollowing(followingPage);
+  }, [followingPage, followerPage]);
 
-      axios
-        .get(url, {
-          headers: {
-            Authorization: 'Bearer ' + authToken,
-          },
-        })
-        .then(res => {
-          setFollowers(res.data.data.docs);
-        })
-        .catch(err => {
-          console.log('failed to get followers', err.response.data);
-        });
-    }
+  function getFollowers(page) {
+    const url = `${ENDPOINT.GET_FOLLOWERS}/${buddyDetails?.user?._id}?page=${page}`;
 
-    function getFollowing() {
-      const url = `${ENDPOINT.GET_FOLLOWING}/${buddyDetails?.user?._id}`;
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        let result = res.data.data.docs;
 
-      axios
-        .get(url, {
-          headers: {
-            Authorization: 'Bearer ' + authToken,
-          },
-        })
-        .then(res => {
-          setFollowing(res.data.data.docs);
-        })
-        .catch(err => {
-          console.log('failed to get followers', err.response.data);
-        });
-    }
+        setFollowers(prev => ({
+          docs: [
+            ...new Map(
+              [...prev?.docs, ...result].map(item => [item._id, item]),
+            ).values(),
+          ],
+          hasNextPage: res.data.data.hasNextPage,
+        }));
+      })
+      .catch(err => {
+        console.log('failed to get followers', err.response.data);
+      });
+  }
 
-    getFollowers();
-    getFollowing();
-  }, []);
+  function getFollowing(page) {
+    const url = `${ENDPOINT.GET_FOLLOWING}/${buddyDetails?.user?._id}?page=${page}`;
+
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        let result = res.data.data.docs;
+
+        setFollowing(prev => ({
+          docs: [
+            ...new Map(
+              [...prev?.docs, ...result].map(item => [item._id, item]),
+            ).values(),
+          ],
+          hasNextPage: res.data.data.hasNextPage,
+        }));
+      })
+      .catch(err => {
+        console.log('failed to get followers', err.response.data);
+      });
+  }
 
   let currentTabList;
 
   if (activeTab == 'Followers') {
-    currentTabList = followers?.map(data => (
-      <FollowListItem
-        key={data?._id}
-        data={data}
-        type={activeTab}
-        isFollowing={myUserDetails?.user?.following?.some(
-          item => item?._id == data?._id,
+    currentTabList = (
+      <>
+        {followers?.docs?.map(data => (
+          <FollowListItem
+            key={data?._id}
+            data={data}
+            type={activeTab}
+            isFollowing={myUserDetails?.user?.following?.some(
+              item => item?._id == data?._id,
+            )}
+            onViewProfile={() => {
+              if (myUserDetails?.user?._id !== data?._id) {
+                NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
+                  buddyData: data,
+                  followed: false,
+                });
+              }
+            }}
+          />
+        ))}
+
+        {followers?.hasNextPage && (
+          <TouchableOpacity
+            style={{alignSelf: 'center'}}
+            onPress={() => setFollowerPage(prev => prev + 1)}>
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </TouchableOpacity>
         )}
-        onViewProfile={() => {
-          if (myUserDetails?.user?._id !== data?._id) {
-            NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
-              buddyData: data,
-              followed: false,
-            });
-          }
-        }}
-      />
-    ));
+      </>
+    );
   } else if (activeTab == 'Following') {
-    currentTabList = following?.map(data => (
-      <FollowListItem
-        key={data?._id}
-        data={data}
-        isFollowing={myUserDetails?.user?.following?.some(
-          item => item?._id == data?._id,
+    currentTabList = (
+      <>
+        {following?.docs?.map(data => (
+          <FollowListItem
+            key={data?._id}
+            data={data}
+            isFollowing={myUserDetails?.user?.following?.some(
+              item => item?._id == data?._id,
+            )}
+            onViewProfile={() => {
+              if (myUserDetails?.user?._id !== data?._id) {
+                NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
+                  buddyData: data,
+                  followed: false,
+                });
+              }
+            }}
+          />
+        ))}
+
+        {following?.hasNextPage && (
+          <TouchableOpacity
+            style={{alignSelf: 'center'}}
+            onPress={() => setFollowingPage(prev => prev + 1)}>
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </TouchableOpacity>
         )}
-        onViewProfile={() => {
-          if (myUserDetails?.user?._id !== data?._id) {
-            NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
-              buddyData: data,
-              followed: false,
-            });
-          }
-        }}
-      />
-    ));
+      </>
+    );
   }
 
   return (
@@ -186,6 +237,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 16,
     color: COLORS.LIGHT,
+  },
+  loadMoreText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 14,
+    color: COLORS.HULK,
   },
 });
 

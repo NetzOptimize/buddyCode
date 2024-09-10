@@ -1,6 +1,12 @@
 export const SCREENS = {
   LOGIN: 'login',
   REGISTER: 'signUp',
+  FORGOT_USER: 'forgotUserDetails',
+  OTP_SCREEN: 'OTPverification',
+  COMPLETE_PROFILE: 'completeProfile',
+  CHANGE_USER_DETAILS: 'changeUserDetails',
+  SELECT_PREFERENCES: 'selectPreferences',
+  FOLLOW_PEOPLE: 'followPeople',
   MY_PROFILE: 'myProfile',
   MY_FOLLOWER_FOLLOWING: 'myFollowerFollowing',
   BUDDY_FOLLOWER_FOLLOWING: 'BuddyFollowerFollowing',

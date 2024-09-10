@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
 import axios from 'axios';
 
 // ** components
@@ -65,15 +65,36 @@ const Login = ({navigation}) => {
         setLoading(false);
         const data = res.data.data;
         if (!data.user.profile_verified) {
-          console.log('not verified');
+          navigation.navigate(SCREENS.OTP_SCREEN, {
+            email: res.data.data.user.email,
+            type: 'USER_REGISTER',
+          });
         } else if (!data.user.is_profile_completed) {
-          console.log('incomplete');
+          Toast.show({
+            type: 'info',
+            text1: 'Incomplete Profile',
+            text2: 'Please add your profle details.',
+          });
+
+          navigation.navigate(SCREENS.COMPLETE_PROFILE, {
+            myToken: res.data.data.token,
+          });
         } else if (data.user.is_deleted) {
-          console.log('account deleted');
+          showAlert(res.data.data.token);
         } else if (data.user.status === 'inactive') {
-          console.log('inactive');
+          Toast.show({
+            type: 'error',
+            text1: 'Account Suspended',
+            text2: 'Please contact the Buddypass team to resolve.',
+          });
         } else if (data.user.is_locked) {
-          console.log('locked');
+          Toast.show({
+            type: 'error',
+            text1: 'Account Locked',
+            text2: 'Please enter OTP to unlock your account',
+          });
+
+          UnlockAccount(res.data.data);
         } else {
           VerifyToken(data.token);
         }
@@ -94,6 +115,73 @@ const Login = ({navigation}) => {
         }
       });
   };
+
+  const showAlert = token => {
+    Alert.alert(
+      'Account under deletion',
+      'Your account is currently under deletion process. Logging in now will halt the deletion process. Are you sure you want to proceed?',
+      [
+        {
+          text: 'Delete',
+          onPress: () => console.log('No Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Login',
+          onPress: () => StopDeletion(token),
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  function StopDeletion(token) {
+    setLoading(true);
+    axios
+      .put(
+        ENDPOINT.STOP_DELETE,
+        {},
+        {
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
+        },
+      )
+      .then(res => {
+        VerifyToken(token);
+      })
+      .catch(err => {
+        console.log('Failed to stop deletion', err.response.data, token);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
+  function UnlockAccount(data) {
+    const userData = {
+      email: data?.user?.email,
+    };
+
+    axios
+      .post(ENDPOINT.UNLOCK_ACCOUNT_EMAIL, userData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + data.token,
+        },
+      })
+      .then(res => {
+        console.log(res.data);
+        navigation.navigate('OtpVerification', {
+          email: data?.user?.email,
+          type: 'UNLOCK_ACCOUNT',
+          token: data.token,
+        });
+      })
+      .catch(err => {
+        console.log('failed to unlock account: ', err.response.data);
+      });
+  }
 
   return (
     <ImageBG>
@@ -153,10 +241,26 @@ const Login = ({navigation}) => {
           </View>
 
           <View style={styles.forgotLinkContainer}>
-            <TouchableOpacity style={styles.linkContainer}>
+            <TouchableOpacity
+              style={styles.linkContainer}
+              onPress={() =>
+                navigation.navigate(SCREENS.FORGOT_USER, {
+                  Heading: 'Forget Username?',
+                  SubText:
+                    'Enter the email address associated with your account.',
+                })
+              }>
               <Text style={styles.linkTextStyle}>Forgot Username?</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.linkContainer}>
+            <TouchableOpacity
+              style={styles.linkContainer}
+              onPress={() =>
+                navigation.navigate(SCREENS.FORGOT_USER, {
+                  Heading: 'Forget Password?',
+                  SubText:
+                    'Enter the email address associated with your account.',
+                })
+              }>
               <Text style={styles.linkTextStyle}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>

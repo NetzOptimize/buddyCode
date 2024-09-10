@@ -43,6 +43,7 @@ const MyProfile = () => {
     VerifyToken,
     authToken,
     GetAllTrips,
+    GetSentFollowRequests,
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
@@ -63,6 +64,7 @@ const MyProfile = () => {
   useFocusEffect(
     useCallback(() => {
       VerifyToken(authToken);
+      GetSentFollowRequests();
     }, [authToken]),
   );
 

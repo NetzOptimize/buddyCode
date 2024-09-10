@@ -617,21 +617,6 @@ export const AuthProvider = ({children}) => {
       });
   }
 
-  function GetFollowRequests() {
-    axios
-      .get(ENDPOINT.GET_PENDING_FOLLOW_REQ, {
-        headers: {
-          Authorization: 'Bearer ' + authToken,
-        },
-      })
-      .then(res => {
-        setFollowReq(res.data.data.docs);
-      })
-      .catch(err => {
-        console.log('failed to get follow requests');
-      });
-  }
-
   function GetSentFollowRequests() {
     axios
       .get(ENDPOINT.GET_SENT_FOLLOW_REQ, {

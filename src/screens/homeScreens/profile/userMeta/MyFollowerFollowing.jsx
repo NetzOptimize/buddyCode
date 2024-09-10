@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
+  Button,
 } from 'react-native';
 
 // ** components
@@ -63,86 +64,137 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
 };
 
 const MyFollowerFollowing = ({navigation, route}) => {
-  const {myUserDetails, authToken} = useContext(AuthContext);
+  const {authToken} = useContext(AuthContext);
 
   const {currentTab} = route.params;
 
   const [activeTab, setActiveTab] = useState(currentTab);
 
-  const [followers, setFollowers] = useState(null);
-  const [following, setFollowing] = useState(null);
+  const [followers, setFollowers] = useState({
+    docs: [],
+    hasNextPage: null,
+  });
+  const [following, setFollowing] = useState({
+    docs: [],
+    hasNextPage: null,
+  });
+
+  const [followingPage, setFollowingPage] = useState(1);
+  const [followerPage, setFollowerPage] = useState(1);
 
   useEffect(() => {
-    function getFollowers() {
-      const url = ENDPOINT.GET_FOLLOWERS;
+    getFollowers(followerPage);
+    getFollowing(followingPage);
+  }, [followingPage, followerPage]);
 
-      axios
-        .get(url, {
-          headers: {
-            Authorization: 'Bearer ' + authToken,
-          },
-        })
-        .then(res => {
-          setFollowers(res.data.data.docs);
-        })
-        .catch(err => {
-          console.log('failed to get followers', err.response.data);
-        });
-    }
+  function getFollowers() {
+    const url = ENDPOINT.GET_FOLLOWERS;
 
-    function getFollowing() {
-      const url = ENDPOINT.GET_FOLLOWING;
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        let result = res.data.data.docs;
 
-      axios
-        .get(url, {
-          headers: {
-            Authorization: 'Bearer ' + authToken,
-          },
-        })
-        .then(res => {
-          setFollowing(res.data.data.docs);
-        })
-        .catch(err => {
-          console.log('failed to get followers', err.response.data);
-        });
-    }
+        setFollowers(prev => ({
+          docs: [
+            ...new Map(
+              [...prev?.docs, ...result].map(item => [item._id, item]),
+            ).values(),
+          ],
+          hasNextPage: res.data.data.hasNextPage,
+        }));
+      })
+      .catch(err => {
+        console.log('failed to get followers', err.response.data);
+      });
+  }
 
-    getFollowers();
-    getFollowing();
-  }, []);
+  function getFollowing(page) {
+    const url = `${ENDPOINT.GET_FOLLOWING}?page=${page}`;
+
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        let result = res.data.data.docs;
+
+        setFollowing(prev => ({
+          docs: [
+            ...new Map(
+              [...prev?.docs, ...result].map(item => [item._id, item]),
+            ).values(),
+          ],
+          hasNextPage: res.data.data.hasNextPage,
+        }));
+      })
+      .catch(err => {
+        console.log('failed to get followers', err.response.data);
+      });
+  }
 
   let currentTabList;
 
   if (activeTab == 'Followers') {
-    currentTabList = followers?.map(data => (
-      <FollowListItem
-        key={data?._id}
-        data={data}
-        type={activeTab}
-        isFollowing={following?.some(item => item?._id == data?._id)}
-        onViewProfile={() =>
-          NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
-            buddyData: data,
-            followed: following?.some(item => item?._id == data?._id),
-          })
-        }
-      />
-    ));
+    currentTabList = (
+      <>
+        {followers?.docs?.map((data, i) => (
+          <FollowListItem
+            key={i}
+            data={data}
+            type={activeTab}
+            isFollowing={followers?.docs?.some(item => item?._id == data?._id)}
+            onViewProfile={() =>
+              NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
+                buddyData: data,
+                followed: followers?.docs?.some(item => item?._id == data?._id),
+              })
+            }
+          />
+        ))}
+
+        {followers?.hasNextPage && (
+          <TouchableOpacity
+            style={{alignSelf: 'center'}}
+            onPress={() => setFollowerPagex(prev => prev + 1)}>
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </TouchableOpacity>
+        )}
+      </>
+    );
   } else if (activeTab == 'Following') {
-    currentTabList = following?.map(data => (
-      <FollowListItem
-        key={data?._id}
-        data={data}
-        type={activeTab}
-        isFollowing={following?.some(item => item?._id == data?._id)}
-        onViewProfile={() =>
-          NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
-            buddyData: data,
-            followed: true,
-          })
-        }
-      />
-    ));
+    currentTabList = (
+      <>
+        {following?.docs?.map((data, i) => (
+          <FollowListItem
+            key={i}
+            data={data}
+            type={activeTab}
+            isFollowing={following?.docs?.some(item => item?._id == data?._id)}
+            onViewProfile={() =>
+              NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
+                buddyData: data,
+                followed: true,
+              })
+            }
+          />
+        ))}
+
+        {following?.hasNextPage && (
+          <TouchableOpacity
+            style={{alignSelf: 'center'}}
+            onPress={() => setFollowingPage(prev => prev + 1)}>
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </TouchableOpacity>
+        )}
+      </>
+    );
   }
 
   return (
@@ -182,6 +234,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 16,
     color: COLORS.LIGHT,
+  },
+  loadMoreText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 14,
+    color: COLORS.HULK,
   },
 });
 

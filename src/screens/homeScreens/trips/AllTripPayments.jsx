@@ -6,7 +6,7 @@ import {AuthContext} from '../../../context/AuthContext';
 import TripPaymentCard from '../../../components/trip/TripPaymentCard';
 
 const AllTripPayments = ({navigation, route}) => {
-  const {paymentList} = route.params;
+  const {paymentList, event} = route.params;
 
   return (
     <RegularBG>
@@ -20,7 +20,7 @@ const AllTripPayments = ({navigation, route}) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{marginTop: 20, gap: 16}}>
           {paymentList?.map((data, i) => (
-            <TripPaymentCard key={i} paymentDetail={data} />
+            <TripPaymentCard key={i} paymentDetail={data} eventData={event} />
           ))}
         </View>
 

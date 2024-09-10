@@ -1,6 +1,6 @@
 import {useContext, useEffect} from 'react';
 import {AuthContext} from '../context/AuthContext';
-import {Image, View} from 'react-native';
+import {Alert, Image, View} from 'react-native';
 
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -57,6 +57,8 @@ import {
 } from '../config/autoMediaPermission';
 import BuddySearch from '../components/home/BuddySearch';
 
+import messaging from '@react-native-firebase/messaging';
+
 const MyProfileStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -77,7 +79,10 @@ const MyProfileStack = () => {
       <Stack.Screen name={SCREENS.FAQ} component={FAQsScreen} />
       <Stack.Screen name={SCREENS.BLOCKED_LIST} component={BlockedList} />
       <Stack.Screen name={SCREENS.EDIT_PROFILE} component={EditProfile} />
-      <Stack.Screen name={SCREENS.USER_PREFERENCES} component={UserPreferences} />
+      <Stack.Screen
+        name={SCREENS.USER_PREFERENCES}
+        component={UserPreferences}
+      />
       <Stack.Screen name={SCREENS.DELETE_STEP1} component={DeleteStep1} />
       <Stack.Screen name={SCREENS.DELETE_STEP2} component={DeleteStep2} />
       <Stack.Screen
@@ -158,6 +163,33 @@ export default function TabNavigation() {
     setTimeout(() => {
       getCameraPermission();
     }, 2000);
+  }, []);
+
+  useEffect(() => {
+    messaging()
+      .getInitialNotification()
+      .then(async remoteMessage => {
+        if (remoteMessage) {
+          console.log(
+            'notification caused the app to open from quit state',
+            remoteMessage.notification,
+          );
+        }
+      });
+
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('opened from background state', remoteMessage.notification);
+    });
+
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('handled in background', remoteMessage);
+    });
+
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('new fcm message arrived', JSON.stringify(remoteMessage));
+    });
+
+    return unsubscribe;
   }, []);
 
   return (

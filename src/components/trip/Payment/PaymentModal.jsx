@@ -13,6 +13,8 @@ import {COLORS, FONTS} from '../../../constants/theme/theme';
 import {AuthContext} from '../../../context/AuthContext';
 import PaymentCardEvent from './PaymentCardEvent';
 import PendingPayment from './PendingPayment';
+import Payall from './Payall';
+import SplitPayment from './SplitPayment';
 
 var close = require('../../../../assets/Images/close.png');
 var backBtn = require('../../../../assets/Images/back.png');
@@ -111,7 +113,13 @@ const PaymentModal = ({visible, onClose, tripId}) => {
 
   const getSelectedBody = () => {
     if (paymentOpen.isPayAllOpen) {
-      return <Text>Pay all</Text>;
+      return (
+        <Payall
+          eventData={selectedEvent}
+          paymentData={selectedEvent?.event_payment_data}
+          Reset={Reset}
+        />
+      );
     } else if (paymentOpen.isPendingPaymentOpen) {
       return (
         <PendingPayment
@@ -121,7 +129,7 @@ const PaymentModal = ({visible, onClose, tripId}) => {
         />
       );
     } else if (paymentOpen.isSplitOpen) {
-      return <Text>'Split Payment'</Text>;
+      return <SplitPayment selectedEvent={selectedEvent} onClose={Reset} />;
     } else {
       return (
         <ScrollView>

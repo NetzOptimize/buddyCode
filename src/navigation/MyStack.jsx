@@ -18,6 +18,12 @@ import {COLORS} from '../constants/theme/theme';
 import EditTrip from '../screens/homeScreens/trips/creation/EditTrip';
 import OneChat from '../screens/homeScreens/chat/OneChat';
 import GroupChat from '../screens/homeScreens/chat/GroupChat';
+import OTPverification from '../screens/signup/OTPverification';
+import CompleteProfile from '../screens/signup/CompleteProfile';
+import SelectPreferences from '../screens/signup/SelectPreferences';
+import FollowPeople from '../screens/signup/FollowPeople';
+import ForgotUserDetails from '../screens/login/forgotDetailsScreens/ForgotUserDetails';
+import ChangeUserDetails from '../screens/login/forgotDetailsScreens/ChangeUserDetails';
 
 export default function MyStack() {
   const {authToken, showSplash} = useContext(AuthContext);
@@ -26,6 +32,21 @@ export default function MyStack() {
     <>
       <Stack.Screen name={SCREENS.LOGIN} component={Login} />
       <Stack.Screen name={SCREENS.REGISTER} component={SignUp} />
+      <Stack.Screen name={SCREENS.OTP_SCREEN} component={OTPverification} />
+      <Stack.Screen
+        name={SCREENS.COMPLETE_PROFILE}
+        component={CompleteProfile}
+      />
+      <Stack.Screen
+        name={SCREENS.SELECT_PREFERENCES}
+        component={SelectPreferences}
+      />
+      <Stack.Screen
+        name={SCREENS.CHANGE_USER_DETAILS}
+        component={ChangeUserDetails}
+      />
+      <Stack.Screen name={SCREENS.FOLLOW_PEOPLE} component={FollowPeople} />
+      <Stack.Screen name={SCREENS.FORGOT_USER} component={ForgotUserDetails} />
     </>
   );
 

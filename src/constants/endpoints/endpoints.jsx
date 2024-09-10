@@ -4,11 +4,26 @@ const BASE_URL = 'http://api.buddypassadmin.com:4000/api';
 
 export const ENDPOINT = {
   LOGIN: BASE_URL + '/v1/app/auth/login',
+  SIGN_UP: BASE_URL + '/v1/app/auth/register',
+  VERIFY_OTP: BASE_URL + '/v1/app/auth/verify-otp',
+  RESEND_OTP: BASE_URL + '/v1/app/auth/resend-otp',
+  COMPLETE_PROFILE: BASE_URL + '/v1/app/auth/complete-profile',
   USER_DETAILS: BASE_URL + '/v1/app/user',
   LIKE_COMMENT: BASE_URL + '/v1/app/trip_comment_likes/create',
   DELETE_ACCOUNT: BASE_URL + '/v1/app/user',
   DELETE_COMMENT: BASE_URL + '/v1/app/trip_comment/delete',
   UPDATE_PROFILE: BASE_URL + '/v1/app/auth/update-profile',
+  FORGOT_PASSWORD: BASE_URL + '/v1/app/auth/password/forget',
+  FORGOT_USERNAME: BASE_URL + '/v1/app/auth/username/forget',
+
+  CHANGE_PASSWORD: BASE_URL + '/v1/app/auth/password/reset',
+  CHANGE_USERNAME: BASE_URL + '/v1/app/auth/username/reset',
+  UNLOCK_ACCOUNT: BASE_URL + '/v1/app/auth/unlock-account',
+  UNLOCK_ACCOUNT_EMAIL: BASE_URL + '/v1/app/auth/unlock-account-email',
+  STOP_DELETE: BASE_URL + '/v1/app/user/update-user-status',
+
+  GET_EVENT_PAYMENT: BASE_URL + '/v1/app/event-payment/get-all',
+
   GET_PREFERENCES: BASE_URL + '/v1/app/preferences',
   GET_TRIPS: BASE_URL + '/v1/app/trip_creation/my_trips',
   LIKE_TRIP: BASE_URL + '/v1/app/trip_likes/create',
@@ -27,7 +42,11 @@ export const ENDPOINT = {
   GET_EVENT_PAYMENTS: BASE_URL + '/v1/app/event-payment/get/trip_id',
   GET_PENDING_PAYMENTS: BASE_URL + '/v1/app/trip_creation',
   TOGGLE_PRIVACY: BASE_URL + '/v1/app/user/change-privacy',
+
   PENDING_PAYMENT: BASE_URL + '/v1/app/event-payment/update',
+
+  ADD_PAYMENT: BASE_URL + '/v1/app/event-payment/create',
+
   SEARCH_USERS: BASE_URL + '/v1/app/user/search/users',
   GET_FOLLOWERS: BASE_URL + '/v1/app/followings/get-followers',
   GET_FOLLOWING: BASE_URL + '/v1/app/followings/get-followings',

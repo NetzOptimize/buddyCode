@@ -55,6 +55,7 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
             {TimeTitle}
           </View>
           <TripCardOptions
+            event={eventData}
             eventId={eventData?._id}
             tripId={tripInfo?.trip?._id}
             onEdit={() => {

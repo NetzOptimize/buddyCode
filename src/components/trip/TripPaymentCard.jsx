@@ -4,15 +4,24 @@ import FastImage from 'react-native-fast-image';
 import {COLORS, FONTS} from '../../constants/theme/theme';
 
 var noDP = require('../../../assets/Images/noDP.png');
-var arrowDown = require('../../../assets/Images/arrowDown.png');
 
-const TripPaymentCard = ({paymentDetail, disabled = false}) => {
+const TripPaymentCard = ({
+  paymentDetail,
+  disabled = false,
+  eventData = null,
+}) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const eventDate = new Date(paymentDetail?.transaction_time);
-  const parts = eventDate.toDateString().split(' ');
+  const parts = eventDate?.toDateString().split(' ');
   const formattedDate =
     parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
+
+  const userInfo = paymentDetail?.user
+    ? paymentDetail?.user
+    : paymentDetail?.user_id;
+
+  const userEvent = paymentDetail?.event ? paymentDetail?.event : eventData;
 
   if (showDetails) {
     return (
@@ -31,19 +40,17 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <FastImage
                 source={
-                  paymentDetail.user.profile_image
-                    ? {uri: paymentDetail.user.profile_image}
+                  userInfo?.profile_image
+                    ? {uri: userInfo?.profile_image}
                     : noDP
                 }
                 style={{width: 44, height: 44, borderRadius: 100}}
               />
               <View style={{marginLeft: 10}}>
                 <Text style={[styles.regularTextstyle, {fontSize: 14}]}>
-                  {paymentDetail.user.first_name} {paymentDetail.user.last_name}
+                  {userInfo?.first_name} {userInfo?.last_name}
                 </Text>
-                <Text style={styles.username}>
-                  @{paymentDetail.user.username}
-                </Text>
+                <Text style={styles.username}>@{userInfo?.username}</Text>
               </View>
             </View>
             <View
@@ -51,13 +58,15 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
                 styles.detailedStatus,
                 {
                   backgroundColor:
-                    paymentDetail.status == 'paid' ? '#A3D9FF' : '#E6CD4A',
+                    paymentDetail?.status == 'paid' ? '#A3D9FF' : '#E6CD4A',
                 },
               ]}>
-              <Text style={styles.regularTextBold}>{paymentDetail.status}</Text>
+              <Text style={styles.regularTextBold}>
+                {paymentDetail?.status}
+              </Text>
             </View>
             <Text style={[styles.regularTextstyle, {alignSelf: 'flex-end'}]}>
-              {formattedDate}
+              {paymentDetail?.transaction_time && formattedDate}
             </Text>
           </View>
 
@@ -71,7 +80,7 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
                 justifyContent: 'space-between',
               }}>
               <Text style={styles.regularTextstyle}>Tr. Id</Text>
-              <Text style={styles.regularTextstyle}>{paymentDetail._id}</Text>
+              <Text style={styles.regularTextstyle}>{paymentDetail?._id}</Text>
             </View>
             <View
               style={{
@@ -79,10 +88,10 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
                 justifyContent: 'space-between',
               }}>
               <Text style={styles.regularTextstyle}>
-                Payment - {paymentDetail.event.event_name}
+                Payment - {userEvent?.event_name}
               </Text>
               <Text style={styles.regularTextstyle}>
-                {paymentDetail.amount.toLocaleString('en-US', {
+                {paymentDetail?.amount?.toLocaleString('en-US', {
                   style: 'currency',
                   currency: 'USD',
                 })}
@@ -98,7 +107,7 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
               }}>
               <Text style={styles.username}>Total price</Text>
               <Text style={styles.username}>
-                {paymentDetail.event.cost.toLocaleString('en-US', {
+                {userEvent?.cost?.toLocaleString('en-US', {
                   style: 'currency',
                   currency: 'USD',
                 })}
@@ -118,16 +127,12 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
       }}
       disabled={disabled}>
       <FastImage
-        source={
-          paymentDetail.user.profile_image
-            ? {uri: paymentDetail.user.profile_image}
-            : noDP
-        }
+        source={userInfo?.profile_image ? {uri: userInfo?.profile_image} : noDP}
         style={{width: 44, height: 44, borderRadius: 100}}
       />
       <View style={{width: '84%'}}>
         <Text style={styles.regularTextstyle}>
-          {paymentDetail.user.first_name} {paymentDetail.user.last_name}
+          {userInfo?.first_name} {userInfo?.last_name}
         </Text>
         <Text
           style={[
@@ -136,13 +141,13 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
               fontFamily: FONTS.MAIN_SEMI,
             },
           ]}>
-          {paymentDetail.event.event_name}
+          {userEvent?.event_name}
         </Text>
         <View style={styles.timeAmountBox}>
           <Text style={styles.regularTextstyle}>08:20 am</Text>
           <Text style={styles.amountText}>
             +{' '}
-            {paymentDetail.amount.toLocaleString('en-US', {
+            {paymentDetail?.amount?.toLocaleString('en-US', {
               style: 'currency',
               currency: 'USD',
             })}
@@ -155,10 +160,10 @@ const TripPaymentCard = ({paymentDetail, disabled = false}) => {
           styles.paymentStatus,
           {
             backgroundColor:
-              paymentDetail.status == 'paid' ? '#A3D9FF' : '#E6CD4A',
+              paymentDetail?.status == 'paid' ? '#A3D9FF' : '#E6CD4A',
           },
         ]}>
-        <Text style={styles.regularTextBold}>{paymentDetail.status}</Text>
+        <Text style={styles.regularTextBold}>{paymentDetail?.status}</Text>
       </View>
     </TouchableOpacity>
   );

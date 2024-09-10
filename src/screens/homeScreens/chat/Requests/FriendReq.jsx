@@ -73,7 +73,7 @@ const FriendReq = ({navigation}) => {
 
   function RequestAction(user, action) {
     const data = {
-      followee: user._id,
+      follower: user._id,
       status: action,
     };
 
@@ -88,7 +88,7 @@ const FriendReq = ({navigation}) => {
         GetFollowRequests();
       })
       .catch(err => {
-        console.log('failed to take action', err);
+        console.log('failed to take action', err.response.data);
       });
   }
 

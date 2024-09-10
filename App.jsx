@@ -22,7 +22,7 @@ const App = () => {
     const getDeviceToken = async () => {
       let token = await messaging().getToken();
 
-      console.log(token);
+      console.log('fcm token:', token);
     };
 
     getDeviceToken();

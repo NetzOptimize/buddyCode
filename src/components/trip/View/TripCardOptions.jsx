@@ -17,8 +17,10 @@ var optionsBtn = require('../../../../assets/Images/moreButton.png');
 
 import {useDispatch} from 'react-redux';
 import {fetchTripData} from '../../../redux/slices/tripDetailsSlice';
+import {SCREENS} from '../../../constants/screens/screen';
+import NavigationService from '../../../config/NavigationService';
 
-const TripCardOptions = ({eventId, tripId, onEdit}) => {
+const TripCardOptions = ({event, eventId, tripId, onEdit}) => {
   const dispatch = useDispatch();
 
   const {authToken} = useContext(AuthContext);
@@ -28,7 +30,9 @@ const TripCardOptions = ({eventId, tripId, onEdit}) => {
       id: 1,
       title: 'View Payments',
       image: require('../../../../assets/Images/settings/clipboard.png'),
-      action: () => {},
+      action: () => {
+        ViewPayment(eventId);
+      },
     },
     {
       id: 2,
@@ -81,6 +85,26 @@ const TripCardOptions = ({eventId, tripId, onEdit}) => {
       })
       .catch(err => {
         console.log('Could not delete trip event', err.response.data);
+      });
+  }
+
+  function ViewPayment(eventId) {
+    const url = `${ENDPOINT.GET_EVENT_PAYMENT}/${eventId}`;
+
+    axios
+      .get(url, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        NavigationService.navigate(SCREENS.ALL_TRIP_PAYMENTS, {
+          paymentList: res.data.data.payments,
+          event: event,
+        });
+      })
+      .catch(e => {
+        console.log('Get Single Trip error', e?.response?.data, e);
       });
   }
 

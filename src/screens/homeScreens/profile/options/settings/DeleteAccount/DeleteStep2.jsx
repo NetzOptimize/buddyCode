@@ -32,7 +32,7 @@ const json = [
 ];
 
 const DeleteStep2 = ({navigation}) => {
-  const {myUserDetails, Logout1} = useContext(AuthContext);
+  const {myUserDetails, Logout1, authToken} = useContext(AuthContext);
 
   const [selectedId, setSelectedId] = useState(null);
   const [showDelete, setShowDelete] = useState(false);

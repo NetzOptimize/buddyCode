@@ -7,6 +7,8 @@ import {
   ScrollView,
   BackHandler,
   Image,
+  Touchable,
+  TouchableOpacity,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 
@@ -36,6 +38,7 @@ import BlockUserModal from '../../../components/modal/BlockUserModal';
 import ReportUserModal from '../../../components/modal/ReportUserModal';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 import axios from 'axios';
+import RequestedButton from '../../../components/buttons/RequestedButton';
 
 var lock = require('../../../../assets/Images/lock.png');
 
@@ -49,6 +52,7 @@ const BuddyProfile = ({route, navigation}) => {
     authToken,
     VerifyToken,
     setBlockUserData,
+    sentFollowReq,
   } = useContext(AuthContext);
   const {buddyData} = route.params;
 
@@ -70,6 +74,7 @@ const BuddyProfile = ({route, navigation}) => {
   const [showProfileImage, setShowProfileImage] = useState(false);
   const [isFollowed, setIsFollowed] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [isRequested, setIsRequested] = useState(false);
 
   function getFullName(firstName, lastName) {
     return `${firstName} ${lastName}`;
@@ -82,6 +87,12 @@ const BuddyProfile = ({route, navigation}) => {
       );
       GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
       VerifyToken(authToken);
+
+      setIsRequested(
+        sentFollowReq.some(
+          user => user._id === (buddyData?.id ? buddyData?.id : buddyData?._id),
+        ),
+      );
     }, [buddyData?.id]),
   );
 
@@ -129,8 +140,8 @@ const BuddyProfile = ({route, navigation}) => {
 
       if (response.data.data.status !== 'pending') {
         setIsFollowed(prevValue => !prevValue);
-      }else if(response.data.data.status == 'pending'){
-        console.log('requested')
+      } else if (response.data.data.status == 'pending') {
+        setIsRequested(true);
       }
 
       dispatch(fetchBuddyDetails(buddyId));
@@ -154,7 +165,9 @@ const BuddyProfile = ({route, navigation}) => {
         <View style={styles.backOpContainer}>
           <BackButton onPress={handleBackPress} />
           <View style={styles.actionButtonsBox}>
-            {isFollowed ? (
+            {isRequested ? (
+              <RequestedButton />
+            ) : isFollowed ? (
               <FollowedButton
                 onPress={() =>
                   handleFollowUnfollow(

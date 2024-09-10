@@ -94,7 +94,7 @@ const TripRequests = ({navigation}) => {
         });
       })
       .catch(err => {
-        console.log('request action error:', err.response.data);
+        console.log('request action error:', err?.response?.data || err);
       })
       .finally(() => {
         setIsLoading(false);
