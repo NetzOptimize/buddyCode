@@ -54,7 +54,7 @@ const BuddyProfile = ({route, navigation}) => {
     setBlockUserData,
     sentFollowReq,
   } = useContext(AuthContext);
-  const {buddyData} = route.params;
+  const {buddyData, followed} = route.params;
 
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
@@ -87,6 +87,8 @@ const BuddyProfile = ({route, navigation}) => {
       );
       GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
       VerifyToken(authToken);
+
+      setIsFollowed(followed);
 
       setIsRequested(
         sentFollowReq.some(
@@ -157,7 +159,7 @@ const BuddyProfile = ({route, navigation}) => {
     }
   }
 
-  let isPrivate = buddyDetails?.user?.is_private;
+  let isPrivate = isFollowed ? false : buddyDetails?.user?.is_private;
 
   return (
     <RegularBG>

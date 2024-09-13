@@ -37,6 +37,7 @@ export const AuthProvider = ({children}) => {
   const [followReq, setFollowReq] = useState([]);
   const [sentFollowReq, setSentFollowReq] = useState([]);
   const [localGroupDetails, setLocalGroupDetails] = useState(null);
+  const [tripMembers, setTripMembers] = useState([]);
 
   const [showBlockReportPopUp, setShowBlockReportPopUp] = useState({
     type: null,
@@ -170,7 +171,7 @@ export const AuthProvider = ({children}) => {
         };
       });
     } catch (error) {
-      console.log('Error fetching trips:', error?.response?.data);
+      console.log('Error fetching trips:', error?.response?.data || error);
     }
   }
 
@@ -690,6 +691,8 @@ export const AuthProvider = ({children}) => {
         setPollsVisible,
         UpdateGroupChatRemoveBubble,
         UpdateGroupChat,
+        tripMembers,
+        setTripMembers,
       }}>
       {children}
     </AuthContext.Provider>

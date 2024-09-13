@@ -5,9 +5,7 @@ import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import TripBudgetBar from '../../../components/trip/TripBudgetBar';
 import {COLORS, FONTS} from '../../../constants/theme/theme';
 
-import axios from 'axios';
 import {AuthContext} from '../../../context/AuthContext';
-import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 import NavigationService from '../../../config/NavigationService';
 import {SCREENS} from '../../../constants/screens/screen';
 import TripPaymentCard from '../../../components/trip/TripPaymentCard';

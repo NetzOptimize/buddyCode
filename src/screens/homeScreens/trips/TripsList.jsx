@@ -36,6 +36,7 @@ const TripsList = () => {
     loading,
     GetTripInvites,
     tripInvites,
+    setTripMembers,
   } = useContext(AuthContext);
 
   const [showSearch, setShowSearch] = useState(false);
@@ -47,6 +48,7 @@ const TripsList = () => {
       const fetchData = async () => {
         await GetTrips(myUserDetails?.user?._id, 'current', 1);
         await GetTripInvites(myUserDetails?.user?._id);
+        setTripMembers([]);
       };
 
       fetchData();

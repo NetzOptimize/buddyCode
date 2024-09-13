@@ -46,8 +46,9 @@ var close = require('../../../../assets/Images/close.png');
 var sendMessage = require('../../../../assets/Images/sendMessage.png');
 var plus = require('../../../../assets/Images/plus.png');
 var selectTick = require('../../../../assets/Images/circleSelect.png');
+var noDP = require('../../../../assets/Images/noDP.png');
 
-export default function GroupChat({navigation}) {
+const GroupChat = ({navigation}) => {
   const {
     localGroupDetails,
     PollsVisible,
@@ -272,7 +273,7 @@ export default function GroupChat({navigation}) {
         },
       })
       .then(res => {
-        console.log('success polls get')
+        console.log('success polls get');
         setPolls(res.data.data.pollData);
       })
       .catch(err => {
@@ -583,6 +584,47 @@ export default function GroupChat({navigation}) {
       });
   }
 
+  const handleScroll = event => {
+    const {contentOffset} = event.nativeEvent;
+    if (contentOffset.y === 0) {
+      setLoadingMessages(true);
+      console.log('Loading messages');
+      loadMoreChatHistory();
+    }
+  };
+
+  const [count, setCount] = useState(50);
+
+  function loadMoreChatHistory() {
+    setCount(count + 30);
+    console.log(count);
+    const convId = targetId;
+    const convType = ChatConversationType.GroupChat;
+    const pageSize = count;
+    const startMsgId = myUserDetails.user.agoraDetails[0].username;
+    ChatClient.getInstance()
+      .chatManager.fetchHistoryMessages(convId, convType, pageSize, startMsgId)
+      .then(messages => {
+        let pMessages = [];
+        pMessages = messages.list.map(d => {
+          return {
+            content: d.body.hasOwnProperty('displayName')
+              ? d.body.remotePath
+              : d.body.content,
+            direction: d.direction === 'send' ? 'right' : 'left',
+            isText: d.body.hasOwnProperty('displayName') ? 'False' : 'True',
+            from: d.from,
+          };
+        });
+        setMyMessages(pMessages);
+        setLoadingMessages(false);
+      })
+      .catch(reason => {
+        console.log('load conversions fail 1.', reason);
+        setLoadingMessages(false);
+      });
+  }
+
   return (
     <WideBG>
       <Spinner visible={loading} color={COLORS.THANOS} />
@@ -593,7 +635,10 @@ export default function GroupChat({navigation}) {
         memberCount={localGroupDetails.chatData.members.length + 1}
       />
 
-      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        onScroll={handleScroll}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.messagesContainer}>
           {myMessages.map((message, i) => {
             return (
@@ -876,7 +921,7 @@ export default function GroupChat({navigation}) {
       />
     </WideBG>
   );
-}
+};
 
 const styles = StyleSheet.create({
   messagesContainer: {
@@ -1070,3 +1115,5 @@ const styles = StyleSheet.create({
   },
   received: {backgroundColor: '#f2f2f2', borderRadius: 20},
 });
+
+export default GroupChat;

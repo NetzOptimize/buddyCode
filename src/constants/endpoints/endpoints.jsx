@@ -15,15 +15,12 @@ export const ENDPOINT = {
   UPDATE_PROFILE: BASE_URL + '/v1/app/auth/update-profile',
   FORGOT_PASSWORD: BASE_URL + '/v1/app/auth/password/forget',
   FORGOT_USERNAME: BASE_URL + '/v1/app/auth/username/forget',
-
   CHANGE_PASSWORD: BASE_URL + '/v1/app/auth/password/reset',
   CHANGE_USERNAME: BASE_URL + '/v1/app/auth/username/reset',
   UNLOCK_ACCOUNT: BASE_URL + '/v1/app/auth/unlock-account',
   UNLOCK_ACCOUNT_EMAIL: BASE_URL + '/v1/app/auth/unlock-account-email',
   STOP_DELETE: BASE_URL + '/v1/app/user/update-user-status',
-
   GET_EVENT_PAYMENT: BASE_URL + '/v1/app/event-payment/get-all',
-
   GET_PREFERENCES: BASE_URL + '/v1/app/preferences',
   GET_TRIPS: BASE_URL + '/v1/app/trip_creation/my_trips',
   LIKE_TRIP: BASE_URL + '/v1/app/trip_likes/create',
@@ -42,11 +39,8 @@ export const ENDPOINT = {
   GET_EVENT_PAYMENTS: BASE_URL + '/v1/app/event-payment/get/trip_id',
   GET_PENDING_PAYMENTS: BASE_URL + '/v1/app/trip_creation',
   TOGGLE_PRIVACY: BASE_URL + '/v1/app/user/change-privacy',
-
   PENDING_PAYMENT: BASE_URL + '/v1/app/event-payment/update',
-
   ADD_PAYMENT: BASE_URL + '/v1/app/event-payment/create',
-
   SEARCH_USERS: BASE_URL + '/v1/app/user/search/users',
   GET_FOLLOWERS: BASE_URL + '/v1/app/followings/get-followers',
   GET_FOLLOWING: BASE_URL + '/v1/app/followings/get-followings',
@@ -56,6 +50,10 @@ export const ENDPOINT = {
   LEAVE_TRIP: BASE_URL + '/v1/app/trip_creation/leave',
   REMOVE_BUBBLE: BASE_URL + '/v1/app/chats/update-chat',
   ADD_ONE_CHAT: BASE_URL + '/v1/app/chats/create/group-to-one',
+
+  DELETE_CHAT: BASE_URL + '/v1/app/chats',
+  UPDATE_CHAT: BASE_URL + '/v1/app/chats/update-chat',
+
   SEND_NOTIFICAION: BASE_URL + '/v1/app/notification/send',
   UPDATE_CHAT: BASE_URL + '/v1/app/chats/update-chat',
   ADD_EVENT: BASE_URL + '/v1/app/trip_events/create',
@@ -68,4 +66,6 @@ export const ENDPOINT = {
   CREATE_POLL: BASE_URL + '/v1/app/poll/create',
   GET_POLLS: BASE_URL + '/v1/app/poll/get',
   ADD_VOTE: BASE_URL + '/v1/app/poll/vote/create',
+
+  REPORT_REASONS: BASE_URL + '/v1/app/reporting-reasons',
 };

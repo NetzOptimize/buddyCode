@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  FlatList,
 } from 'react-native';
 import React, {useContext, useState} from 'react';
 import RegularBG from '../../../../components/background/RegularBG';
@@ -19,9 +20,12 @@ import Toast from 'react-native-toast-message';
 import {AuthContext} from '../../../../context/AuthContext';
 import axios from 'axios';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
+import FastImage from 'react-native-fast-image';
 
 var plus = require('../../../../../assets/Images/plus.png');
 var close = require('../../../../../assets/Images/close.png');
+var cancel = require('../../../../../assets/Images/close.png');
+var noDP = require('../../../../../assets/Images/noDP.png');
 
 function DestinationInput({tripDestinations, setTripDestinations}) {
   const addDestination = () => {
@@ -79,7 +83,8 @@ function DestinationInput({tripDestinations, setTripDestinations}) {
 }
 
 const CreateTrip = ({navigation}) => {
-  const {myUserDetails, authToken} = useContext(AuthContext);
+  const {myUserDetails, authToken, tripMembers, setTripMembers} =
+    useContext(AuthContext);
 
   const [tripName, setTripName] = useState('');
   const [tripDestinations, setTripDestinations] = useState(['']);
@@ -199,7 +204,6 @@ const CreateTrip = ({navigation}) => {
       });
 
       // Handle success
-      console.log('Trip created successfully:', response.data);
 
       navigation.goBack();
 
@@ -222,6 +226,33 @@ const CreateTrip = ({navigation}) => {
       setIsLoading(false);
     }
   }
+
+  function addBuddyHandler(user) {
+    const isUserInTrip = tripMembers?.some(member => member._id === user._id);
+
+    if (!isUserInTrip) {
+      setTripMembers(prevValue => [...prevValue, user]);
+    } else {
+      setTripMembers(prevValue =>
+        prevValue.filter(member => member._id !== user._id),
+      );
+    }
+  }
+
+  const renderMember = ({item}) => (
+    <TouchableOpacity
+      style={styles.memberContainer}
+      onPress={() => addBuddyHandler(item)}>
+      <View style={styles.cancelBtn}>
+        <Image source={cancel} style={{width: 16, height: 16}} />
+      </View>
+      <FastImage
+        source={item.profile_image ? {uri: item.profile_image} : noDP}
+        style={styles.dp}
+      />
+      <Text style={styles.username}>@{item.username}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <RegularBG>
@@ -268,6 +299,27 @@ const CreateTrip = ({navigation}) => {
 
           <View style={{gap: 8}}>
             <Text style={styles.label}>Buddies</Text>
+            <View style={{flexDirection: 'row', gap: 16, alignItems: 'center'}}>
+              <TouchableOpacity
+                style={styles.addBuddiesBtn}
+                onPress={() =>
+                  navigation.navigate(SCREENS.BUDDY_SEARCH, {
+                    isForChat: false,
+                    isForTrip: true,
+                  })
+                }>
+                <Image source={plus} style={{height: 32, width: 32}} />
+              </TouchableOpacity>
+
+              <FlatList
+                data={tripMembers}
+                renderItem={renderMember}
+                keyExtractor={item => item._id}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+              />
+            </View>
           </View>
 
           <View style={{gap: 8}}>
@@ -362,6 +414,38 @@ const styles = StyleSheet.create({
   tripPeriodText: {
     fontSize: 14,
     fontFamily: FONTS.MAIN_REG,
+    color: COLORS.LIGHT,
+  },
+  addBuddiesBtn: {
+    borderWidth: 2,
+    borderColor: COLORS.SWEDEN,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 48,
+    height: 48,
+  },
+  memberContainer: {
+    marginRight: 16,
+    flexDirection: 'Column',
+    alignItems: 'center',
+    gap: 4,
+  },
+  cancelBtn: {
+    borderRadius: 100,
+    backgroundColor: COLORS.ERROR,
+    top: 16,
+    right: -16,
+    zIndex: 9999,
+  },
+  dp: {
+    width: 48,
+    height: 48,
+    borderRadius: 1000,
+  },
+  username: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 12,
     color: COLORS.LIGHT,
   },
 });

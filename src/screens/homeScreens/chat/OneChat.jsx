@@ -5,6 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Modal,
+  SafeAreaView,
+  Text,
 } from 'react-native';
 import React, {useState, useContext, useEffect, useRef} from 'react';
 
@@ -19,7 +22,7 @@ import {
   ChatConversationType,
   ChatMessageType,
 } from 'react-native-agora-chat';
-import {COLORS} from '../../../constants/theme/theme';
+import {COLORS, FONTS} from '../../../constants/theme/theme';
 
 var sendMessage = require('../../../../assets/Images/sendMessage.png');
 var plus = require('../../../../assets/Images/plus.png');
@@ -35,6 +38,8 @@ import {handleCameraPermission} from '../../../config/mediaPermission';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import SendViewImage from '../../../components/chat/SendViewImage';
 import Spinner from 'react-native-loading-spinner-overlay';
+import BlockButton from '../../../components/buttons/BlockButton';
+import ActionButton from '../../../components/buttons/ActionButton';
 
 const OneChat = ({navigation, route}) => {
   const {
@@ -45,13 +50,14 @@ const OneChat = ({navigation, route}) => {
     profileImage,
     username,
     is_chat_approved,
+    buddydata,
   } = route.params;
 
   const {myUserDetails, UpdateChatRemoveBubble, AddOneChat, authToken} =
     useContext(AuthContext);
 
   const [loading, setLoading] = useState(false);
-
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [myMessages, setMyMessages] = useState([]);
   const [messageContent, setMessageContent] = useState('');
   const [sendMsgType, setSendMsgType] = useState(ChatMessageType.TXT);
@@ -60,6 +66,19 @@ const OneChat = ({navigation, route}) => {
   const [imageSource, setImageSource] = useState(null);
   const [sendImageOpen, setSendImageOpen] = useState(false);
   const [viewImage, setViewImage] = useState(false);
+
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [isApproved, setIsApproved] = useState(true);
+
+  useEffect(() => {
+    setIsApproved(is_chat_approved);
+  }, []);
+
+  useEffect(() => {
+    if (isDeleted) {
+      navigation.goBack();
+    }
+  }, [isDeleted]);
 
   const scrollViewRef = useRef(null);
   const messageInputRef = useRef(null);
@@ -382,16 +401,91 @@ const OneChat = ({navigation, route}) => {
     });
   }
 
+  const handleScroll = event => {
+    const {contentOffset} = event.nativeEvent;
+    if (contentOffset.y === 0) {
+      setLoadingMessages(true);
+      console.log('Loading messages');
+      loadMoreChatHistory();
+    }
+  };
+
+  const [count, setCount] = useState(50);
+
+  function loadMoreChatHistory() {
+    setCount(count + 30);
+    console.log(count);
+    const convId = agoraTargetUsername;
+    const convType = ChatConversationType.PeerChat;
+    let pageSize = count;
+    const startMsgId = username;
+    ChatClient.getInstance()
+      .chatManager.fetchHistoryMessages(convId, convType, pageSize, startMsgId)
+      .then(messages => {
+        let pMessages = [];
+        pMessages = messages.list.map(d => {
+          return {
+            content: d.body.hasOwnProperty('displayName')
+              ? d.body.remotePath
+              : d.body.content,
+            direction: d.direction === 'send' ? 'right' : 'left',
+            isText: d.body.hasOwnProperty('displayName') ? 'False' : 'True',
+          };
+        });
+        setMyMessages(pMessages);
+        setLoadingMessages(false);
+      })
+      .catch(reason => {
+        console.log('load conversions fail 1.', reason);
+        setLoadingMessages(false);
+      });
+  }
+
+  const approveChat = () => {
+    setLoading(true);
+
+    let formData = new FormData();
+
+    formData.append('is_chat_approved', true);
+
+    axios({
+      method: 'PATCH',
+      url: `${ENDPOINT.UPDATE_CHAT}/${chatID}`,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        console.log('Chat Approved');
+        setLoading(false);
+        setIsApproved(true);
+      })
+      .catch(err => {
+        setLoading(false);
+        console.log('Failed Approve Chat:', err.response);
+      });
+  };
+
   return (
     <WideBG>
       <Spinner visible={loading} color={COLORS.THANOS} />
       <OneChatHeader
         goBack={() => navigation.goBack()}
         name={name}
+        targetUsername={agoraTargetUsername}
+        chatID={chatID}
         username={username}
         profileImage={profileImage}
+        buddydata={buddydata}
+        setIsDeleted={setIsDeleted}
       />
-      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        onScroll={handleScroll}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.messagesContainer}>
           {myMessages.map((message, i) => (
             <OneChatMessages
@@ -439,6 +533,34 @@ const OneChat = ({navigation, route}) => {
           setViewImage(false);
         }}
       />
+
+      <Modal visible={!isApproved} transparent animationType="slide">
+        <SafeAreaView style={styles.modalBodyBox}>
+          <View style={styles.modalBody}>
+            <View style={styles.modalTitles}>
+              <Text style={styles.modalText1}>Approve Chat?</Text>
+              <Text style={styles.modalText2}>
+                Are you sure you want to approve this chat?
+              </Text>
+            </View>
+
+            <View style={{gap: 16}}>
+              <BlockButton
+                title={'Approve Chat'}
+                onPress={approveChat}
+                loading={loading}
+              />
+              <ActionButton
+                title={'Cancel'}
+                onPress={() => {
+                  navigation.goBack();
+                  setIsApproved(true);
+                }}
+              />
+            </View>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </WideBG>
   );
 };
@@ -484,5 +606,32 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 10,
     marginBottom: 10,
+  },
+  modalBodyBox: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalBody: {
+    width: '100%',
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    backgroundColor: COLORS.GREY_LIGHT,
+    padding: 10,
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  modalTitles: {
+    gap: 16,
+    marginBottom: 32,
+  },
+  modalText1: {
+    color: COLORS.LIGHT,
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 20,
+  },
+  modalText2: {
+    color: COLORS.LIGHT,
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 14,
   },
 });

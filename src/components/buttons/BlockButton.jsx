@@ -14,7 +14,7 @@ const BlockButton = ({onPress, title, loading}) => {
       disabled={loading}
       onPress={onPress}>
       {loading ? (
-        <ActivityIndicator color={COLORS.THANOS} size={'large'} />
+        <ActivityIndicator color={COLORS.LIGHT} size={'large'} />
       ) : (
         <Text style={styles.btnTextStyle}>{title}</Text>
       )}

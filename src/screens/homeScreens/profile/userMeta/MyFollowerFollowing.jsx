@@ -162,7 +162,7 @@ const MyFollowerFollowing = ({navigation, route}) => {
         {followers?.hasNextPage && (
           <TouchableOpacity
             style={{alignSelf: 'center'}}
-            onPress={() => setFollowerPagex(prev => prev + 1)}>
+            onPress={() => setFollowerPage(prev => prev + 1)}>
             <Text style={styles.loadMoreText}>Load More</Text>
           </TouchableOpacity>
         )}

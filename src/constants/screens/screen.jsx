@@ -2,6 +2,9 @@ export const SCREENS = {
   LOGIN: 'login',
   REGISTER: 'signUp',
   FORGOT_USER: 'forgotUserDetails',
+
+  BUDDY_SEARCH: 'buddySearch',
+
   OTP_SCREEN: 'OTPverification',
   COMPLETE_PROFILE: 'completeProfile',
   CHANGE_USER_DETAILS: 'changeUserDetails',

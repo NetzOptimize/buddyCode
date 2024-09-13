@@ -17,6 +17,7 @@ import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
 
 var noDP = require('../../../../../assets/Images/noDP.png');
 var deleteIcon = require('../../../../../assets/Images/delete.png');
+var usersOutline = require('../../../../../assets/Images//usersOutline.png');
 
 const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
   const handleTabChange = tabName => {
@@ -93,54 +94,75 @@ const FriendReq = ({navigation}) => {
   }
 
   if (activeTab == 'Received') {
-    currentTab = followReq?.map(data => (
-      <View key={data?._id} style={styles.blockedListItemContainer}>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-          <FastImage
-            source={data?.profile_image ? {uri: data?.profile_image} : noDP}
-            style={{borderRadius: 1000, width: 44, height: 44}}
-            resizeMode={FastImage.resizeMode.cover}
-          />
-          <Text style={styles.name}>
-            {FullName(data?.first_name, data?.last_name)}
-          </Text>
-        </View>
+    currentTab = (
+      <>
+        {followReq.length == 0 && (
+          <View style={styles.noReqBox}>
+            <Image source={usersOutline} style={{width: 60, height: 60}} />
+            <Text style={styles.noPending}>No Pending Requests</Text>
+          </View>
+        )}
 
-        <View style={{flexDirection: 'row', gap: 4}}>
-          <TouchableOpacity
-            style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
-            onPress={() => RequestAction(data, 'rejected')}>
-            <Image source={deleteIcon} style={{width: 20, height: 20}} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.Btn}
-            onPress={() => RequestAction(data, 'accepted')}>
-            <Text style={styles.Btntext}>Accept request</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    ));
+        {followReq?.map(data => (
+          <View key={data?._id} style={styles.blockedListItemContainer}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+              <FastImage
+                source={data?.profile_image ? {uri: data?.profile_image} : noDP}
+                style={{borderRadius: 1000, width: 44, height: 44}}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+              <Text style={styles.name}>
+                {FullName(data?.first_name, data?.last_name)}
+              </Text>
+            </View>
+
+            <View style={{flexDirection: 'row', gap: 4}}>
+              <TouchableOpacity
+                style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
+                onPress={() => RequestAction(data, 'rejected')}>
+                <Image source={deleteIcon} style={{width: 20, height: 20}} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.Btn}
+                onPress={() => RequestAction(data, 'accepted')}>
+                <Text style={styles.Btntext}>Accept request</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </>
+    );
   } else {
-    currentTab = sentFollowReq?.map(data => (
-      <View key={data?._id} style={styles.blockedListItemContainer}>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-          <FastImage
-            source={data?.profile_image ? {uri: data?.profile_image} : noDP}
-            style={{borderRadius: 1000, width: 44, height: 44}}
-            resizeMode={FastImage.resizeMode.cover}
-          />
-          <Text style={styles.name}>
-            {FullName(data?.first_name, data?.last_name)}
-          </Text>
-        </View>
+    currentTab = (
+      <>
+        {sentFollowReq.length == 0 && (
+          <View style={styles.noReqBox}>
+            <Image source={usersOutline} style={{width: 60, height: 60}} />
+            <Text style={styles.noPending}>No Sent Requests</Text>
+          </View>
+        )}
+        {sentFollowReq?.map(data => (
+          <View key={data?._id} style={styles.blockedListItemContainer}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+              <FastImage
+                source={data?.profile_image ? {uri: data?.profile_image} : noDP}
+                style={{borderRadius: 1000, width: 44, height: 44}}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+              <Text style={styles.name}>
+                {FullName(data?.first_name, data?.last_name)}
+              </Text>
+            </View>
 
-        <TouchableOpacity
-          style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
-          onPress={() => RequestAction(data, 'rejected')}>
-          <Text style={styles.Btntext}>Withdraw request</Text>
-        </TouchableOpacity>
-      </View>
-    ));
+            <TouchableOpacity
+              style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
+              onPress={() => RequestAction(data, 'rejected')}>
+              <Text style={styles.Btntext}>Withdraw request</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </>
+    );
   }
 
   return (
@@ -204,6 +226,18 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 16,
     color: COLORS.LIGHT,
+  },
+  noPending: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 16,
+    color: COLORS.LIGHT,
+  },
+  noReqBox: {
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: '15%',
   },
 });
 

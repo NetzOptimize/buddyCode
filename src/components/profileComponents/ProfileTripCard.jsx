@@ -14,11 +14,15 @@ var comment = require('../../../assets/Images/comment.png');
 var noDP = require('../../../assets/Images/noDP.png');
 var location = require('../../../assets/Images/location.png');
 
+import LottieView from 'lottie-react-native';
+
 const ProfileTripCard = ({tripData, viewComments}) => {
   const {authToken, myUserDetails} = useContext(AuthContext);
 
   const [tripState, setTripState] = useState(tripData);
   const [like, setLike] = useState(false);
+
+  const [showAni, setShowAni] = useState(false);
 
   const likedTripIdToCheck = tripData?._id;
   const isLiked = myUserDetails?.likedTrips?.some(
@@ -42,6 +46,10 @@ const ProfileTripCard = ({tripData, viewComments}) => {
 
   function LikeTrip() {
     setLike(prev => !prev);
+
+    if (!like) {
+      setShowAni(true);
+    }
 
     const updatedTripData = {
       ...tripState,
@@ -94,10 +102,24 @@ const ProfileTripCard = ({tripData, viewComments}) => {
       <View style={{padding: 8}}>
         <View style={styles.actionBtnContainer}>
           <TouchableOpacity style={styles.iconBox} onPress={LikeTrip}>
-            <Image
-              source={like ? redHeart : heart}
-              style={{height: 20, width: 20}}
-            />
+            {showAni ? (
+              <View style={{position: 'absolute', right: -4.2}}>
+                <LottieView
+                  source={require('../../../assets/like.json')}
+                  style={{height: 44, width: 44}}
+                  autoPlay
+                  loop={false}
+                  resizeMode="cover"
+                  onAnimationFinish={() => setShowAni(false)}
+                />
+              </View>
+            ) : (
+              <Image
+                source={like ? redHeart : heart}
+                style={{height: 20, width: 20}}
+              />
+            )}
+
             <Text style={styles.num}>{tripState?.likes_count}</Text>
           </TouchableOpacity>
 

@@ -24,6 +24,7 @@ import SelectPreferences from '../screens/signup/SelectPreferences';
 import FollowPeople from '../screens/signup/FollowPeople';
 import ForgotUserDetails from '../screens/login/forgotDetailsScreens/ForgotUserDetails';
 import ChangeUserDetails from '../screens/login/forgotDetailsScreens/ChangeUserDetails';
+import BuddySearch from '../components/home/BuddySearch';
 
 export default function MyStack() {
   const {authToken, showSplash} = useContext(AuthContext);
@@ -58,6 +59,7 @@ export default function MyStack() {
         <Stack.Screen name={SCREENS.EDIT_TRIP} component={EditTrip} />
         <Stack.Screen name={SCREENS.ONE_CHAT} component={OneChat} />
         <Stack.Screen name={SCREENS.GROUP_CHAT} component={GroupChat} />
+        <Stack.Screen name={SCREENS.BUDDY_SEARCH} component={BuddySearch} />
       </>
     );
   }

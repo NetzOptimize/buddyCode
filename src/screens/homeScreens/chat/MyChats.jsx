@@ -14,6 +14,7 @@ import SearchBar from '../../../components/home/SearchBar';
 import {COLORS, FONTS} from '../../../constants/theme/theme';
 
 var arrow = require('../../../../assets/Images/arrowGrey.png');
+var plus = require('../../../../assets/Images/plus.png');
 
 // **redux
 import {useDispatch, useSelector} from 'react-redux';
@@ -179,6 +180,7 @@ const MyChats = () => {
           profileImage: chatData.to_user.profile_image,
           username: chatData.to_user.username,
           is_chat_approved: true,
+          buddydata: chatData.to_user,
         });
       } else {
         NavigationService.navigate(SCREENS.ONE_CHAT, {
@@ -189,6 +191,7 @@ const MyChats = () => {
           profileImage: chatData.from_user.profile_image,
           username: chatData.from_user.username,
           is_chat_approved: chatData.is_chat_approved,
+          buddydata: chatData.from_user,
         });
       }
     }
@@ -239,38 +242,36 @@ const MyChats = () => {
             color="#7879F1"
           />
         }>
-        <View>
-          <View style={{gap: 16, marginTop: 10}}>
-            {ReqOptions.slice(
-              showPendingChats ? 3 : 0,
-              showPendingChats ? 4 : 4,
-            ).map(data => (
-              <TouchableOpacity
-                key={data.id}
-                style={styles.reqOpContainer}
-                onPress={data.action}>
-                <View
-                  style={{flexDirection: 'row', alignItems: 'center', gap: 24}}>
-                  <Image source={data.image} style={{width: 50, height: 50}} />
-                  <Text style={styles.opText}>{data.name}</Text>
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  {data.length > 0 && (
-                    <View
-                      style={{
-                        borderRadius: 1000,
-                        backgroundColor: showPendingChats
-                          ? COLORS.ERROR
-                          : COLORS.THANOS,
-                      }}>
-                      <Text style={styles.count}>{data.length}</Text>
-                    </View>
-                  )}
-                  <Image source={arrow} style={{width: 24, height: 24}} />
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
+        <View style={{gap: 16, marginTop: 10}}>
+          {ReqOptions.slice(
+            showPendingChats ? 3 : 0,
+            showPendingChats ? 4 : 4,
+          ).map(data => (
+            <TouchableOpacity
+              key={data.id}
+              style={styles.reqOpContainer}
+              onPress={data.action}>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 24}}>
+                <Image source={data.image} style={{width: 50, height: 50}} />
+                <Text style={styles.opText}>{data.name}</Text>
+              </View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                {data.length > 0 && (
+                  <View
+                    style={{
+                      borderRadius: 1000,
+                      backgroundColor: showPendingChats
+                        ? COLORS.ERROR
+                        : COLORS.THANOS,
+                    }}>
+                    <Text style={styles.count}>{data.length}</Text>
+                  </View>
+                )}
+                <Image source={arrow} style={{width: 24, height: 24}} />
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <View style={styles.hr} />
@@ -292,6 +293,17 @@ const MyChats = () => {
 
         <View style={{height: 104}} />
       </ScrollView>
+
+      <TouchableOpacity
+        style={styles.addChatButton}
+        onPress={() =>
+          NavigationService.navigate(SCREENS.BUDDY_SEARCH, {
+            isForChat: true,
+            isForTrip: false,
+          })
+        }>
+        <Image source={plus} style={{width: 32, height: 32}} />
+      </TouchableOpacity>
     </RegularBG>
   );
 };
@@ -323,6 +335,22 @@ const styles = StyleSheet.create({
     color: COLORS.LIGHT,
     paddingLeft: 8,
     paddingRight: 8,
+  },
+  addChatButton: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#7879F1',
+    borderRadius: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: 'black',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    position: 'absolute',
+    bottom: 116,
+    right: 0,
   },
 });
 

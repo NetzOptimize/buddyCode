@@ -28,9 +28,7 @@ const UserMeta = ({
         }}
         disabled={isPrivate}>
         <Text style={styles.attributeTag}>Followers</Text>
-        <Text style={styles.attributeName}>
-          {userData?.user?.followers?.length}
-        </Text>
+        <Text style={styles.attributeName}>{userData?.followerCount}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -49,8 +47,8 @@ const UserMeta = ({
         disabled={isPrivate}>
         <Text style={styles.attributeTag}>Following</Text>
         <Text style={styles.attributeName}>
-          {userData?.user?.following?.length}
-        </Text>
+          {userData?.followingCount}
+        </Text> 
       </TouchableOpacity>
 
       <TouchableOpacity

@@ -63,7 +63,6 @@ const MyProfileStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name={SCREENS.MY_PROFILE} component={MyProfile} />
-      <Stack.Screen name={'BuddySearch'} component={BuddySearch} />
       <Stack.Screen
         name={SCREENS.PROFILE_SETTINGS}
         component={ProfileSettings}
@@ -266,7 +265,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   tabBarStyle: {
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    backgroundColor: 'black',
     position: 'absolute',
     bottom: -0.5,
     borderTopColor: 'transparent',

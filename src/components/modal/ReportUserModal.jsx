@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Modal,
   StyleSheet,
@@ -12,16 +12,21 @@ import {
 import {COLORS, FONTS} from '../../constants/theme/theme';
 import LearnMoreButton from '../buttons/LearnMoreButton';
 import {AuthContext} from '../../context/AuthContext';
+import {ENDPOINT} from '../../constants/endpoints/endpoints';
+import axios from 'axios';
 
 const close = require('../../../assets/Images/close.png');
 const arrowGrey = require('../../../assets/Images/arrowGrey.png');
 const checkGreen = require('../../../assets/Images/checkGreen.png');
 
 const ReportUserModal = ({visible, onClose}) => {
-  const {setShowBlockReportPopUp} = useContext(AuthContext);
+  const {setShowBlockReportPopUp, authToken} = useContext(AuthContext);
 
-  const [reason, setReason] = useState(null);
+  const [reason, setReason] = useState(false);
   const [isReported, setIsReported] = useState(false);
+
+  const [fetchedReasons, setFetchedReasons] = useState(null);
+  const [selectReason, setSelectReason] = useState(null);
 
   const handleClose = () => {
     setReason(null);
@@ -30,61 +35,16 @@ const ReportUserModal = ({visible, onClose}) => {
   };
 
   const handleGoBack = () => {
-    setReason(null);
+    setReason(false);
     setIsReported(false);
+    setSelectReason(null);
   };
 
   const issues = [
     {
-      id: 1,
-      text: 'They are pretending to be someone else.',
-      action: () => setReason(1),
-    },
-    {
       id: 2,
       text: 'It may be under the age of 18.',
       action: () => setReason(2),
-    },
-    {
-      id: 3,
-      text: 'Something else.',
-      action: () => setReason(3),
-    },
-  ];
-
-  const reason1 = [
-    {
-      id: 1,
-      text: 'Me',
-      action: () => setIsReported(true),
-    },
-    {
-      id: 2,
-      text: 'Someone else',
-      action: () => setIsReported(true),
-    },
-  ];
-
-  const reason3 = [
-    {
-      id: 1,
-      text: 'It’s spam',
-      action: () => setIsReported(true),
-    },
-    {
-      id: 2,
-      text: 'I just don’t like it',
-      action: () => setIsReported(true),
-    },
-    {
-      id: 3,
-      text: 'Sale of illegal or regulated goods',
-      action: () => setIsReported(true),
-    },
-    {
-      id: 4,
-      text: 'Nudity or sexual activity',
-      action: () => setIsReported(true),
     },
   ];
 
@@ -112,6 +72,25 @@ const ReportUserModal = ({visible, onClose}) => {
 
   let BodyContent;
 
+  useEffect(() => {
+    function GetReasons() {
+      axios
+        .get(ENDPOINT.REPORT_REASONS, {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        })
+        .then(res => {
+          setFetchedReasons(res.data.data.reasons);
+        })
+        .catch(err => {
+          console.log('failed to get reasons');
+        });
+    }
+
+    GetReasons();
+  }, []);
+
   if (!reason && !isReported) {
     BodyContent = (
       <>
@@ -122,30 +101,40 @@ const ReportUserModal = ({visible, onClose}) => {
         </Text>
         <View style={styles.hr} />
         <View style={styles.issuesContainer}>
-          {issues.map(issue => (
+          {fetchedReasons?.map((issue, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.issueContainer}
+              onPress={() => {
+                setSelectReason(issue.sub_reasons[0]);
+                setReason(true);
+              }}>
+              <Text style={styles.issueText}>{issue?.reason_title}</Text>
+              <Image source={arrowGrey} style={styles.arrowIcon} />
+            </TouchableOpacity>
+          ))}
+
+          {issues?.map(issue => (
             <TouchableOpacity
               key={issue.id}
               style={styles.issueContainer}
               onPress={issue.action}>
-              <Text style={styles.issueText}>{issue.text}</Text>
+              <Text style={styles.issueText}>{issue?.text}</Text>
               <Image source={arrowGrey} style={styles.arrowIcon} />
             </TouchableOpacity>
           ))}
         </View>
       </>
     );
-  } else if (reason == 1) {
+  } else if (selectReason) {
     BodyContent = (
       <>
         <View style={styles.hr} />
-        <Text style={styles.reasonTitle}>Who are they pretending to be?</Text>
+        <Text style={styles.reasonTitle}>{selectReason?.reason_title}</Text>
         <View style={styles.issuesContainer}>
-          {reason1.map(issue => (
-            <TouchableOpacity
-              key={issue.id}
-              style={styles.issueContainer}
-              onPress={issue.action}>
-              <Text style={styles.issueText}>{issue.text}</Text>
+          {selectReason?.reason_options?.map((reason, i) => (
+            <TouchableOpacity key={i} style={styles.issueContainer} onPress={() => setIsReported(true)}>
+              <Text style={styles.issueText}>{reason}</Text>
               <Image source={arrowGrey} style={styles.arrowIcon} />
             </TouchableOpacity>
           ))}
@@ -167,26 +156,6 @@ const ReportUserModal = ({visible, onClose}) => {
           </Text>
 
           <LearnMoreButton title={'Learn More'} />
-        </View>
-      </>
-    );
-  } else if (reason == 3) {
-    BodyContent = (
-      <>
-        <View style={styles.hr} />
-        <Text style={styles.reasonTitle}>
-          Why are you reporting this account?
-        </Text>
-        <View style={styles.issuesContainer}>
-          {reason3.map(issue => (
-            <TouchableOpacity
-              key={issue.id}
-              style={styles.issueContainer}
-              onPress={issue.action}>
-              <Text style={styles.issueText}>{issue.text}</Text>
-              <Image source={arrowGrey} style={styles.arrowIcon} />
-            </TouchableOpacity>
-          ))}
         </View>
       </>
     );

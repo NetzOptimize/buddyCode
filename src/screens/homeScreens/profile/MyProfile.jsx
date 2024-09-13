@@ -33,6 +33,7 @@ import {useDispatch} from 'react-redux';
 import {fetchTripComments} from '../../../redux/slices/tripCommentsSlice';
 import CommentBottomSheet from '../../../components/profileComponents/CommentBottomSheet';
 import NavigationService from '../../../config/NavigationService';
+import {SCREENS} from '../../../constants/screens/screen';
 
 const MyProfile = () => {
   const {
@@ -77,7 +78,7 @@ const MyProfile = () => {
         <View style={{marginTop: 14}}>
           <SearchButton
             onPress={() =>
-              NavigationService.navigate('BuddySearch', {
+              NavigationService.navigate(SCREENS.BUDDY_SEARCH, {
                 isForChat: false,
                 isForTrip: false,
               })
