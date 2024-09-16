@@ -8,22 +8,29 @@ import {
   Text,
   Image,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import {COLORS, FONTS} from '../../constants/theme/theme';
 import LearnMoreButton from '../buttons/LearnMoreButton';
 import {AuthContext} from '../../context/AuthContext';
 import {ENDPOINT} from '../../constants/endpoints/endpoints';
 import axios from 'axios';
+import ActionButton from '../buttons/ActionButton';
 
 const close = require('../../../assets/Images/close.png');
 const arrowGrey = require('../../../assets/Images/arrowGrey.png');
 const checkGreen = require('../../../assets/Images/checkGreen.png');
 
-const ReportUserModal = ({visible, onClose}) => {
-  const {setShowBlockReportPopUp, authToken} = useContext(AuthContext);
+const ReportUserModal = ({visible, onClose, reportThisUser}) => {
+  const {setShowBlockReportPopUp, authToken, myUserDetails} =
+    useContext(AuthContext);
 
   const [reason, setReason] = useState(false);
   const [isReported, setIsReported] = useState(false);
+  const [reportingLoading, setReportingLoading] = useState({
+    loading: false,
+    reason: null,
+  });
 
   const [fetchedReasons, setFetchedReasons] = useState(null);
   const [selectReason, setSelectReason] = useState(null);
@@ -51,7 +58,7 @@ const ReportUserModal = ({visible, onClose}) => {
   const otherActions = [
     {
       id: 1,
-      text: 'Block Maria',
+      text: `Block ${reportThisUser?.user?.first_name} ${reportThisUser?.user?.last_name}`,
       action: () => {
         handleClose();
         setShowBlockReportPopUp({
@@ -90,6 +97,41 @@ const ReportUserModal = ({visible, onClose}) => {
 
     GetReasons();
   }, []);
+
+  function ReportFunction(reason) {
+    setReportingLoading({
+      loading: true,
+      reason: reason,
+    });
+
+    setIsReported(true);
+
+    const url = ENDPOINT.REPORT_USER;
+
+    const data = {
+      user_id: myUserDetails?.user?._id,
+      reported_user_id: reportThisUser.user._id,
+      reporting_reason_id: selectReason?._id,
+      selected_option: reason,
+    };
+
+    axios
+      .post(url, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('reported this user', res.data);
+        setReportingLoading({
+          loading: false,
+          reason: '',
+        });
+      })
+      .catch(err => {
+        console.log('failed to report user', err, data, url);
+      });
+  }
 
   if (!reason && !isReported) {
     BodyContent = (
@@ -133,8 +175,17 @@ const ReportUserModal = ({visible, onClose}) => {
         <Text style={styles.reasonTitle}>{selectReason?.reason_title}</Text>
         <View style={styles.issuesContainer}>
           {selectReason?.reason_options?.map((reason, i) => (
-            <TouchableOpacity key={i} style={styles.issueContainer} onPress={() => setIsReported(true)}>
-              <Text style={styles.issueText}>{reason}</Text>
+            <TouchableOpacity
+              key={i}
+              style={styles.issueContainer}
+              onPress={() => ReportFunction(reason)}>
+              <Text style={styles.issueText}>
+                {reportingLoading.reason == reason ? (
+                  <ActivityIndicator color={COLORS.THANOS} />
+                ) : (
+                  reason
+                )}
+              </Text>
               <Image source={arrowGrey} style={styles.arrowIcon} />
             </TouchableOpacity>
           ))}

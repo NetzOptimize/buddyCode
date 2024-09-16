@@ -41,6 +41,7 @@ import axios from 'axios';
 import RequestedButton from '../../../components/buttons/RequestedButton';
 
 var lock = require('../../../../assets/Images/lock.png');
+var block = require('../../../../assets/Images/block.png');
 
 const BuddyProfile = ({route, navigation}) => {
   const {
@@ -58,6 +59,7 @@ const BuddyProfile = ({route, navigation}) => {
 
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
+  const {blockedUsers} = useSelector(state => state.blockedUsers);
 
   useEffect(() => {
     if (
@@ -95,7 +97,7 @@ const BuddyProfile = ({route, navigation}) => {
           user => user._id === (buddyData?.id ? buddyData?.id : buddyData?._id),
         ),
       );
-    }, [buddyData?.id]),
+    }, [buddyData?.id ? buddyData?.id : buddyData?._id]),
   );
 
   useEffect(() => {
@@ -121,8 +123,6 @@ const BuddyProfile = ({route, navigation}) => {
   };
 
   async function handleFollowUnfollow(buddyId) {
-    console.log(buddyId);
-
     const userData = {
       followee: buddyId,
     };
@@ -159,39 +159,43 @@ const BuddyProfile = ({route, navigation}) => {
     }
   }
 
+  const checkThisId = buddyData?.id ? buddyData?.id : buddyData?._id;
   let isPrivate = isFollowed ? false : buddyDetails?.user?.is_private;
+  let isBlocked = blockedUsers.some(item => item._id === checkThisId);
 
   return (
     <RegularBG>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.backOpContainer}>
           <BackButton onPress={handleBackPress} />
-          <View style={styles.actionButtonsBox}>
-            {isRequested ? (
-              <RequestedButton />
-            ) : isFollowed ? (
-              <FollowedButton
-                onPress={() =>
-                  handleFollowUnfollow(
-                    buddyData?.id ? buddyData?.id : buddyData?._id,
-                  )
-                }
-                loading={followLoading}
-                disabled={followLoading}
-              />
-            ) : (
-              <FollowButton
-                onPress={() =>
-                  handleFollowUnfollow(
-                    buddyData?.id ? buddyData?.id : buddyData?._id,
-                  )
-                }
-                loading={followLoading}
-                disabled={followLoading}
-              />
-            )}
-            <BuddyOptionsBtn />
-          </View>
+          {isBlocked ? null : (
+            <View style={styles.actionButtonsBox}>
+              {isRequested ? (
+                <RequestedButton />
+              ) : isFollowed ? (
+                <FollowedButton
+                  onPress={() =>
+                    handleFollowUnfollow(
+                      buddyData?.id ? buddyData?.id : buddyData?._id,
+                    )
+                  }
+                  loading={followLoading}
+                  disabled={followLoading}
+                />
+              ) : (
+                <FollowButton
+                  onPress={() =>
+                    handleFollowUnfollow(
+                      buddyData?.id ? buddyData?.id : buddyData?._id,
+                    )
+                  }
+                  loading={followLoading}
+                  disabled={followLoading}
+                />
+              )}
+              <BuddyOptionsBtn />
+            </View>
+          )}
         </View>
 
         <View style={styles.userDetailsContainer}>
@@ -216,7 +220,7 @@ const BuddyProfile = ({route, navigation}) => {
             </View>
           ) : (
             <>
-              {!isPrivate && (
+              {isPrivate || isBlocked ? null : (
                 <UserPreferences
                   preferences={buddyDetails?.user?.preferences}
                 />
@@ -227,10 +231,10 @@ const BuddyProfile = ({route, navigation}) => {
                 userData={buddyDetails}
                 tripCount={buddyTrips.length}
                 myMeta={false}
-                isPrivate={isPrivate}
+                isPrivate={isPrivate || isBlocked}
               />
 
-              {!isPrivate && (
+              {isPrivate || isBlocked ? null : (
                 <View style={styles.homeTripCardContainer}>
                   {buddyTrips.map((trip, i) => (
                     <ProfileTripCard
@@ -242,16 +246,23 @@ const BuddyProfile = ({route, navigation}) => {
                 </View>
               )}
 
-              {isPrivate && (
+              {(isPrivate || isBlocked) && (
                 <View style={{gap: 16, alignItems: 'center', marginTop: 80}}>
-                  <Image source={lock} style={{width: 80, height: 80}} />
+                  <Image
+                    source={isBlocked ? block : lock}
+                    style={{width: 80, height: 80}}
+                  />
 
                   <View style={{gap: 8}}>
                     <Text style={styles.privateTitle1}>
-                      This Account is Private
+                      {isBlocked
+                        ? `You've Blocked this account`
+                        : 'This Account is Private'}
                     </Text>
                     <Text style={styles.privateTitle2}>
-                      Follow this account to see their Trips.
+                      {isBlocked
+                        ? `Unblock this account to see their Trips`
+                        : 'Follow this account to see their Trips.'}
                     </Text>
                   </View>
                 </View>
@@ -284,6 +295,7 @@ const BuddyProfile = ({route, navigation}) => {
             state: false,
           })
         }
+        reportThisUser={buddyDetails}
       />
     </RegularBG>
   );
@@ -338,11 +350,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_REG,
     color: COLORS.LIGHT,
     fontSize: 20,
+    textAlign: 'center',
   },
   privateTitle2: {
     fontFamily: FONTS.MAIN_REG,
     color: COLORS.LIGHT,
     fontSize: 12,
+    textAlign: 'center',
   },
 });
 

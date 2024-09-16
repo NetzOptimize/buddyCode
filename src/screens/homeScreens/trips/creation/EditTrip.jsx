@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 
 import React, {useContext, useEffect, useState} from 'react';
@@ -20,6 +21,7 @@ import Toast from 'react-native-toast-message';
 import {AuthContext} from '../../../../context/AuthContext';
 import axios from 'axios';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 var plus = require('../../../../../assets/Images/plus.png');
 var close = require('../../../../../assets/Images/close.png');
@@ -82,7 +84,7 @@ function DestinationInput({tripDestinations, setTripDestinations}) {
 const EditTrip = ({navigation, route}) => {
   const {tripData} = route.params;
 
-  const {myUserDetails, authToken} = useContext(AuthContext);
+  const {myUserDetails, authToken, setMyTrips} = useContext(AuthContext);
 
   const [tripName, setTripName] = useState('');
   const [tripDestinations, setTripDestinations] = useState(['']);
@@ -176,8 +178,6 @@ const EditTrip = ({navigation, route}) => {
     }
   }
 
-  // console.log(tripData.trip._id)
-
   function UpdateTrip() {
     setIsLoading(true);
 
@@ -216,10 +216,69 @@ const EditTrip = ({navigation, route}) => {
       });
   }
 
+  const deleteAlert = () => {
+    Alert.alert(
+      `Delete ${tripName} ?`,
+      `Are you sure you want to delete this trip?`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('No Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: () => {
+            DELETE_TRIP();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  async function DELETE_TRIP() {
+    const deleteTripURL = `${ENDPOINT.GET_PENDING_PAYMENTS}/${tripData?.trip?._id}`;
+
+    setIsLoading(true);
+
+    await axios
+      .delete(deleteTripURL, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        removeTripById(tripData?.trip?._id);
+      })
+      .catch(err => {
+        console.log('could not delete trip:', err.response.data);
+        setIsLoading(false);
+      });
+  }
+
+  function removeTripById(tripId) {
+    setIsLoading(false);
+
+    setMyTrips(prevState => {
+      const updatedTrips = prevState.trips.filter(trip => trip._id !== tripId);
+
+      return {
+        ...prevState,
+        trips: updatedTrips,
+      };
+    });
+    navigation.navigate(SCREENS.TRIPS_LIST);
+  }
+
   return (
     <RegularBG>
-      <View style={{marginTop: 14, marginBottom: 14}}>
-        <BackButton title={'Create Trip'} onPress={() => navigation.goBack()} />
+      <Spinner visible={loading} color={COLORS.THANOS} />
+      <View style={styles.topHeaderBox}>
+        <BackButton title={'Edit Trip'} onPress={() => navigation.goBack()} />
+        <TouchableOpacity onPress={deleteAlert}>
+          <Text style={styles.deleteText}>Delete Trip</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={{marginTop: 14}} showsVerticalScrollIndicator={false}>
@@ -358,5 +417,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: FONTS.MAIN_REG,
     color: COLORS.LIGHT,
+  },
+  topHeaderBox: {
+    marginTop: 14,
+    marginBottom: 14,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  deleteText: {
+    fontSize: 12,
+    fontFamily: FONTS.MAIN_SEMI,
+    color: COLORS.ERROR,
   },
 });

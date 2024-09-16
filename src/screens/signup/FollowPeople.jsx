@@ -26,14 +26,64 @@ function UserCard({user, authToken, followingArr, setFollowingArr}) {
     return `${user.first_name} ${user.last_name}`;
   }
 
+  async function handleFollow(buddyId) {
+    const userData = {
+      followee: buddyId,
+    };
+
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: ENDPOINT.FOLLOW_USER,
+        data: userData,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authToken,
+        },
+      });
+
+      console.log(response.data.data.status);
+    } catch (error) {
+      console.log('Failed to follow or unfollow:', error.response.data);
+    }
+  }
+
+  async function handleUnfollow(buddyId) {
+    const userData = {
+      followee: buddyId,
+    };
+
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: ENDPOINT.UNFOLLOW_USER,
+        data: userData,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authToken,
+        },
+      });
+
+      console.log('unfollow', response.data);
+    } catch (error) {
+      console.log(
+        'Failed to follow or unfollow:',
+        error.response.data,
+        ENDPOINT.UNFOLLOW_USER,
+      );
+    }
+  }
+
   const followHandle = id => {
     if (!followingArr.includes(id)) {
       setFollowingArr([...followingArr, id]);
+      handleFollow(id);
     } else if (followingArr.includes(id)) {
       let removeBuddy = followingArr;
       removeBuddy = removeBuddy.filter(value => {
         return value !== id;
       });
+      handleUnfollow(id);
       setFollowingArr(removeBuddy);
     }
   };
@@ -41,7 +91,9 @@ function UserCard({user, authToken, followingArr, setFollowingArr}) {
   return (
     <TouchableOpacity
       style={followingArr.includes(user._id) ? styles.activeCard : styles.card}
-      onPress={() => followHandle(user._id)}>
+      onPress={() => {
+        followHandle(user._id);
+      }}>
       <FastImage
         source={user.profile_image ? {uri: user.profile_image} : noDP}
         style={{width: 40, height: 40, borderRadius: 1000}}
@@ -116,8 +168,7 @@ const FollowPeople = ({navigation, route}) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <BackButton onPress={() => navigation.goBack()} />
-          <TouchableOpacity
-            onPress={() => registrationComplete(true)}>
+          <TouchableOpacity onPress={() => registrationComplete(true)}>
             <Text style={styles.skip}>Skip</Text>
           </TouchableOpacity>
         </View>

@@ -273,7 +273,6 @@ const GroupChat = ({navigation}) => {
         },
       })
       .then(res => {
-        console.log('success polls get');
         setPolls(res.data.data.pollData);
       })
       .catch(err => {
@@ -625,7 +624,9 @@ const GroupChat = ({navigation}) => {
       });
   }
 
-  function handleOpenTrip() {}
+  function handleOpenTrip() {
+    console.log('open trip');
+  }
 
   return (
     <WideBG>

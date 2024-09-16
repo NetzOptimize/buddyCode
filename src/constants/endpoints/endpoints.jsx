@@ -45,15 +45,14 @@ export const ENDPOINT = {
   GET_FOLLOWERS: BASE_URL + '/v1/app/followings/get-followers',
   GET_FOLLOWING: BASE_URL + '/v1/app/followings/get-followings',
   FOLLOW_USER: BASE_URL + '/v1/app/followings/follow-users',
+  UNFOLLOW_USER: BASE_URL + '/v1/app/followings/unfollow-user',
   CREATE_TRIP: BASE_URL + '/v1/app/trip_creation/create',
   UPDATE_TRIP: BASE_URL + '/v1/app/trip_creation/update',
   LEAVE_TRIP: BASE_URL + '/v1/app/trip_creation/leave',
   REMOVE_BUBBLE: BASE_URL + '/v1/app/chats/update-chat',
   ADD_ONE_CHAT: BASE_URL + '/v1/app/chats/create/group-to-one',
-
   DELETE_CHAT: BASE_URL + '/v1/app/chats',
   UPDATE_CHAT: BASE_URL + '/v1/app/chats/update-chat',
-
   SEND_NOTIFICAION: BASE_URL + '/v1/app/notification/send',
   UPDATE_CHAT: BASE_URL + '/v1/app/chats/update-chat',
   ADD_EVENT: BASE_URL + '/v1/app/trip_events/create',
@@ -66,6 +65,6 @@ export const ENDPOINT = {
   CREATE_POLL: BASE_URL + '/v1/app/poll/create',
   GET_POLLS: BASE_URL + '/v1/app/poll/get',
   ADD_VOTE: BASE_URL + '/v1/app/poll/vote/create',
-
   REPORT_REASONS: BASE_URL + '/v1/app/reporting-reasons',
+  REPORT_USER: BASE_URL + '/v1/app/user-reports'
 };

@@ -15,9 +15,10 @@ import {ENDPOINT} from '../../constants/endpoints/endpoints';
 var noDP = require('../../../assets/Images/noDP.png');
 
 const FollowListItem = ({data, onViewProfile, isFollowing}) => {
-  const {myUserDetails, authToken, VerifyToken} = useContext(AuthContext);
+  const {myUserDetails, authToken} = useContext(AuthContext);
 
   const [isFollowed, setIsFollowed] = useState(false);
+  const [isRequested, setIsRequested] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -28,27 +29,31 @@ const FollowListItem = ({data, onViewProfile, isFollowing}) => {
     return `${firstName} ${lastName}`;
   }
 
-  async function handleFollowUnfollow(buddyId) {
-    let formData = new FormData();
-    formData.append('following', buddyId);
+  async function handleFollow(buddyId) {
+    const userData = {
+      followee: buddyId,
+    };
 
     setLoading(true);
 
     try {
       const response = await axios({
-        method: 'put',
-        url: ENDPOINT.UPDATE_PROFILE,
-        data: formData,
+        method: 'POST',
+        url: ENDPOINT.FOLLOW_USER,
+        data: userData,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
           Authorization: 'Bearer ' + authToken,
         },
       });
 
-      // dispatch(fetchBuddyDetails(buddyId));
-      setIsFollowed(prevValue => !prevValue);
+      if (response.data.data.status !== 'pending') {
+        setIsFollowed(prevValue => !prevValue);
+      } else if (response.data.data.status == 'pending') {
+        setIsRequested(true);
+      }
     } catch (error) {
-      console.log('Failed to follow or unfollow:', error);
+      console.log('Failed to follow or unfollow:', error.response.data);
     } finally {
       setLoading(false);
     }
@@ -72,13 +77,13 @@ const FollowListItem = ({data, onViewProfile, isFollowing}) => {
       {myUserDetails?.user?._id !== data?._id ? (
         isFollowed ? (
           <FollowedButton
-            onPress={() => handleFollowUnfollow(data?._id)}
+            onPress={() => handleFollow(data?._id)}
             loading={loading}
             disabled={loading}
           />
         ) : (
           <FollowButton
-            onPress={() => handleFollowUnfollow(data?._id)}
+            onPress={() => handleFollow(data?._id)}
             loading={loading}
             disabled={loading}
           />

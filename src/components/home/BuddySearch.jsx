@@ -289,6 +289,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.GREY_DARK,
     paddingLeft: 16,
     paddingRight: 0,
+    borderTopWidth: 0.5,
+    borderColor: COLORS.SWEDEN,
   },
   memberContainer: {
     marginRight: 16,

@@ -14,11 +14,15 @@ import Toast from 'react-native-toast-message';
 import {AuthContext} from '../../context/AuthContext';
 import {ENDPOINT} from '../../constants/endpoints/endpoints';
 import axios from 'axios';
+import {useDispatch} from 'react-redux';
+import {fetchBlockedUsers} from '../../redux/slices/blockedUsersSlice';
 
 var close = require('../../../assets/Images/close.png');
 
 const BlockUserModal = ({visible, onClose}) => {
   const {blockUserData, authToken} = useContext(AuthContext);
+
+  const dispatch = useDispatch();
 
   function getFullName(firstName, lastName) {
     return `${firstName} ${lastName}`;
@@ -59,6 +63,7 @@ const BlockUserModal = ({visible, onClose}) => {
       });
 
       onClose();
+      dispatch(fetchBlockedUsers());
 
       Toast.show({
         type: 'error',

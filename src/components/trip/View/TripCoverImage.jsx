@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -14,8 +14,18 @@ var location = require('../../../../assets/Images/location.png');
 var cam = require('../../../../assets/Images/cam.png');
 var deleteIcon = require('../../../../assets/Images/delete.png');
 
+import OpenCamModal from '../../modal/OpenCamModal';
+import {handleCameraPermission} from '../../../config/mediaPermission';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {ENDPOINT} from '../../../constants/endpoints/endpoints';
+import {AuthContext} from '../../../context/AuthContext';
+import Toast from 'react-native-toast-message';
+import axios from 'axios';
+
 const TripCoverImage = ({tripData, source, setSource}) => {
   const {tripInfo, loading, error} = useSelector(state => state.tripDetails);
+
+  const {authToken} = useContext(AuthContext);
 
   const tripStartingTime = new Date(
     tripInfo
@@ -48,6 +58,83 @@ const TripCoverImage = ({tripData, source, setSource}) => {
     year: 'numeric',
   });
 
+  const [open, setOpen] = useState(false);
+
+  const handleCameraImagePicker = async () => {
+    const hasPermission = await handleCameraPermission();
+    if (hasPermission) {
+      console.log(hasPermission);
+      openCameraImagePicker();
+    }
+  };
+
+  function handleGalleryPicker() {
+    const options = {
+      quality: 0.3,
+    };
+    launchImageLibrary(options, response => {
+      setOpen(false);
+
+      if (response.didCancel === true) {
+        console.log('user canceled');
+      } else {
+        setSource(response.assets[0].uri);
+        updateCoverImg(tripInfo?.trip?._id, response.assets[0].uri);
+      }
+    });
+  }
+
+  function openCameraImagePicker() {
+    const options = {};
+
+    launchCamera(options, response => {
+      setOpen(false);
+
+      if (response.didCancel === true) {
+        console.log('user canceled');
+      } else {
+        setSource(response.assets[0].uri);
+        updateCoverImg(tripInfo?.trip?._id, response.assets[0].uri);
+      }
+    });
+  }
+
+  function updateCoverImg(tripId, imgUri) {
+    const addTripCoverURL = `${ENDPOINT.UPDATE_TRIP}/${tripId}`;
+
+    const formData = new FormData();
+
+    if (imgUri) {
+      formData.append('trip_image', {
+        uri: imgUri,
+        type: 'image/jpeg',
+        name: 'test.jpg',
+      });
+    } else {
+      formData.append('trip_image', 'null');
+    }
+
+    axios({
+      method: 'PUT',
+      url: addTripCoverURL,
+      data: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + authToken,
+      },
+    })
+      .then(res => {
+        Toast.show({
+          type: 'success',
+          text2: 'Cover Image Updated',
+        });
+      })
+      .catch(err => {
+        console.log('Failed to add Image', err?.response?.data || err);
+      });
+  }
+
   if (!source) {
     return (
       <View>
@@ -77,15 +164,29 @@ const TripCoverImage = ({tripData, source, setSource}) => {
           </View>
 
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => setOpen(true)}>
               <Image source={cam} style={{width: 20, height: 20}} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                setSource(null);
+                updateCoverImg(tripInfo?.trip?._id);
+              }}>
               <Image source={deleteIcon} style={{width: 20, height: 20}} />
             </TouchableOpacity>
           </View>
         </View>
+
+        <OpenCamModal
+          visible={open}
+          onClose={() => setOpen(false)}
+          onCamPress={handleCameraImagePicker}
+          onLibraryPress={handleGalleryPicker}
+        />
       </View>
     );
   }
@@ -120,16 +221,30 @@ const TripCoverImage = ({tripData, source, setSource}) => {
           </View>
 
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => setOpen(true)}>
               <Image source={cam} style={{width: 20, height: 20}} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                setSource(null);
+                updateCoverImg(tripInfo?.trip?._id);
+              }}>
               <Image source={deleteIcon} style={{width: 20, height: 20}} />
             </TouchableOpacity>
           </View>
         </View>
       </ImageBackground>
+
+      <OpenCamModal
+        visible={open}
+        onClose={() => setOpen(false)}
+        onCamPress={handleCameraImagePicker}
+        onLibraryPress={handleGalleryPicker}
+      />
     </View>
   );
 };

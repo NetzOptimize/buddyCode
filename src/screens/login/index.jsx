@@ -106,6 +106,14 @@ const Login = ({navigation}) => {
           err?.response?.data ? err?.response?.data : err,
         );
 
+        if (err?.response?.data == undefined) {
+          Toast.show({
+            type: 'error',
+            text1: 'Sign-In failed',
+            text2: 'Network Error',
+          });
+        }
+
         if (err.response.data.status == 400) {
           Toast.show({
             type: 'error',
