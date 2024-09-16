@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, Image} from 'react-native';
+import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
 import FastImage from 'react-native-fast-image';
 import BackButton from '../buttons/BackButton';
@@ -17,12 +17,20 @@ var optionsBtn = require('../../../assets/Images/moreButton.png');
 
 var noDP = require('../../../assets/Images/noGroupPic.png');
 
-const GroupChatHeader = ({goBack, name, memberCount, profileImage}) => {
+const GroupChatHeader = ({
+  goBack,
+  name,
+  memberCount,
+  profileImage,
+  onViewTrip,
+}) => {
   return (
     <View style={styles.container}>
       <View style={{flexDirection: 'row'}}>
         <BackButton onPress={goBack} />
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 16}}>
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center', gap: 16}}
+          onPress={onViewTrip}>
           <FastImage
             source={profileImage ? {uri: profileImage} : noDP}
             style={styles.dpStyle}
@@ -31,7 +39,7 @@ const GroupChatHeader = ({goBack, name, memberCount, profileImage}) => {
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.username}>{memberCount} Buddies</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

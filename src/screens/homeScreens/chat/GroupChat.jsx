@@ -625,6 +625,8 @@ const GroupChat = ({navigation}) => {
       });
   }
 
+  function handleOpenTrip() {}
+
   return (
     <WideBG>
       <Spinner visible={loading} color={COLORS.THANOS} />
@@ -633,6 +635,7 @@ const GroupChat = ({navigation}) => {
         name={localGroupDetails?.chatData?.group_name}
         profileImage={localGroupDetails?.chatData?.profileImage}
         memberCount={localGroupDetails.chatData.members.length + 1}
+        onViewTrip={handleOpenTrip}
       />
 
       <ScrollView
@@ -1103,7 +1106,7 @@ const styles = StyleSheet.create({
   },
   lineBreak: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: COLORS.SWEDEN,
     width: '105%',
     alignSelf: 'center',
     marginTop: 15,
