@@ -14,11 +14,10 @@ import {ENDPOINT} from '../../constants/endpoints/endpoints';
 // **image
 var noDP = require('../../../assets/Images/noDP.png');
 
-const FollowListItem = ({data, onViewProfile, isFollowing}) => {
+const FollowListItem = ({data, onViewProfile, isFollowing, hitAPI}) => {
   const {myUserDetails, authToken} = useContext(AuthContext);
 
   const [isFollowed, setIsFollowed] = useState(false);
-  const [isRequested, setIsRequested] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -49,14 +48,35 @@ const FollowListItem = ({data, onViewProfile, isFollowing}) => {
 
       if (response.data.data.status !== 'pending') {
         setIsFollowed(prevValue => !prevValue);
-      } else if (response.data.data.status == 'pending') {
-        setIsRequested(true);
       }
     } catch (error) {
       console.log('Failed to follow or unfollow:', error.response.data);
     } finally {
       setLoading(false);
     }
+  }
+
+  function unFollow(buddyId) {
+    const data = {
+      followee: buddyId,
+    };
+
+    setLoading(true);
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        setIsFollowed(false);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.log('failed to take action', err?.response?.data || err);
+        setLoading(false);
+      });
   }
 
   return (
@@ -77,7 +97,7 @@ const FollowListItem = ({data, onViewProfile, isFollowing}) => {
       {myUserDetails?.user?._id !== data?._id ? (
         isFollowed ? (
           <FollowedButton
-            onPress={() => handleFollow(data?._id)}
+            onPress={() => unFollow(data?._id)}
             loading={loading}
             disabled={loading}
           />

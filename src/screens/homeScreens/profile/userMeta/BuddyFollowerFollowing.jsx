@@ -77,6 +77,11 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
   const [followingPage, setFollowingPage] = useState(1);
   const [followerPage, setFollowerPage] = useState(1);
 
+  function hitAPI() {
+    getFollowers(followerPage);
+    getFollowing(followingPage);
+  }
+
   useEffect(() => {
     getFollowers(followerPage);
     getFollowing(followingPage);
@@ -144,6 +149,7 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
             key={data?._id}
             data={data}
             type={activeTab}
+            hitAPI={hitAPI}
             isFollowing={myUserDetails?.user?.following?.some(
               item => item?._id == data?._id,
             )}
@@ -174,6 +180,7 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
           <FollowListItem
             key={data?._id}
             data={data}
+            hitAPI={hitAPI}
             isFollowing={myUserDetails?.user?.following?.some(
               item => item?._id == data?._id,
             )}

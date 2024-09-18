@@ -45,7 +45,7 @@ export const ENDPOINT = {
   GET_FOLLOWERS: BASE_URL + '/v1/app/followings/get-followers',
   GET_FOLLOWING: BASE_URL + '/v1/app/followings/get-followings',
   FOLLOW_USER: BASE_URL + '/v1/app/followings/follow-users',
-  UNFOLLOW_USER: BASE_URL + '/v1/app/followings/unfollow-user',
+  UNFOLLOW_USER: BASE_URL + '/v1/app/followings/unfollow-users',
   CREATE_TRIP: BASE_URL + '/v1/app/trip_creation/create',
   UPDATE_TRIP: BASE_URL + '/v1/app/trip_creation/update',
   LEAVE_TRIP: BASE_URL + '/v1/app/trip_creation/leave',

@@ -626,6 +626,8 @@ export const AuthProvider = ({children}) => {
         },
       })
       .then(res => {
+        console.log('worked');
+
         setSentFollowReq(res.data.data.docs);
       })
       .catch(err => {

@@ -93,6 +93,26 @@ const FriendReq = ({navigation}) => {
       });
   }
 
+  function unFollow(user) {
+    const data = {
+      followee: user._id,
+    };
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('action taken', res.data);
+        GetSentFollowRequests();
+      })
+      .catch(err => {
+        console.log('failed to take action', err.response.data);
+      });
+  }
+
   if (activeTab == 'Received') {
     currentTab = (
       <>
@@ -156,7 +176,7 @@ const FriendReq = ({navigation}) => {
 
             <TouchableOpacity
               style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
-              onPress={() => RequestAction(data, 'rejected')}>
+              onPress={() => unFollow(data)}>
               <Text style={styles.Btntext}>Withdraw request</Text>
             </TouchableOpacity>
           </View>

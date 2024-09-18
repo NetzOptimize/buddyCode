@@ -54,6 +54,7 @@ const BuddyProfile = ({route, navigation}) => {
     VerifyToken,
     setBlockUserData,
     sentFollowReq,
+    GetSentFollowRequests,
   } = useContext(AuthContext);
   const {buddyData, followed} = route.params;
 
@@ -89,9 +90,7 @@ const BuddyProfile = ({route, navigation}) => {
       );
       GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
       VerifyToken(authToken);
-
       setIsFollowed(followed);
-
       setIsRequested(
         sentFollowReq.some(
           user => user._id === (buddyData?.id ? buddyData?.id : buddyData?._id),
@@ -99,6 +98,8 @@ const BuddyProfile = ({route, navigation}) => {
       );
     }, [buddyData?.id ? buddyData?.id : buddyData?._id]),
   );
+
+  console.log('isRequested:', isRequested, sentFollowReq?.length);
 
   useEffect(() => {
     const backAction = () => {
@@ -146,6 +147,8 @@ const BuddyProfile = ({route, navigation}) => {
         setIsRequested(true);
       }
 
+      GetSentFollowRequests();
+
       dispatch(fetchBuddyDetails(buddyId));
     } catch (error) {
       console.log(
@@ -157,6 +160,27 @@ const BuddyProfile = ({route, navigation}) => {
     } finally {
       setFollowLoading(false);
     }
+  }
+
+  function unFollow() {
+    const data = {
+      followee: buddyData?.id ? buddyData?.id : buddyData?._id,
+    };
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        setIsFollowed(prevValue => !prevValue);
+        setIsRequested(false);
+        GetSentFollowRequests();
+      })
+      .catch(err => {
+        console.log('failed to take action', err.response.data);
+      });
   }
 
   const checkThisId = buddyData?.id ? buddyData?.id : buddyData?._id;
@@ -171,14 +195,10 @@ const BuddyProfile = ({route, navigation}) => {
           {isBlocked ? null : (
             <View style={styles.actionButtonsBox}>
               {isRequested ? (
-                <RequestedButton />
+                <RequestedButton onPress={unFollow} />
               ) : isFollowed ? (
                 <FollowedButton
-                  onPress={() =>
-                    handleFollowUnfollow(
-                      buddyData?.id ? buddyData?.id : buddyData?._id,
-                    )
-                  }
+                  onPress={unFollow}
                   loading={followLoading}
                   disabled={followLoading}
                 />

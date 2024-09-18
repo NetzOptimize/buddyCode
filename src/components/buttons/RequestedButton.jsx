@@ -7,9 +7,9 @@ import {COLORS, FONTS} from '../../constants/theme/theme';
 // **Image
 var check = require('../../../assets/Images/check.png');
 
-const RequestedButton = () => {
+const RequestedButton = ({onPress}) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <Image source={check} style={{width: 16, height: 16}} />
       <Text style={styles.text}>Requested</Text>
     </TouchableOpacity>
