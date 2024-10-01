@@ -14,6 +14,7 @@ import FastImage from 'react-native-fast-image';
 import {COLORS, FONTS} from '../../../../constants/theme/theme';
 import axios from 'axios';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
+import Toast from 'react-native-toast-message';
 
 var noDP = require('../../../../../assets/Images/noDP.png');
 var deleteIcon = require('../../../../../assets/Images/delete.png');
@@ -104,8 +105,13 @@ const FriendReq = ({navigation}) => {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then(res => {
-        console.log('action taken', res.data);
+      .then(() => {
+        Toast.show({
+          type: action == 'accepted' ? 'success' : 'error',
+          text1: `Request ${action}`,
+          text2: `You ${action} ${user.first_name}'s follow request`,
+        });
+
         GetSentFollowRequests();
       })
       .catch(err => {
@@ -194,7 +200,7 @@ const FriendReq = ({navigation}) => {
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{gap: 20, marginTop: 24}}>{currentTab}</View>
+        <View style={{gap: 24, marginTop: 24}}>{currentTab}</View>
 
         <View style={{height: 110}} />
       </ScrollView>

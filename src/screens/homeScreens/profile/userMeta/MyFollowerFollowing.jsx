@@ -1,4 +1,6 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect, useCallback} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+
 import {
   StyleSheet,
   Text,
@@ -82,10 +84,27 @@ const MyFollowerFollowing = ({navigation, route}) => {
   const [followingPage, setFollowingPage] = useState(1);
   const [followerPage, setFollowerPage] = useState(1);
 
-  useEffect(() => {
+  function getFollowersFollowings() {
+    setFollowers({
+      docs: [],
+      hasNextPage: null,
+    });
+
+    setFollowing({
+      docs: [],
+      hasNextPage: null,
+    });
+
     getFollowers(followerPage);
     getFollowing(followingPage);
-  }, [followingPage, followerPage]);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      getFollowers(followerPage);
+      getFollowing(followingPage);
+    }, [followingPage, followerPage]),
+  );
 
   function getFollowers() {
     const url = ENDPOINT.GET_FOLLOWERS;
@@ -125,6 +144,8 @@ const MyFollowerFollowing = ({navigation, route}) => {
       .then(res => {
         let result = res.data.data.docs;
 
+        console.log(res.data)
+
         setFollowing(prev => ({
           docs: [
             ...new Map(
@@ -149,13 +170,18 @@ const MyFollowerFollowing = ({navigation, route}) => {
             key={i}
             data={data}
             type={activeTab}
+            getFollowersFollowings={getFollowersFollowings}
             isFollowing={followers?.docs?.some(item => item?._id == data?._id)}
-            onViewProfile={() =>
+            onViewProfile={() => {
+              setFollowers({
+                docs: [],
+                hasNextPage: null,
+              });
               NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
                 buddyData: data,
                 followed: followers?.docs?.some(item => item?._id == data?._id),
-              })
-            }
+              });
+            }}
           />
         ))}
 
@@ -176,13 +202,18 @@ const MyFollowerFollowing = ({navigation, route}) => {
             key={i}
             data={data}
             type={activeTab}
+            getFollowersFollowings={getFollowersFollowings}
             isFollowing={following?.docs?.some(item => item?._id == data?._id)}
-            onViewProfile={() =>
+            onViewProfile={() => {
+              setFollowing({
+                docs: [],
+                hasNextPage: null,
+              });
               NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
                 buddyData: data,
                 followed: true,
-              })
-            }
+              });
+            }}
           />
         ))}
 

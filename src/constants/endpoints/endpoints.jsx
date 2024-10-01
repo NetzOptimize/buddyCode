@@ -35,6 +35,7 @@ export const ENDPOINT = {
   GET_TRIP_DETAILS: BASE_URL + '/v1/app/trip_creation',
   GET_PAYMENT_DETAILS: BASE_URL + '/v1/app/event-payment/get/trip_id',
   GET_TRIP_INVITES: BASE_URL + '/v1/app/trip_request/sendToUser',
+  SENT_TRIP_INVITES: BASE_URL + '/v1/app/trip_request/sent',
   TRIP_INVITE_ACTION: BASE_URL + '/v1/app/trip_request/update',
   GET_EVENT_PAYMENTS: BASE_URL + '/v1/app/event-payment/get/trip_id',
   GET_PENDING_PAYMENTS: BASE_URL + '/v1/app/trip_creation',
@@ -66,5 +67,5 @@ export const ENDPOINT = {
   GET_POLLS: BASE_URL + '/v1/app/poll/get',
   ADD_VOTE: BASE_URL + '/v1/app/poll/vote/create',
   REPORT_REASONS: BASE_URL + '/v1/app/reporting-reasons',
-  REPORT_USER: BASE_URL + '/v1/app/user-reports'
+  REPORT_USER: BASE_URL + '/v1/app/user-reports',
 };

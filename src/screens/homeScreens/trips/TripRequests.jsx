@@ -19,22 +19,39 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 
 var placeholderImg = require('../../../../assets/Images/placeholderIMG.png');
+var noDP = require('../../../../assets/Images/noDP.png');
 
 const InviteCards = ({data, onRejectInvite, onAcceptInvite}) => {
   return (
-    <View>
-      <View style={{alignItems: 'center'}}>
+    <View
+      style={{
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      }}>
+      <View
+        style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          gap: 9,
+          width: '40%',
+        }}>
         <FastImage
           source={
             data.trip_id.trip_image
               ? {uri: data.trip_id.trip_image}
               : placeholderImg
           }
-          style={{width: 100, height: 100, borderRadius: 1000}}
+          style={{width: 50, height: 50, borderRadius: 1000}}
         />
         <Text style={styles.reqtext}>
-          {data.trip_owner.first_name} {data.trip_owner.last_name} Invited you
-          to Join{' '}
+          <Text
+            style={{
+              fontFamily: FONTS.MAIN_BOLD,
+            }}>
+            {data.trip_owner.first_name} {data.trip_owner.last_name}
+          </Text>{' '}
+          Invites you to their trip{' '}
           <Text
             style={{
               fontFamily: FONTS.MAIN_BOLD,
@@ -42,22 +59,93 @@ const InviteCards = ({data, onRejectInvite, onAcceptInvite}) => {
             {data.trip_id.trip_name}.
           </Text>
         </Text>
+      </View>
 
-        <View style={{flexDirection: 'row', marginTop: 6}}>
-          <TouchableOpacity style={styles.rejectBtn} onPress={onRejectInvite}>
-            <Text style={styles.rejectText}>Reject</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.acceptBtn} onPress={onAcceptInvite}>
-            <Text style={styles.acceptText}>Accept</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={{flexDirection: 'row', gap: 3}}>
+        <TouchableOpacity style={styles.acceptBtn} onPress={onAcceptInvite}>
+          <Text style={styles.acceptText}>Accept</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.rejectBtn} onPress={onRejectInvite}>
+          <Text style={styles.rejectText}>Decline</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
+const SentCards = ({data}) => {
+  if (data.status == 'approved') {
+    return (
+      <View
+        style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          gap: 9,
+        }}>
+        <FastImage
+          source={
+            data.user_id.profile_image
+              ? {uri: data.user_id.profile_image}
+              : noDP
+          }
+          style={{width: 50, height: 50, borderRadius: 1000}}
+        />
+        <Text style={[styles.reqtext, {width: '80%'}]}>
+          <Text
+            style={{
+              fontFamily: FONTS.MAIN_BOLD,
+            }}>
+            {data.user_id.first_name} {data.user_id.last_name}
+          </Text>{' '}
+          accepted your{' '}
+          <Text
+            style={{
+              fontFamily: FONTS.MAIN_BOLD,
+            }}>
+            {data.trip_id.trip_name}
+          </Text>{' '}
+          trip invite
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View
+      style={{
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 9,
+      }}>
+      <FastImage
+        source={
+          data.user_id.profile_image ? {uri: data.user_id.profile_image} : noDP
+        }
+        style={{width: 50, height: 50, borderRadius: 1000}}
+      />
+      <Text style={[styles.reqtext, {width: '80%'}]}>
+        Your{' '}
+        <Text
+          style={{
+            fontFamily: FONTS.MAIN_BOLD,
+          }}>
+          {data.trip_id.trip_name}
+        </Text>{' '}
+        trip invite to{' '}
+        <Text
+          style={{
+            fontFamily: FONTS.MAIN_BOLD,
+          }}>
+          {data.user_id.first_name} {data.user_id.last_name}
+        </Text>{' '}
+        is sent!
+      </Text>
+    </View>
+  );
+};
+
 const TripRequests = ({navigation}) => {
-  const {tripInvites, authToken, myUserDetails, GetTripInvites} =
+  const {tripInvites, sentInvites, authToken, myUserDetails, GetTripInvites} =
     useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -113,14 +201,24 @@ const TripRequests = ({navigation}) => {
       </View>
 
       <ScrollView style={{marginTop: 16}} showsVerticalScrollIndicator={false}>
-        <View>
-          {tripInvites?.map(data => (
-            <InviteCards
-              key={data._id}
-              data={data}
-              onRejectInvite={() => RequestAction('declined', data._id)}
-              onAcceptInvite={() => RequestAction('approved', data._id)}
-            />
+        <View style={{gap: 16}}>
+          {tripInvites?.map(data => {
+            if (data.status == 'approved') {
+              return null;
+            }
+
+            return (
+              <InviteCards
+                key={data._id}
+                data={data}
+                onRejectInvite={() => RequestAction('declined', data._id)}
+                onAcceptInvite={() => RequestAction('approved', data._id)}
+              />
+            );
+          })}
+
+          {sentInvites?.map(data => (
+            <SentCards key={data._id} data={data} />
           ))}
         </View>
       </ScrollView>
@@ -136,40 +234,37 @@ const styles = StyleSheet.create({
   reqtext: {
     fontFamily: 'Montserrat-Regular',
     color: '#F2F2F2',
-    fontSize: 16,
-    marginTop: 12,
+    fontSize: 12,
   },
   rejectBtn: {
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 20,
-    paddingRight: 20,
-    backgroundColor: COLORS.ERROR,
-    borderRadius: 1000,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 6,
-  },
-  rejectText: {
-    color: COLORS.LIGHT,
-    fontFamily: FONTS.MAIN_SEMI,
-    fontSize: 12,
-  },
-  acceptText: {
-    color: '#4F4F4F',
-    fontFamily: FONTS.MAIN_SEMI,
-    fontSize: 12,
-  },
-  acceptBtn: {
-    paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 8,
+    paddingRight: 8,
     backgroundColor: COLORS.LIGHT,
     borderRadius: 1000,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 6,
+  },
+  rejectText: {
+    color: COLORS.GREY_DARK,
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 10,
+  },
+  acceptText: {
+    color: COLORS.LIGHT,
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 10,
+  },
+  acceptBtn: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 8,
+    paddingRight: 8,
+    backgroundColor: COLORS.THANOS,
+    borderRadius: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

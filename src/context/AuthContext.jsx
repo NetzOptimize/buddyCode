@@ -31,6 +31,7 @@ export const AuthProvider = ({children}) => {
   const [blockUserData, setBlockUserData] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [tripInvites, setTripInvites] = useState(null);
+  const [sentInvites, setSentInvites] = useState(null);
   const [eventData, setEventData] = useState([]);
   const [isPaymentPending, setIsPaymentPending] = useState(null);
   const [paymentList, setPaymentList] = useState([]);
@@ -178,6 +179,8 @@ export const AuthProvider = ({children}) => {
   async function GetTrips(myId, type, pageNumber) {
     const GetTripsURL = `${ENDPOINT.GET_TRIPS}/${myId}?type=${type}&limit=20&page=${pageNumber}`;
 
+    setLoading(true);
+
     try {
       const res = await axios.get(GetTripsURL, {
         headers: {
@@ -185,8 +188,9 @@ export const AuthProvider = ({children}) => {
         },
       });
 
+      setLoading(false);
+      
       const newTrips = res.data.data.trips.docs;
-
       setMyTrips(prevState => {
         let updatedTrips;
         if (prevState.trips.length === 0) {
@@ -214,6 +218,7 @@ export const AuthProvider = ({children}) => {
         };
       });
     } catch (error) {
+      setLoading(false);
       console.log('get trips error:', error?.response?.data);
     }
   }
@@ -251,6 +256,24 @@ export const AuthProvider = ({children}) => {
       })
       .catch(error => {
         setTripInvites(null);
+      });
+  };
+
+  const GetSentTripInvites = myId => {
+    const URL = `${ENDPOINT.SENT_TRIP_INVITES}/${myId}`;
+
+    axios
+      .get(URL, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+        timeout: 10000,
+      })
+      .then(res => {
+        setSentInvites(res.data.data.trip_Request);
+      })
+      .catch(error => {
+        setSentInvites(null);
       });
   };
 
@@ -662,7 +685,9 @@ export const AuthProvider = ({children}) => {
         selectedDate,
         setSelectedDate,
         tripInvites,
+        sentInvites,
         GetTripInvites,
+        GetSentTripInvites,
         isPaymentPending,
         setIsPaymentPending,
         eventData,

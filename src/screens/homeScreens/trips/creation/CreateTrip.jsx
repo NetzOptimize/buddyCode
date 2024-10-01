@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  Alert,
 } from 'react-native';
 import React, {useContext, useState} from 'react';
 import RegularBG from '../../../../components/background/RegularBG';
@@ -175,22 +176,24 @@ const CreateTrip = ({navigation}) => {
     try {
       let formData = new FormData();
 
-      // Append regular form data
       formData.append('trip_name', tripName);
       formData.append('trip_starting_time', tripStartDate);
       formData.append('trip_ending_time', tripEndDate);
       formData.append('owner', myUserDetails?.user?._id);
       formData.append('fund_goals', removeFormatting(fundGoals));
 
-      // Append array data with indices for destinations
       tripDestinations.forEach((data, index) => {
         formData.append(`destination[${index}]`, data);
       });
 
-      // Set loading state to true
+      if (tripMembers?.length > 0) {
+        tripMembers.forEach((data, index) => {
+          formData.append(`members[${index}]`, data?._id);
+        });
+      }
+
       setIsLoading(true);
 
-      // Make the API request
       const response = await axios({
         method: 'POST',
         url: ENDPOINT.CREATE_TRIP,
@@ -203,7 +206,12 @@ const CreateTrip = ({navigation}) => {
         timeout: 10000,
       });
 
-      // Handle success
+      if (response.data.data.blockedUsers.exists) {
+        Alert.alert(
+          'Warning',
+          'One or more users in this trip have blocked one another.',
+        );
+      }
 
       navigation.goBack();
 

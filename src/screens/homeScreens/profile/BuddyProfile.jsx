@@ -56,7 +56,7 @@ const BuddyProfile = ({route, navigation}) => {
     sentFollowReq,
     GetSentFollowRequests,
   } = useContext(AuthContext);
-  const {buddyData, followed} = route.params;
+  const {buddyData, followed = false} = route.params;
 
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
@@ -140,6 +140,8 @@ const BuddyProfile = ({route, navigation}) => {
           Authorization: 'Bearer ' + authToken,
         },
       });
+
+      console.log(response.data)
 
       if (response.data.data.status !== 'pending') {
         setIsFollowed(prevValue => !prevValue);

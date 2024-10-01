@@ -14,7 +14,12 @@ import {ENDPOINT} from '../../constants/endpoints/endpoints';
 // **image
 var noDP = require('../../../assets/Images/noDP.png');
 
-const FollowListItem = ({data, onViewProfile, isFollowing, hitAPI}) => {
+const FollowListItem = ({
+  data,
+  onViewProfile,
+  isFollowing,
+  getFollowersFollowings,
+}) => {
   const {myUserDetails, authToken} = useContext(AuthContext);
 
   const [isFollowed, setIsFollowed] = useState(false);
@@ -53,6 +58,7 @@ const FollowListItem = ({data, onViewProfile, isFollowing, hitAPI}) => {
       console.log('Failed to follow or unfollow:', error.response.data);
     } finally {
       setLoading(false);
+      getFollowersFollowings();
     }
   }
 
@@ -72,6 +78,7 @@ const FollowListItem = ({data, onViewProfile, isFollowing, hitAPI}) => {
       .then(res => {
         setIsFollowed(false);
         setLoading(false);
+        getFollowersFollowings();
       })
       .catch(err => {
         console.log('failed to take action', err?.response?.data || err);
@@ -87,7 +94,7 @@ const FollowListItem = ({data, onViewProfile, isFollowing, hitAPI}) => {
         <FastImage
           source={data?.profile_image ? {uri: data?.profile_image} : noDP}
           style={{borderRadius: 1000, width: 44, height: 44}}
-          resizeMode={FastImage.resizeMode.cover}
+          // resizeMode={FastImage.resizeMode.cover}
         />
         <Text style={styles.text}>
           {FullName(data?.first_name, data?.last_name)}

@@ -25,6 +25,7 @@ var bell = require('../../../../assets/Images/bell.png');
 import useKeyboardStatus from '../../../config/useKeyboardStatus';
 import NavigationService from '../../../config/NavigationService';
 import {SCREENS} from '../../../constants/screens/screen';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const TripsList = () => {
   const isKeyboardVisible = useKeyboardStatus();
@@ -35,8 +36,10 @@ const TripsList = () => {
     myTrips,
     loading,
     GetTripInvites,
+    GetSentTripInvites,
     tripInvites,
     setTripMembers,
+    tripsLoading
   } = useContext(AuthContext);
 
   const [showSearch, setShowSearch] = useState(false);
@@ -48,6 +51,7 @@ const TripsList = () => {
       const fetchData = async () => {
         await GetTrips(myUserDetails?.user?._id, 'current', 1);
         await GetTripInvites(myUserDetails?.user?._id);
+        await GetSentTripInvites(myUserDetails?.user?._id);
         setTripMembers([]);
       };
 
@@ -88,8 +92,14 @@ const TripsList = () => {
 
   const MapTheseTrips = searchText === '' ? myTrips?.trips : mySearchedTrips;
 
+  let checkNotifications = tripInvites?.some(
+    item => item?.status !== 'approved',
+  );
+
   return (
     <WideBG>
+      <Spinner visible={loading} color={COLORS.THANOS} size={'large'} />
+
       {showSearch && (
         <View style={styles.searchBarContainer}>
           <SearchBar
@@ -103,13 +113,13 @@ const TripsList = () => {
           />
         </View>
       )}
-      {MapTheseTrips?.length == 0 ? (
+      {(MapTheseTrips?.length == 0 && !loading) ? (
         <View style={styles.noTripsContainer}>
           <View style={{position: 'absolute', top: 16, right: 0}}>
             <TouchableOpacity
               style={styles.searchBtn}
               onPress={() => NavigationService.navigate(SCREENS.TRIP_REQUESTS)}>
-              {tripInvites && <View style={styles.notificationDot} />}
+              {checkNotifications && <View style={styles.notificationDot} />}
               <Image source={bell} style={{width: 20, height: 20}} />
             </TouchableOpacity>
           </View>
@@ -158,7 +168,9 @@ const TripsList = () => {
                       onPress={() =>
                         NavigationService.navigate(SCREENS.TRIP_REQUESTS)
                       }>
-                      {tripInvites && <View style={styles.notificationDot} />}
+                      {checkNotifications && (
+                        <View style={styles.notificationDot} />
+                      )}
                       <Image source={bell} style={{width: 20, height: 20}} />
                     </TouchableOpacity>
 
