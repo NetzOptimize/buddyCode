@@ -153,9 +153,6 @@ const BuddySearch = ({navigation, route}) => {
     } else {
       NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
         buddyData: data,
-        // followed: myUserDetails?.user?.following?.some(
-        //   item => item?._id == data?._id,
-        // ),
       });
     }
   }

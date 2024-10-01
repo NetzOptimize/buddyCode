@@ -157,7 +157,6 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
               if (myUserDetails?.user?._id !== data?._id) {
                 NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
                   buddyData: data,
-                  followed: false,
                 });
               }
             }}
@@ -188,7 +187,6 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
               if (myUserDetails?.user?._id !== data?._id) {
                 NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
                   buddyData: data,
-                  followed: false,
                 });
               }
             }}

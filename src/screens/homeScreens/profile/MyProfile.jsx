@@ -132,6 +132,12 @@ const MyProfile = () => {
                   tripData={trip}
                   key={i}
                   viewComments={() => handleViewComments(trip._id)}
+                  onViewTrip={() =>
+                    NavigationService.navigate(SCREENS.VIEW_MY_TRIP, {
+                      tripData: trip,
+                      isMyTrip: true,
+                    })
+                  }
                 />
               );
             })}

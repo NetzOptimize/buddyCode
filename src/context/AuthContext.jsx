@@ -189,7 +189,7 @@ export const AuthProvider = ({children}) => {
       });
 
       setLoading(false);
-      
+
       const newTrips = res.data.data.trips.docs;
       setMyTrips(prevState => {
         let updatedTrips;
@@ -649,8 +649,6 @@ export const AuthProvider = ({children}) => {
         },
       })
       .then(res => {
-        console.log('worked');
-
         setSentFollowReq(res.data.data.docs);
       })
       .catch(err => {

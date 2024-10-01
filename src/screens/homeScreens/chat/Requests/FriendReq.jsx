@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import RegularBG from '../../../../components/background/RegularBG';
 import BackButton from '../../../../components/buttons/BackButton';
@@ -14,13 +15,20 @@ import FastImage from 'react-native-fast-image';
 import {COLORS, FONTS} from '../../../../constants/theme/theme';
 import axios from 'axios';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
+import FollowRequestModal from '../../../../components/modal/FollowRequestModal';
 import Toast from 'react-native-toast-message';
 
 var noDP = require('../../../../../assets/Images/noDP.png');
 var deleteIcon = require('../../../../../assets/Images/delete.png');
 var usersOutline = require('../../../../../assets/Images//usersOutline.png');
 
-const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
+const HeaderTabs = ({
+  onBack,
+  activeTab,
+  setActiveTab,
+  followReq,
+  sentFollowReq,
+}) => {
   const handleTabChange = tabName => {
     setActiveTab(tabName);
   };
@@ -32,7 +40,10 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
       </View>
 
       <View style={styles.tabButtons}>
-        <TouchableOpacity onPress={() => handleTabChange('Received')}>
+        <TouchableOpacity
+          onPress={() => handleTabChange('Received')}
+          style={{position: 'relative'}}>
+          {followReq?.length > 0 && <View style={styles.notificationDot} />}
           <Text
             style={
               activeTab == 'Received' ? styles.tabTextActive : styles.tabText
@@ -40,7 +51,10 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
             Received
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleTabChange('Sent')}>
+        <TouchableOpacity
+          onPress={() => handleTabChange('Sent')}
+          style={{position: 'relative'}}>
+          {sentFollowReq?.length > 0 && <View style={styles.notificationDot} />}
           <Text
             style={activeTab == 'Sent' ? styles.tabTextActive : styles.tabText}>
             Sent
@@ -61,6 +75,27 @@ const FriendReq = ({navigation}) => {
   } = useContext(AuthContext);
 
   const [activeTab, setActiveTab] = useState('Received');
+  const [showPop, setShowPop] = useState(false);
+  const [requestData, setRequestData] = useState({
+    userData: '',
+    action: '',
+  });
+
+  function handleShowPop(user, action) {
+    setShowPop(true);
+    setRequestData({
+      userData: user,
+      action: action,
+    });
+  }
+
+  function handleClosePop() {
+    setShowPop(false);
+    setRequestData({
+      userData: '',
+      action: '',
+    });
+  }
 
   function FullName(firstName, lastName) {
     return `${firstName} ${lastName}`;
@@ -73,7 +108,7 @@ const FriendReq = ({navigation}) => {
 
   let currentTab;
 
-  function RequestAction(user, action) {
+  function requestActionFN(user, action) {
     const data = {
       follower: user._id,
       status: action,
@@ -85,8 +120,15 @@ const FriendReq = ({navigation}) => {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then(res => {
-        console.log('action taken', res.data);
+      .then(() => {
+        handleClosePop();
+
+        Toast.show({
+          type: action == 'accepted' ? 'success' : 'info',
+          text1: `Request ${action}`,
+          text2: `You ${action} ${user.first_name}'s follow request.`,
+        });
+
         GetFollowRequests();
       })
       .catch(err => {
@@ -107,12 +149,14 @@ const FriendReq = ({navigation}) => {
       })
       .then(() => {
         Toast.show({
-          type: action == 'accepted' ? 'success' : 'error',
-          text1: `Request ${action}`,
-          text2: `You ${action} ${user.first_name}'s follow request`,
+          type: 'info',
+          text1: `Request withdrawn`,
+          text2: `Follow request to ${user.first_name} has been withdrawn.`,
         });
 
         GetSentFollowRequests();
+
+        handleClosePop();
       })
       .catch(err => {
         console.log('failed to take action', err.response.data);
@@ -145,12 +189,12 @@ const FriendReq = ({navigation}) => {
             <View style={{flexDirection: 'row', gap: 4}}>
               <TouchableOpacity
                 style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
-                onPress={() => RequestAction(data, 'rejected')}>
+                onPress={() => handleShowPop(data, 'rejected')}>
                 <Image source={deleteIcon} style={{width: 20, height: 20}} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.Btn}
-                onPress={() => RequestAction(data, 'accepted')}>
+                onPress={() => handleShowPop(data, 'accepted')}>
                 <Text style={styles.Btntext}>Accept request</Text>
               </TouchableOpacity>
             </View>
@@ -181,9 +225,9 @@ const FriendReq = ({navigation}) => {
             </View>
 
             <TouchableOpacity
-              style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
-              onPress={() => unFollow(data)}>
-              <Text style={styles.Btntext}>Withdraw request</Text>
+              style={[styles.Btn, {backgroundColor: COLORS.GREY_LIGHT}]}
+              onPress={() => handleShowPop(data)}>
+              <Text style={styles.Btntext}>Requested</Text>
             </TouchableOpacity>
           </View>
         ))}
@@ -197,13 +241,23 @@ const FriendReq = ({navigation}) => {
         onBack={() => navigation.goBack()}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        followReq={followReq}
+        sentFollowReq={sentFollowReq}
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{gap: 24, marginTop: 24}}>{currentTab}</View>
+        <View style={{gap: 20, marginTop: 24}}>{currentTab}</View>
 
         <View style={{height: 110}} />
       </ScrollView>
+
+      <FollowRequestModal
+        visible={showPop}
+        onClose={handleClosePop}
+        requestData={requestData}
+        requestActionFN={requestActionFN}
+        unFollow={unFollow}
+      />
     </RegularBG>
   );
 };
@@ -244,14 +298,16 @@ const styles = StyleSheet.create({
     width: '89%',
   },
   tabText: {
-    fontFamily: FONTS.MAIN_REG,
-    fontSize: 16,
-    color: COLORS.VISION,
-  },
-  tabTextActive: {
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 16,
+    color: '#828282',
+  },
+  tabTextActive: {
+    fontFamily: FONTS.MAIN_BOLD,
+    fontSize: 16,
     color: COLORS.LIGHT,
+    borderBottomWidth: 4,
+    borderColor: COLORS.THANOS,
   },
   noPending: {
     fontFamily: FONTS.MAIN_REG,
@@ -264,6 +320,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginTop: '15%',
+  },
+  notificationDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 1000,
+    backgroundColor: COLORS.THANOS,
+    position: 'absolute',
+    right: -6,
+    top: -2,
   },
 });
 

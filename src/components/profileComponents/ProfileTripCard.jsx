@@ -16,7 +16,7 @@ var location = require('../../../assets/Images/location.png');
 
 import LottieView from 'lottie-react-native';
 
-const ProfileTripCard = ({tripData, viewComments}) => {
+const ProfileTripCard = ({tripData, viewComments, onViewTrip}) => {
   const {authToken, myUserDetails} = useContext(AuthContext);
 
   const [tripState, setTripState] = useState(tripData);
@@ -87,7 +87,7 @@ const ProfileTripCard = ({tripData, viewComments}) => {
 
   return (
     <View style={styles.CardContainer}>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={onViewTrip}>
         <FastImage
           source={
             tripState?.trip_image

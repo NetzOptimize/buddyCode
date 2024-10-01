@@ -129,7 +129,7 @@ const MyChats = () => {
   const ReqOptions = [
     {
       id: 1,
-      name: 'Friends requests',
+      name: 'Follow requests',
       image: require('../../../../assets/Images/friendReq.png'),
       length: followReq.length + sentFollowReq.length,
       action: () => {

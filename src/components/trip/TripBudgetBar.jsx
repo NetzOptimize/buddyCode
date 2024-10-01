@@ -32,15 +32,10 @@ const TripBudgetBar = ({tripInfo}) => {
         </View>
         <View style={{borderRadius: 100, backgroundColor: '#D9D9D9'}}>
           <SimpleGradientProgressbarView
-            style={{
-              width: '100%',
-              height: 12,
-              borderColor: '#000000',
-              borderRadius: 100,
-            }}
+            style={styles.barStyle}
             fromColor="#7879F1"
             toColor={CurrentProgress >= 0.9 ? '#EB5757' : '#3DFFD0'}
-            progress={CurrentProgress}
+            progress={CurrentProgress > 1 ? 1 : CurrentProgress}
             cornerRadius={5}
           />
         </View>
@@ -95,6 +90,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.LIGHT,
     marginBottom: 10,
+  },
+  barStyle: {
+    width: '100%',
+    height: 12,
+    borderColor: '#000000',
+    borderRadius: 100,
   },
 });
 

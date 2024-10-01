@@ -144,7 +144,7 @@ const MyFollowerFollowing = ({navigation, route}) => {
       .then(res => {
         let result = res.data.data.docs;
 
-        console.log(res.data)
+        console.log(res.data);
 
         setFollowing(prev => ({
           docs: [
@@ -171,7 +171,7 @@ const MyFollowerFollowing = ({navigation, route}) => {
             data={data}
             type={activeTab}
             getFollowersFollowings={getFollowersFollowings}
-            isFollowing={followers?.docs?.some(item => item?._id == data?._id)}
+            isFollowing={following?.docs?.some(item => item?._id == data?._id)}
             onViewProfile={() => {
               setFollowers({
                 docs: [],
@@ -179,7 +179,6 @@ const MyFollowerFollowing = ({navigation, route}) => {
               });
               NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
                 buddyData: data,
-                followed: followers?.docs?.some(item => item?._id == data?._id),
               });
             }}
           />
@@ -211,7 +210,6 @@ const MyFollowerFollowing = ({navigation, route}) => {
               });
               NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
                 buddyData: data,
-                followed: true,
               });
             }}
           />

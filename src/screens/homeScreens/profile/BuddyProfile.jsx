@@ -56,7 +56,7 @@ const BuddyProfile = ({route, navigation}) => {
     sentFollowReq,
     GetSentFollowRequests,
   } = useContext(AuthContext);
-  const {buddyData, followed = false} = route.params;
+  const {buddyData} = route.params;
 
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
@@ -90,7 +90,6 @@ const BuddyProfile = ({route, navigation}) => {
       );
       GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
       VerifyToken(authToken);
-      setIsFollowed(followed);
       setIsRequested(
         sentFollowReq.some(
           user => user._id === (buddyData?.id ? buddyData?.id : buddyData?._id),
@@ -99,7 +98,11 @@ const BuddyProfile = ({route, navigation}) => {
     }, [buddyData?.id ? buddyData?.id : buddyData?._id]),
   );
 
-  console.log('isRequested:', isRequested, sentFollowReq?.length);
+  console.log(buddyDetails?.isFollowing);
+
+  useEffect(() => {
+    setIsFollowed(buddyDetails?.isFollowing);
+  }, [buddyDetails]);
 
   useEffect(() => {
     const backAction = () => {
@@ -141,7 +144,7 @@ const BuddyProfile = ({route, navigation}) => {
         },
       });
 
-      console.log(response.data)
+      console.log(response.data);
 
       if (response.data.data.status !== 'pending') {
         setIsFollowed(prevValue => !prevValue);
