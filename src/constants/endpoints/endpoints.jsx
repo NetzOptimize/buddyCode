@@ -68,4 +68,6 @@ export const ENDPOINT = {
   ADD_VOTE: BASE_URL + '/v1/app/poll/vote/create',
   REPORT_REASONS: BASE_URL + '/v1/app/reporting-reasons',
   REPORT_USER: BASE_URL + '/v1/app/user-reports',
+
+  NOTIFI_ALLOWED: BASE_URL + '/v1/app/notification-settings',
 };

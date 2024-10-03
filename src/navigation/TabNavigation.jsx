@@ -55,9 +55,10 @@ import {
   handleNotificationPermission,
   handleMediaLibraryPermission,
 } from '../config/autoMediaPermission';
-import BuddySearch from '../components/home/BuddySearch';
 
 import messaging from '@react-native-firebase/messaging';
+import {ENDPOINT} from '../constants/endpoints/endpoints';
+import axios from 'axios';
 
 const MyProfileStack = () => {
   return (
@@ -121,7 +122,7 @@ const TripsStack = () => {
 };
 
 export default function TabNavigation() {
-  const {myUserDetails} = useContext(AuthContext);
+  const {myUserDetails, authToken} = useContext(AuthContext);
 
   const {chatList} = useSelector(state => state.chatList);
 
@@ -148,7 +149,7 @@ export default function TabNavigation() {
     const getNotificationPermission = async () => {
       const hasPermission = await handleNotificationPermission();
       if (hasPermission) {
-        console.log('hasNotificationPermission');
+        getDeviceToken();
       }
     };
 
@@ -163,6 +164,33 @@ export default function TabNavigation() {
       getCameraPermission();
     }, 2000);
   }, []);
+
+  const getDeviceToken = async () => {
+    let token = await messaging().getToken();
+    saveDeviceToken(token);
+  };
+
+  const saveDeviceToken = async deviceToken => {
+    const formData = new FormData();
+
+    formData.append('deviceToken', deviceToken);
+
+    try {
+      await axios({
+        method: 'put',
+        url: ENDPOINT.UPDATE_PROFILE,
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: 'Bearer ' + authToken,
+        },
+        timeout: 10000,
+      });
+      console.log('device token saved');
+    } catch (err) {
+      console.log('could not save device token:', err?.response?.data || err);
+    }
+  };
 
   useEffect(() => {
     messaging()
@@ -185,7 +213,7 @@ export default function TabNavigation() {
     });
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('new fcm message arrived', JSON.stringify(remoteMessage));
+      console.log('new fcm message arrived', JSON.stringify(remoteMessage));
     });
 
     return unsubscribe;

@@ -7,8 +7,6 @@ import {
   ScrollView,
   BackHandler,
   Image,
-  Touchable,
-  TouchableOpacity,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 
@@ -98,8 +96,6 @@ const BuddyProfile = ({route, navigation}) => {
     }, [buddyData?.id ? buddyData?.id : buddyData?._id]),
   );
 
-  console.log(buddyDetails?.isFollowing);
-
   useEffect(() => {
     setIsFollowed(buddyDetails?.isFollowing);
   }, [buddyDetails]);
@@ -144,8 +140,6 @@ const BuddyProfile = ({route, navigation}) => {
         },
       });
 
-      console.log(response.data);
-
       if (response.data.data.status !== 'pending') {
         setIsFollowed(prevValue => !prevValue);
       } else if (response.data.data.status == 'pending') {
@@ -188,6 +182,26 @@ const BuddyProfile = ({route, navigation}) => {
       });
   }
 
+  function removeReq() {
+    const data = {
+      followee: buddyData?.id ? buddyData?.id : buddyData?._id,
+    };
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('removed request', res.data);
+        setIsRequested(false);
+      })
+      .catch(err => {
+        console.log('failed to take action', err.response.data);
+      });
+  }
+
   const checkThisId = buddyData?.id ? buddyData?.id : buddyData?._id;
   let isPrivate = isFollowed ? false : buddyDetails?.user?.is_private;
   let isBlocked = blockedUsers.some(item => item._id === checkThisId);
@@ -200,7 +214,7 @@ const BuddyProfile = ({route, navigation}) => {
           {isBlocked ? null : (
             <View style={styles.actionButtonsBox}>
               {isRequested ? (
-                <RequestedButton onPress={unFollow} />
+                <RequestedButton onPress={removeReq} />
               ) : isFollowed ? (
                 <FollowedButton
                   onPress={unFollow}

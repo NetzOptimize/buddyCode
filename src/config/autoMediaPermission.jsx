@@ -7,6 +7,8 @@ import {
   requestNotifications,
 } from 'react-native-permissions';
 
+import messaging from '@react-native-firebase/messaging';
+
 // Function to handle camera permission
 export async function handleCameraPermission() {
   try {

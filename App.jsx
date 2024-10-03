@@ -21,7 +21,6 @@ const App = () => {
   useEffect(() => {
     const getDeviceToken = async () => {
       let token = await messaging().getToken();
-
       console.log('fcm token:', token);
     };
 
