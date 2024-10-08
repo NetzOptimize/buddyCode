@@ -4,15 +4,10 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ImageBackground,
   ActivityIndicator,
   ScrollView,
   Modal,
   SafeAreaView,
-  TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
 } from 'react-native';
 import React, {useState, useRef} from 'react';
 import ImageBG from '../../components/background/ImageBG';
@@ -162,6 +157,11 @@ const CompleteProfile = ({navigation, route}) => {
       Toast.show({
         type: 'error',
         text2: 'Please enter your phone number.',
+      });
+    } else if (phone.length !== 10) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please enter a valid phone number.',
       });
     } else if (dob == 'Date of Birth *') {
       Toast.show({

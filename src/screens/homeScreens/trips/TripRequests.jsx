@@ -203,7 +203,7 @@ const TripRequests = ({navigation}) => {
       <ScrollView style={{marginTop: 16}} showsVerticalScrollIndicator={false}>
         <View style={{gap: 16}}>
           {tripInvites?.map(data => {
-            if (data.status == 'approved') {
+            if (data.status == 'approved' || 'declined') {
               return null;
             }
 

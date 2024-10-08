@@ -24,14 +24,13 @@ const BlockedList = ({navigation}) => {
   const {blockedUsers} = useSelector(state => state.blockedUsers);
 
   const [unblockUserDetails, setUnblockUserDetails] = useState(null);
+  const [showUnblock, setShowUnblock] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchBlockedUsers());
     }, []),
   );
-
-  const [showUnblock, setShowUnblock] = useState(false);
 
   function FullName(firstName, lastName) {
     return `${firstName} ${lastName}`;

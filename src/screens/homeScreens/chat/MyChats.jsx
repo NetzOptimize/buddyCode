@@ -23,9 +23,11 @@ import {AuthContext} from '../../../context/AuthContext';
 import ChatListItem from '../../../components/chat/ChatListItem';
 import NavigationService from '../../../config/NavigationService';
 import {SCREENS} from '../../../constants/screens/screen';
-import {ChatPushManager} from 'react-native-agora-chat';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 import axios from 'axios';
+
+// ** Agora imports
+import {ChatClient} from 'react-native-agora-chat';
 
 const MyChats = () => {
   const {
@@ -45,14 +47,29 @@ const MyChats = () => {
   const [showPendingChats, setShowPendingChats] = useState(false);
   const [loading, setIsLoading] = useState(false);
 
+  // ** agora function
+  const chatClient = ChatClient.getInstance();
+  const chatManager = chatClient.chatManager;
+
   useFocusEffect(
     useCallback(() => {
-      dispatch(fetchChatList(myUserDetails?.user?._id));
+      setMessageListener();
       setShowPendingChats(false);
       GetFollowRequests();
       GetSentFollowRequests();
     }, [myUserDetails?.user?._id]),
   );
+
+  const setMessageListener = () => {
+    dispatch(fetchChatList(myUserDetails?.user?._id));
+    let msgListener = {
+      onMessagesReceived() {
+        dispatch(fetchChatList(myUserDetails?.user?._id));
+      },
+    };
+    chatManager.removeAllMessageListener();
+    chatManager.addMessageListener(msgListener);
+  };
 
   const handleRefresh = () => {
     setIsLoading(true);

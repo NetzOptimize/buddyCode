@@ -121,18 +121,18 @@ const FriendReq = ({navigation}) => {
         },
       })
       .then(() => {
-        handleClosePop();
-
         Toast.show({
           type: action == 'accepted' ? 'success' : 'info',
           text1: `Request ${action}`,
           text2: `You ${action} ${user.first_name}'s follow request.`,
         });
-
-        GetFollowRequests();
       })
       .catch(err => {
         console.log('failed to take action', err.response.data);
+      })
+      .finally(() => {
+        handleClosePop();
+        GetFollowRequests();
       });
   }
 
@@ -166,13 +166,6 @@ const FriendReq = ({navigation}) => {
   if (activeTab == 'Received') {
     currentTab = (
       <>
-        {followReq.length == 0 && (
-          <View style={styles.noReqBox}>
-            <Image source={usersOutline} style={{width: 60, height: 60}} />
-            <Text style={styles.noPending}>No Pending Requests</Text>
-          </View>
-        )}
-
         {followReq?.map(data => (
           <View key={data?._id} style={styles.blockedListItemContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
@@ -205,12 +198,6 @@ const FriendReq = ({navigation}) => {
   } else {
     currentTab = (
       <>
-        {sentFollowReq.length == 0 && (
-          <View style={styles.noReqBox}>
-            <Image source={usersOutline} style={{width: 60, height: 60}} />
-            <Text style={styles.noPending}>No Sent Requests</Text>
-          </View>
-        )}
         {sentFollowReq?.map(data => (
           <View key={data?._id} style={styles.blockedListItemContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
@@ -245,11 +232,23 @@ const FriendReq = ({navigation}) => {
         sentFollowReq={sentFollowReq}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{gap: 20, marginTop: 24}}>{currentTab}</View>
+      {(activeTab == 'Received' && followReq.length == 0) ||
+      (activeTab !== 'Received' && sentFollowReq.length == 0) ? (
+        <View style={styles.noReqBox}>
+          <Image source={usersOutline} style={{width: 40, height: 40}} />
+          {activeTab == 'Received' ? (
+            <Text style={styles.noPending}>No Pending Requests</Text>
+          ) : (
+            <Text style={styles.noPending}>No Sent Requests</Text>
+          )}
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{gap: 20, marginTop: 24}}>{currentTab}</View>
 
-        <View style={{height: 110}} />
-      </ScrollView>
+          <View style={{height: 110}} />
+        </ScrollView>
+      )}
 
       <FollowRequestModal
         visible={showPop}
@@ -315,11 +314,11 @@ const styles = StyleSheet.create({
     color: COLORS.LIGHT,
   },
   noReqBox: {
-    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    marginTop: '15%',
+    flex: 1,
+    marginBottom: 80,
   },
   notificationDot: {
     width: 6,

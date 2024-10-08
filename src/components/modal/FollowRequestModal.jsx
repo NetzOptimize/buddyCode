@@ -1,10 +1,37 @@
 import React from 'react';
-import {Modal, SafeAreaView, StyleSheet, View, Text} from 'react-native';
-import ActionButton from '../buttons/ActionButton';
+import {
+  Modal,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import {COLORS, FONTS} from '../../constants/theme/theme';
-import RequestedButton from '../buttons/RequestedButton';
-import LearnMoreButton from '../buttons/LearnMoreButton';
-import BlockButton from '../buttons/BlockButton';
+
+function ActionButton({title, onPress}) {
+  return (
+    <TouchableOpacity style={styles.acceptBtn} onPress={onPress}>
+      <Text style={styles.btnText1}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function RemoveButton({title, onPress}) {
+  return (
+    <TouchableOpacity style={styles.removeBtn} onPress={onPress}>
+      <Text style={styles.btnText1}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function CancelButton({title, onPress}) {
+  return (
+    <TouchableOpacity style={styles.cancelBtn} onPress={onPress}>
+      <Text style={styles.btnText2}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
 
 const FollowRequestModal = ({
   visible,
@@ -24,21 +51,21 @@ const FollowRequestModal = ({
 
             <View style={{gap: 16}}>
               {requestData?.action == 'accepted' ? (
-                <LearnMoreButton
+                <ActionButton
                   title={'Accept Request'}
                   onPress={() =>
                     requestActionFN(requestData?.userData, requestData?.action)
                   }
                 />
               ) : (
-                <BlockButton
+                <RemoveButton
                   title={'Delete Request'}
                   onPress={() =>
                     requestActionFN(requestData?.userData, requestData?.action)
                   }
                 />
               )}
-              <ActionButton onPress={onClose} title={'Cancel'} />
+              <CancelButton onPress={onClose} title={'Cancel'} />
             </View>
           </View>
         ) : (
@@ -51,11 +78,11 @@ const FollowRequestModal = ({
             </View>
 
             <View style={{gap: 16}}>
-              <BlockButton
+              <RemoveButton
                 title={'Withdraw Request'}
                 onPress={() => unFollow(requestData?.userData)}
               />
-              <ActionButton onPress={onClose} title={'Cancel'} />
+              <CancelButton onPress={onClose} title={'Cancel'} />
             </View>
           </View>
         )}
@@ -78,6 +105,8 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: COLORS.GREY_LIGHT,
     gap: 16,
+    height: 200,
+    justifyContent: 'space-evenly',
   },
   title: {
     fontFamily: FONTS.MAIN_SEMI,
@@ -88,6 +117,40 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_REG,
     fontSize: 14,
     color: COLORS.LIGHT,
+  },
+  acceptBtn: {
+    height: 44,
+    width: '100%',
+    backgroundColor: COLORS.THANOS,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 1000,
+  },
+  removeBtn: {
+    height: 44,
+    width: '100%',
+    backgroundColor: COLORS.ERROR,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 1000,
+  },
+  cancelBtn: {
+    height: 44,
+    width: '100%',
+    backgroundColor: COLORS.LIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 1000,
+  },
+  btnText1: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 14,
+    color: COLORS.LIGHT,
+  },
+  btnText2: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 14,
+    color: COLORS.GREY_LIGHT,
   },
 });
 

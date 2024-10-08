@@ -170,6 +170,12 @@ const EditProfile = ({navigation}) => {
         text1: 'Phone number is required',
         text2: 'Please enter your phone number',
       });
+    } else if (phone.length !== 10) {
+      Toast.show({
+        type: 'error',
+        text1: 'Phone number is invalid',
+        text2: 'Please enter a valid phone number',
+      });
     } else {
       updateProfile(data);
     }

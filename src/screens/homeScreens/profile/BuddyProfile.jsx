@@ -211,7 +211,12 @@ const BuddyProfile = ({route, navigation}) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.backOpContainer}>
           <BackButton onPress={handleBackPress} />
-          {isBlocked ? null : (
+          {isBlocked ? (
+            <BuddyOptionsBtn
+              isBlocked={isBlocked}
+              buddyDetails={buddyDetails}
+            />
+          ) : (
             <View style={styles.actionButtonsBox}>
               {isRequested ? (
                 <RequestedButton onPress={removeReq} />

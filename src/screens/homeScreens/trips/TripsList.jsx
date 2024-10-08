@@ -39,7 +39,7 @@ const TripsList = () => {
     GetSentTripInvites,
     tripInvites,
     setTripMembers,
-    tripsLoading
+    tripsLoading,
   } = useContext(AuthContext);
 
   const [showSearch, setShowSearch] = useState(false);
@@ -93,7 +93,7 @@ const TripsList = () => {
   const MapTheseTrips = searchText === '' ? myTrips?.trips : mySearchedTrips;
 
   let checkNotifications = tripInvites?.some(
-    item => item?.status !== 'approved',
+    item => item?.status !== 'approved' && item?.status !== 'declined',
   );
 
   return (
@@ -113,7 +113,7 @@ const TripsList = () => {
           />
         </View>
       )}
-      {(MapTheseTrips?.length == 0 && !loading) ? (
+      {MapTheseTrips?.length == 0 && !loading ? (
         <View style={styles.noTripsContainer}>
           <View style={{position: 'absolute', top: 16, right: 0}}>
             <TouchableOpacity

@@ -15,18 +15,7 @@ import Toast from 'react-native-toast-message';
 import {Provider} from 'react-redux';
 import store from './src/redux/store';
 
-import messaging from '@react-native-firebase/messaging';
-
 const App = () => {
-  useEffect(() => {
-    const getDeviceToken = async () => {
-      let token = await messaging().getToken();
-      console.log('fcm token:', token);
-    };
-
-    getDeviceToken();
-  }, []);
-
   return (
     <NavigationContainer
       ref={ref => NavigationService.setTopLevelNavigator(ref)}>

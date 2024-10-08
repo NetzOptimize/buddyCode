@@ -134,7 +134,7 @@ const SignUp = ({navigation}) => {
                   placeholder={'User Name *'}
                   value={value}
                   autoCapitalize="none"
-                  onChangeText={onChange}
+                  onChangeText={text => onChange(text.toLowerCase().trim())}
                 />
               )}
               name="username"

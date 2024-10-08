@@ -9,9 +9,7 @@ import {
   Image,
 } from 'react-native';
 import {COLORS, FONTS} from '../../constants/theme/theme';
-import BlockButton from '../buttons/BlockButton';
 import Toast from 'react-native-toast-message';
-import ActionButton from '../buttons/ActionButton';
 
 var close = require('../../../assets/Images/close.png');
 
@@ -21,6 +19,22 @@ import {fetchBlockedUsers} from '../../redux/slices/blockedUsersSlice';
 import axios from 'axios';
 import {ENDPOINT} from '../../constants/endpoints/endpoints';
 import {AuthContext} from '../../context/AuthContext';
+
+function RemoveButton({title, onPress}) {
+  return (
+    <TouchableOpacity style={styles.removeBtn} onPress={onPress}>
+      <Text style={styles.btnText1}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function CancelButton({title, onPress}) {
+  return (
+    <TouchableOpacity style={styles.cancelBtn} onPress={onPress}>
+      <Text style={styles.btnText2}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
 
 const UnBlockUserModal = ({visible, onClose, blockedUserData}) => {
   const {authToken} = useContext(AuthContext);
@@ -94,8 +108,8 @@ const UnBlockUserModal = ({visible, onClose, blockedUserData}) => {
           </View>
 
           <View style={styles.restBody}>
-            <BlockButton title={'Unblock'} onPress={UnBlockUser} />
-            <ActionButton title={'Cancel'} onPress={onClose} />
+            <RemoveButton title={'Unblock'} onPress={UnBlockUser} />
+            <CancelButton title={'Cancel'} onPress={onClose} />
           </View>
         </View>
       </SafeAreaView>
@@ -135,6 +149,32 @@ const styles = StyleSheet.create({
   restBody: {
     padding: 20,
     gap: 10,
+  },
+  removeBtn: {
+    height: 44,
+    width: '100%',
+    backgroundColor: COLORS.ERROR,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 1000,
+  },
+  cancelBtn: {
+    height: 44,
+    width: '100%',
+    backgroundColor: COLORS.LIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 1000,
+  },
+  btnText1: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 14,
+    color: COLORS.LIGHT,
+  },
+  btnText2: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 14,
+    color: COLORS.GREY_LIGHT,
   },
 });
 

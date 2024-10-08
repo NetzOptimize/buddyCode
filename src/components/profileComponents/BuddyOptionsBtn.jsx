@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useState} from 'react';
 import {StyleSheet, View, Image, Text, Alert} from 'react-native';
 
 // **3rd party imports
@@ -16,20 +16,32 @@ var optionsBtn = require('../../../assets/Images/moreButton.png');
 import {COLORS, FONTS} from '../../constants/theme/theme';
 
 import {AuthContext} from '../../context/AuthContext';
+import UnBlockUserModal from '../modal/UnBlockUserModal';
 
-const BuddyOptionsBtn = () => {
+const BuddyOptionsBtn = ({isBlocked, buddyDetails}) => {
   const {setShowBlockReportPopUp} = useContext(AuthContext);
+
+  const [unblockUserDetails, setUnblockUserDetails] = useState(null);
+  const [showUnblock, setShowUnblock] = useState(false);
 
   const options = [
     {
       id: 1,
-      title: 'Block',
-      image: require('../../../assets/Images/blocked.png'),
-      action: () =>
-        setShowBlockReportPopUp({
-          type: 'block',
-          state: true,
-        }),
+      title: isBlocked ? 'Unblock' : 'Block',
+      image: isBlocked
+        ? require('../../../assets/Images/unblock.png')
+        : require('../../../assets/Images/blocked.png'),
+      action: () => {
+        if (isBlocked) {
+          setShowUnblock(true);
+          setUnblockUserDetails(buddyDetails.user);
+        } else {
+          setShowBlockReportPopUp({
+            type: 'block',
+            state: true,
+          });
+        }
+      },
     },
     {
       id: 2,
@@ -73,12 +85,13 @@ const BuddyOptionsBtn = () => {
             style={styles.menuOption}
             key={data?.id}>
             <Image source={data?.image} style={{width: 20, height: 20}} />
+
             <Text
               style={[
                 styles.popTitle,
                 {
                   color:
-                    data?.id == 1 || data?.id == 2
+                    (data?.id == 1 && !isBlocked) || data?.id == 2
                       ? COLORS.ERROR
                       : COLORS.LIGHT,
                 },
@@ -88,6 +101,11 @@ const BuddyOptionsBtn = () => {
           </MenuOption>
         ))}
       </MenuOptions>
+      <UnBlockUserModal
+        visible={showUnblock}
+        onClose={() => setShowUnblock(false)}
+        blockedUserData={unblockUserDetails}
+      />
     </Menu>
   );
 };

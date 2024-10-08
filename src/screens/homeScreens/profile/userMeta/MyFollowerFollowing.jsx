@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect, useCallback} from 'react';
+import React, {useContext, useState, useCallback} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 
 import {
@@ -6,8 +6,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
   ScrollView,
-  Button,
 } from 'react-native';
 
 // ** components
@@ -24,6 +24,8 @@ import {SCREENS} from '../../../../constants/screens/screen';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
 import axios from 'axios';
 
+var usersOutline = require('../../../../../assets/Images//usersOutline.png');
+
 const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
   const handleTabChange = tabName => {
     setActiveTab(tabName);
@@ -36,14 +38,6 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
       </View>
 
       <View style={styles.tabButtons}>
-        <TouchableOpacity onPress={() => handleTabChange('Friends')}>
-          <Text
-            style={
-              activeTab == 'Friends' ? styles.tabTextActive : styles.tabText
-            }>
-            Friends
-          </Text>
-        </TouchableOpacity>
         <TouchableOpacity onPress={() => handleTabChange('Followers')}>
           <Text
             style={
@@ -234,10 +228,22 @@ const MyFollowerFollowing = ({navigation, route}) => {
         setActiveTab={setActiveTab}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{marginTop: 20, gap: 20}}>{currentTabList}</View>
-        <View style={{height: 110}} />
-      </ScrollView>
+      {(activeTab == 'Followers' && followers.docs.length == 0) ||
+      (activeTab !== 'Followers' && following.docs.length === 0) ? (
+        <View style={styles.noReqBox}>
+          <Image source={usersOutline} style={{width: 40, height: 40}} />
+          <Text style={styles.noPending}>
+            {activeTab == 'Followers'
+              ? 'No follower yet.'
+              : 'Not Following anyone yet.'}
+          </Text>
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{marginTop: 20, gap: 20}}>{currentTabList}</View>
+          <View style={{height: 110}} />
+        </ScrollView>
+      )}
     </RegularBG>
   );
 };
@@ -268,6 +274,18 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_REG,
     fontSize: 14,
     color: COLORS.HULK,
+  },
+  noReqBox: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+    marginBottom: 80,
+  },
+  noPending: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 16,
+    color: COLORS.LIGHT,
   },
 });
 

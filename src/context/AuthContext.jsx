@@ -122,9 +122,28 @@ export const AuthProvider = ({children}) => {
     await AsyncStorage.removeItem('authToken').then(() => {
       setAuthToken(null);
       setMyUserDetails(null);
-      setLoading(false);
+      setMyPreferences(null);
       setLogoutLoader(false);
+      setMyTrips({trips: [], hasNextPage: false});
       setMyAllTrips({trips: [], hasNextPage: false});
+      setBuddyTrips([]);
+      setBlockUserData(null);
+      setSelectedDate(null);
+      setTripInvites(null);
+      setSentInvites(null);
+      setEventData([]);
+      setIsPaymentPending(null);
+      setPaymentList([]);
+      setFollowReq([]);
+      setSentFollowReq([]);
+      setLocalGroupDetails(null);
+      setTripMembers([]);
+      setShowBlockReportPopUp({type: null, state: false});
+      setSearchResult({docs: [], hasNextPage: false});
+      setLoading(false);
+      setChatIDForPolls(null);
+      setPollType('Question type');
+      setPollsVisible(false);
     });
   };
 
@@ -486,6 +505,7 @@ export const AuthProvider = ({children}) => {
         console.log('Failed to remove chat bubble:', error);
       });
   };
+
   const UpdateGroupChatRemoveBubble = chatID => {
     const updateChatURL = `${ENDPOINT.REMOVE_BUBBLE}/${chatID}`;
 
