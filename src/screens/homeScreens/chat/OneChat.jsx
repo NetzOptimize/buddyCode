@@ -28,7 +28,10 @@ var sendMessage = require('../../../../assets/Images/sendMessage.png');
 var plus = require('../../../../assets/Images/plus.png');
 
 // ** Agora Key
-import {AGORA_APP_KEY} from '@env';
+// import {AGORA_APP_KEY} from '@env';
+
+const AGORA_APP_KEY = '41695554#960499';
+
 import {AuthContext} from '../../../context/AuthContext';
 import OneChatMessages from '../../../components/chat/OneChatMessages';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';

@@ -221,8 +221,8 @@ const BuddyFollowerFollowing = ({navigation, route}) => {
           <Image source={usersOutline} style={{width: 40, height: 40}} />
           <Text style={styles.noPending}>
             {activeTab == 'Followers'
-              ? 'No follower yet.'
-              : 'Not Following anyone yet.'}
+              ? 'No followers yet'
+              : 'Not Following anyone yet'}
           </Text>
         </View>
       ) : (

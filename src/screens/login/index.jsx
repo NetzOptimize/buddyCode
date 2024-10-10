@@ -193,7 +193,9 @@ const Login = ({navigation}) => {
 
   return (
     <ImageBG>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="always">
         <View>
           <Text style={styles.heading}>Hello Again!</Text>
           <Text style={styles.subHeading}>

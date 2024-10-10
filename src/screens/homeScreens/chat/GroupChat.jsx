@@ -26,7 +26,10 @@ import {
 import {COLORS} from '../../../constants/theme/theme';
 
 // ** Agora Key
-import {AGORA_APP_KEY} from '@env';
+// import {AGORA_APP_KEY} from '@env';
+
+const AGORA_APP_KEY = '41695554#960499';
+
 import {AuthContext} from '../../../context/AuthContext';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 import axios from 'axios';

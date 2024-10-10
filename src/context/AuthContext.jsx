@@ -9,7 +9,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ChatClient, ChatOptions} from 'react-native-agora-chat';
 
 // ** Agora Key
-import {AGORA_APP_KEY} from '@env';
+// import {AGORA_APP_KEY} from '@env';
+
+const AGORA_APP_KEY = '41695554#960499';
 
 // ** redux
 import {useDispatch} from 'react-redux';
@@ -432,6 +434,7 @@ export const AuthProvider = ({children}) => {
           console.log(
             'init fail: ' +
               (error instanceof Object ? JSON.stringify(error) : error),
+            error,
           );
         });
     };
@@ -462,6 +465,7 @@ export const AuthProvider = ({children}) => {
   const Logout1 = () => {
     if (this.isInitialized === false || this.isInitialized === undefined) {
       console.log('Perform initialization first.');
+      Logout2();
       return;
     }
     setLogoutLoader(true);

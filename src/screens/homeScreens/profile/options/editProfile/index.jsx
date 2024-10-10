@@ -184,7 +184,7 @@ const EditProfile = ({navigation}) => {
   const updateProfile = async data => {
     const formData = new FormData();
 
-    formData.append('username', data.username.trim());
+    formData.append('username', data.username.trim().toLowerCase());
     formData.append('first_name', data.firstName.trim());
     formData.append('last_name', data.lastName.trim());
     formData.append('phone', phone.trim());
@@ -198,8 +198,6 @@ const EditProfile = ({navigation}) => {
     }
 
     setLoading(true);
-
-    console.log('hit update profile');
 
     try {
       await axios({
@@ -215,10 +213,11 @@ const EditProfile = ({navigation}) => {
       console.log('profile update success');
       navigation.goBack();
     } catch (err) {
-      console.log('update user error:', err?.response?.data);
+      console.log('update user error:', err?.response?.data?.message);
       Toast.show({
         type: 'error',
-        text2: 'could not update profile.',
+        text1: 'Failed to update profile',
+        text2: err?.response?.data?.message || 'could not update profile.',
       });
     } finally {
       setLoading(false);
@@ -291,6 +290,7 @@ const EditProfile = ({navigation}) => {
                 <SmallTextInput
                   placeholder={'Username'}
                   value={value}
+                  autoCapitalize="none"
                   onBlur={onBlur}
                   onChangeText={onChange}
                 />
