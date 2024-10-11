@@ -59,6 +59,7 @@ import {
 import messaging from '@react-native-firebase/messaging';
 import {ENDPOINT} from '../constants/endpoints/endpoints';
 import axios from 'axios';
+import LikedTrips from '../screens/homeScreens/profile/userMeta/LikedTrips';
 
 const MyProfileStack = () => {
   return (
@@ -93,6 +94,7 @@ const MyProfileStack = () => {
         name={SCREENS.BUDDY_FOLLOWER_FOLLOWING}
         component={BuddyFollowerFollowing}
       />
+      <Stack.Screen name={SCREENS.LIKED_TRIPS} component={LikedTrips} />
       <Stack.Screen name={SCREENS.BUDDY_PROFILE} component={BuddyProfile} />
     </Stack.Navigator>
   );
@@ -127,6 +129,7 @@ export default function TabNavigation() {
   const {chatList} = useSelector(state => state.chatList);
 
   let totalCount = 0;
+
   chatList?.forEach(item => {
     item?.message_count?.forEach(countItem => {
       if (countItem?.userId === myUserDetails?.user?._id) {
@@ -167,6 +170,9 @@ export default function TabNavigation() {
 
   const getDeviceToken = async () => {
     let token = await messaging().getToken();
+
+    console.log('token:', token);
+
     saveDeviceToken(token);
   };
 

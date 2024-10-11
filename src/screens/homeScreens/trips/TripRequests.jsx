@@ -200,28 +200,43 @@ const TripRequests = ({navigation}) => {
         />
       </View>
 
-      <ScrollView style={{marginTop: 16}} showsVerticalScrollIndicator={false}>
-        <View style={{gap: 16}}>
-          {tripInvites?.map(data => {
-            if (data.status == 'approved' || 'declined') {
-              return null;
-            }
-
-            return (
-              <InviteCards
-                key={data._id}
-                data={data}
-                onRejectInvite={() => RequestAction('declined', data._id)}
-                onAcceptInvite={() => RequestAction('approved', data._id)}
-              />
-            );
-          })}
-
-          {sentInvites?.map(data => (
-            <SentCards key={data._id} data={data} />
-          ))}
+      {(sentInvites?.length == 0 && tripInvites?.length == 0) ||
+      (!sentInvites && !tripInvites) ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 70,
+          }}>
+          <Text style={styles.noTripsText}>No Trip Requests yet</Text>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView
+          style={{marginTop: 16}}
+          showsVerticalScrollIndicator={false}>
+          <View style={{gap: 16}}>
+            {tripInvites?.map(data => {
+              if (data.status == 'approved' || data.status == 'declined') {
+                return null;
+              }
+
+              return (
+                <InviteCards
+                  key={data._id}
+                  data={data}
+                  onRejectInvite={() => RequestAction('declined', data._id)}
+                  onAcceptInvite={() => RequestAction('approved', data._id)}
+                />
+              );
+            })}
+
+            {sentInvites?.map(data => (
+              <SentCards key={data._id} data={data} />
+            ))}
+          </View>
+        </ScrollView>
+      )}
     </RegularBG>
   );
 };
@@ -265,6 +280,11 @@ const styles = StyleSheet.create({
     borderRadius: 1000,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noTripsText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 20,
+    color: COLORS.VISION,
   },
 });
 

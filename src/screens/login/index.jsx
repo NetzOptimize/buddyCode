@@ -114,7 +114,7 @@ const Login = ({navigation}) => {
           });
         }
 
-        if (err.response.data.status == 400) {
+        if (err?.response?.data?.status == 400) {
           Toast.show({
             type: 'error',
             text1: 'Sign-In failed',
@@ -255,7 +255,7 @@ const Login = ({navigation}) => {
               style={styles.linkContainer}
               onPress={() =>
                 navigation.navigate(SCREENS.FORGOT_USER, {
-                  Heading: 'Forget Username?',
+                  Heading: 'Forgot Username?',
                   SubText:
                     'Enter the email address associated with your account.',
                 })
@@ -266,7 +266,7 @@ const Login = ({navigation}) => {
               style={styles.linkContainer}
               onPress={() =>
                 navigation.navigate(SCREENS.FORGOT_USER, {
-                  Heading: 'Forget Password?',
+                  Heading: 'Forgot Password?',
                   SubText:
                     'Enter the email address associated with your account.',
                 })

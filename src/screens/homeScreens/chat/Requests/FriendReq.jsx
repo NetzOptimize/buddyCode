@@ -17,6 +17,9 @@ import axios from 'axios';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
 import FollowRequestModal from '../../../../components/modal/FollowRequestModal';
 import Toast from 'react-native-toast-message';
+import FollowedButton from '../../../../components/buttons/FollowedButton';
+import FollowButton from '../../../../components/buttons/FollowButton';
+import RequestedButton from '../../../../components/buttons/RequestedButton';
 
 var noDP = require('../../../../../assets/Images/noDP.png');
 var deleteIcon = require('../../../../../assets/Images/delete.png');
@@ -72,6 +75,7 @@ const FriendReq = ({navigation}) => {
     sentFollowReq,
     GetSentFollowRequests,
     authToken,
+    setFollowReq,
   } = useContext(AuthContext);
 
   const [activeTab, setActiveTab] = useState('Received');
@@ -108,6 +112,22 @@ const FriendReq = ({navigation}) => {
 
   let currentTab;
 
+  const modifyActionTaken = id => {
+    setFollowReq(prevState =>
+      prevState.map(item =>
+        item._id === id ? {...item, action_taken: true} : item,
+      ),
+    );
+  };
+
+  const setHasRequestedTrue = id => {
+    setFollowReq(prevState =>
+      prevState.map(item =>
+        item._id === id ? {...item, hasRequested: true} : item,
+      ),
+    );
+  };
+
   function requestActionFN(user, action) {
     const data = {
       follower: user._id,
@@ -126,13 +146,19 @@ const FriendReq = ({navigation}) => {
           text1: `Request ${action}`,
           text2: `You ${action} ${user.first_name}'s follow request.`,
         });
+
+        if (action == 'accepted') {
+          modifyActionTaken(user?._id);
+        }
       })
       .catch(err => {
-        console.log('failed to take action', err.response.data);
+        console.log('failed to take action idhar', err.response.data);
       })
       .finally(() => {
         handleClosePop();
-        GetFollowRequests();
+        if (action !== 'accepted') {
+          GetFollowRequests();
+        }
       });
   }
 
@@ -155,8 +181,90 @@ const FriendReq = ({navigation}) => {
         });
 
         GetSentFollowRequests();
-
         handleClosePop();
+
+        setFollowReq(prevState =>
+          prevState.map(item =>
+            item._id === user._id ? {...item, isFollowing: false} : item,
+          ),
+        );
+      })
+      .catch(err => {
+        console.log('failed to take action', err.response.data);
+      });
+  }
+
+  function unFollow2(user) {
+    const data = {
+      followee: user._id,
+    };
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(() => {
+        setFollowReq(prevState =>
+          prevState.map(item =>
+            item._id === user._id ? {...item, isFollowing: false} : item,
+          ),
+        );
+      })
+      .catch(err => {
+        console.log('failed to take action', err?.response?.data || err);
+      });
+  }
+
+  async function handleFollow(buddyId) {
+    const userData = {
+      followee: buddyId,
+    };
+
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: ENDPOINT.FOLLOW_USER,
+        data: userData,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authToken,
+        },
+      });
+
+      if (response.data.data.status !== 'pending') {
+        setFollowReq(prevState =>
+          prevState.map(item =>
+            item._id === buddyId ? {...item, isFollowing: true} : item,
+          ),
+        );
+      } else if (response.data.data.status == 'pending') {
+        setHasRequestedTrue(buddyId);
+      }
+    } catch (error) {
+      console.log('Failed to follow or unfollow:', error?.response?.data);
+    }
+  }
+
+  function removeReq(buddyId) {
+    const data = {
+      followee: buddyId,
+    };
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('removed request', res.data);
+        setFollowReq(prevState =>
+          prevState.map(item =>
+            item._id === buddyId ? {...item, hasRequested: false} : item,
+          ),
+        );
       })
       .catch(err => {
         console.log('failed to take action', err.response.data);
@@ -179,18 +287,40 @@ const FriendReq = ({navigation}) => {
               </Text>
             </View>
 
-            <View style={{flexDirection: 'row', gap: 4}}>
-              <TouchableOpacity
-                style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
-                onPress={() => handleShowPop(data, 'rejected')}>
-                <Image source={deleteIcon} style={{width: 20, height: 20}} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.Btn}
-                onPress={() => handleShowPop(data, 'accepted')}>
-                <Text style={styles.Btntext}>Accept request</Text>
-              </TouchableOpacity>
-            </View>
+            {data?.action_taken ? (
+              <View>
+                {data?.isFollowing ? (
+                  <FollowedButton
+                    onPress={() => {
+                      unFollow2(data);
+                    }}
+                  />
+                ) : data.hasRequested ? (
+                  <RequestedButton onPress={() => removeReq(data?._id)} />
+                ) : (
+                  <FollowButton
+                    onPress={() => {
+                      handleFollow(data?._id);
+                    }}
+                  />
+                )}
+              </View>
+            ) : (
+              <View style={{flexDirection: 'row', gap: 4}}>
+                <TouchableOpacity
+                  style={[styles.Btn, {backgroundColor: COLORS.ERROR}]}
+                  onPress={() => handleShowPop(data, 'rejected')}>
+                  <Image source={deleteIcon} style={{width: 20, height: 20}} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.Btn}
+                  onPress={() => {
+                    handleShowPop(data, 'accepted');
+                  }}>
+                  <Text style={styles.Btntext}>Accept request</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         ))}
       </>

@@ -37,7 +37,9 @@ const GroupChatHeader = ({
           />
           <View>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.username}>{memberCount} Buddies</Text>
+            <Text style={styles.username}>
+              {memberCount} {memberCount > 1 ? 'Buddies' : 'Buddy'}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>

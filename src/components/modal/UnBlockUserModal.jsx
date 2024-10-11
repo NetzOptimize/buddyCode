@@ -39,8 +39,6 @@ function CancelButton({title, onPress}) {
 const UnBlockUserModal = ({visible, onClose, blockedUserData}) => {
   const {authToken} = useContext(AuthContext);
 
-  console.log(blockedUserData);
-
   const dispatch = useDispatch();
 
   function getFullName(firstName, lastName) {
@@ -138,6 +136,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 18,
     color: COLORS.LIGHT,
+    textAlign: 'center',
   },
   BodyText: {
     fontFamily: FONTS.MAIN_REG,
@@ -145,6 +144,7 @@ const styles = StyleSheet.create({
     color: COLORS.VISION,
     lineHeight: 20,
     marginTop: 4,
+    textAlign: 'center',
   },
   restBody: {
     padding: 20,

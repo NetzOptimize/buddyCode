@@ -148,7 +148,7 @@ const MyChats = () => {
       id: 1,
       name: 'Follow requests',
       image: require('../../../../assets/Images/friendReq.png'),
-      length: followReq.length + sentFollowReq.length,
+      length: followReq.length,
       action: () => {
         NavigationService.navigate(SCREENS.FRIEND_REQ);
       },
@@ -159,19 +159,16 @@ const MyChats = () => {
       image: require('../../../../assets/Images/likes.png'),
       length: 0,
       action: () => {
-        console.log('one');
+        NavigationService.navigate(SCREENS.LIKED_TRIPS, {
+          trips: myUserDetails?.likedTrips,
+          comments: myUserDetails?.likedComments,
+        });
       },
     },
-    {
-      id: 3,
-      name: 'Comments and mentions',
-      image: require('../../../../assets/Images/chatMentions.png'),
-      length: 0,
-      action: () => {
-        console.log('two');
-      },
-    },
-    {
+  ];
+
+  if (approvalPending > 0) {
+    ReqOptions.push({
       id: 4,
       name: showPendingChats ? 'Show All Chat' : 'Chat requests',
       image: showPendingChats
@@ -181,8 +178,8 @@ const MyChats = () => {
       action: () => {
         showPendingChatsFN();
       },
-    },
-  ];
+    });
+  }
 
   function handleOpenChat(chatData) {
     if (chatData.chatType === 'group') {

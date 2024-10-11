@@ -32,8 +32,8 @@ export const AuthProvider = ({children}) => {
   const [buddyTrips, setBuddyTrips] = useState([]);
   const [blockUserData, setBlockUserData] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [tripInvites, setTripInvites] = useState(null);
-  const [sentInvites, setSentInvites] = useState(null);
+  const [tripInvites, setTripInvites] = useState([]);
+  const [sentInvites, setSentInvites] = useState([]);
   const [eventData, setEventData] = useState([]);
   const [isPaymentPending, setIsPaymentPending] = useState(null);
   const [paymentList, setPaymentList] = useState([]);
@@ -121,6 +121,30 @@ export const AuthProvider = ({children}) => {
   };
 
   const Logout2 = async () => {
+    const formData = new FormData();
+
+    formData.append('deviceToken', null);
+
+    try {
+      await axios({
+        method: 'put',
+        url: ENDPOINT.UPDATE_PROFILE,
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: 'Bearer ' + authToken,
+        },
+        timeout: 10000,
+      });
+      console.log('device token saved');
+    } catch (err) {
+      console.log('could not save device token:', err?.response?.data || err);
+    } finally {
+      Logout3();
+    }
+  };
+
+  const Logout3 = async () => {
     await AsyncStorage.removeItem('authToken').then(() => {
       setAuthToken(null);
       setMyUserDetails(null);
@@ -131,8 +155,8 @@ export const AuthProvider = ({children}) => {
       setBuddyTrips([]);
       setBlockUserData(null);
       setSelectedDate(null);
-      setTripInvites(null);
-      setSentInvites(null);
+      setTripInvites([]);
+      setSentInvites([]);
       setEventData([]);
       setIsPaymentPending(null);
       setPaymentList([]);
@@ -658,7 +682,11 @@ export const AuthProvider = ({children}) => {
         },
       })
       .then(res => {
-        setFollowReq(res.data.data.docs);
+        const requestsWithAction = res.data.data.docs.map(item => ({
+          ...item,
+          action_taken: false,
+        }));
+        setFollowReq(requestsWithAction);
       })
       .catch(err => {
         console.log('failed to get follow requests');
@@ -727,6 +755,7 @@ export const AuthProvider = ({children}) => {
         UpdateChatRemoveBubble,
         AddOneChat,
         followReq,
+        setFollowReq,
         GetFollowRequests,
         sentFollowReq,
         GetSentFollowRequests,

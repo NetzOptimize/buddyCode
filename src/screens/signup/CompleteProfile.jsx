@@ -136,37 +136,37 @@ const CompleteProfile = ({navigation, route}) => {
     if (firstName == '') {
       Toast.show({
         type: 'error',
-        text2: 'Please enter your first name.',
+        text1: 'Please enter your first name.',
       });
     } else if (lastName == '') {
       Toast.show({
         type: 'error',
-        text2: 'Please enter your last name.',
+        text1: 'Please enter your last name.',
       });
     } else if (gender == 'Gender*') {
       Toast.show({
         type: 'error',
-        text2: 'Please enter your gender.',
+        text1: 'Please enter your gender.',
       });
     } else if (ethnicity == 'Ethnicity*') {
       Toast.show({
         type: 'error',
-        text2: 'Please enter your ethnicity.',
+        text1: 'Please enter your ethnicity.',
       });
     } else if (phone == '' || phone == null || phone == 0) {
       Toast.show({
         type: 'error',
-        text2: 'Please enter your phone number.',
+        text1: 'Please enter your phone number.',
       });
     } else if (phone.length !== 10) {
       Toast.show({
         type: 'error',
-        text2: 'Please enter a valid phone number.',
+        text1: 'Please enter a valid phone number.',
       });
     } else if (dob == 'Date of Birth *') {
       Toast.show({
         type: 'error',
-        text2: 'Please enter your Date of Birth.',
+        text1: 'Please enter your Date of Birth.',
       });
     } else {
       CompleteProfileFN();
@@ -203,7 +203,7 @@ const CompleteProfile = ({navigation, route}) => {
         console.log('register error', e.response.data);
         Toast.show({
           type: 'error',
-          text2: e.response.data.message,
+          text1: e.response.data.message,
         });
         setLoading(false);
       });

@@ -19,6 +19,7 @@ import {useDispatch} from 'react-redux';
 import {fetchTripData} from '../../../redux/slices/tripDetailsSlice';
 import {SCREENS} from '../../../constants/screens/screen';
 import NavigationService from '../../../config/NavigationService';
+import Toast from 'react-native-toast-message';
 
 const TripCardOptions = ({event, eventId, tripId, onEdit}) => {
   const dispatch = useDispatch();
@@ -105,6 +106,12 @@ const TripCardOptions = ({event, eventId, tripId, onEdit}) => {
       })
       .catch(e => {
         console.log('Get Single Trip error', e?.response?.data, e);
+
+        Toast.show({
+          type: 'info',
+          text1: 'No payments',
+          text2: 'No payment has been made on this event',
+        });
       });
   }
 

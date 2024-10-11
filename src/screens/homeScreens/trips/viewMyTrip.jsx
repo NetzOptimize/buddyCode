@@ -36,7 +36,6 @@ import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 import Toast from 'react-native-toast-message';
 import {SCREENS} from '../../../constants/screens/screen';
 import CreateEvent from '../../../components/trip/Events/CreateEvent';
-import EditEvent from '../../../components/trip/Events/EditEvent';
 
 var chatIcon = require('../../../../assets/Images/chat.png');
 var plus = require('../../../../assets/Images/plus.png');
@@ -50,6 +49,8 @@ const ViewMyTrip = ({route, navigation}) => {
     setSelectedDate,
     authToken,
     setMyTrips,
+    myUserDetails,
+    setLocalGroupDetails,
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
@@ -231,6 +232,31 @@ const ViewMyTrip = ({route, navigation}) => {
     EventBuddies.push(element);
   });
 
+  function handleOpenGroupChat(chatId) {
+    const url = `${ENDPOINT.GET_CHAT}/${myUserDetails?.user?._id}`;
+
+    axios
+      .get(url, {
+        params: {
+          chatId: chatId,
+        },
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('get chat data success');
+        setLocalGroupDetails({
+          chatData: res.data.data.chat,
+          tripId: res.data.data.trip_id._id,
+        });
+        navigation.navigate(SCREENS.GROUP_CHAT);
+      })
+      .catch(err => {
+        console.log('Failed to get chat', err?.response?.data || err);
+      });
+  }
+
   return (
     <RegularBG>
       <View style={styles.headerContainer}>
@@ -284,7 +310,7 @@ const ViewMyTrip = ({route, navigation}) => {
 
                 <TouchableOpacity
                   style={styles.chatBtn}
-                  onPress={() => console.log(tripData.chatId)}>
+                  onPress={() => handleOpenGroupChat(tripData.chatId)}>
                   <Image source={chatIcon} style={{width: 20, height: 20}} />
                   <Text style={styles.chatBtnText}>Group Chat</Text>
                 </TouchableOpacity>

@@ -149,6 +149,7 @@ const BuddySearch = ({navigation, route}) => {
         profileImage: data.profile_image,
         username: data.username,
         is_chat_approved: true,
+        buddydata: data,
       });
     } else {
       NavigationService.navigate(SCREENS.BUDDY_PROFILE, {

@@ -1,6 +1,7 @@
 import React, {useState, useCallback} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -45,38 +46,55 @@ const BlockedList = ({navigation}) => {
         />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{gap: 20, marginTop: 24}}>
-          {blockedUsers?.map(data => (
-            <View key={data.id} style={styles.blockedListItemContainer}>
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-                <FastImage
-                  source={
-                    data?.profile_image ? {uri: data?.profile_image} : noDP
-                  }
-                  style={{borderRadius: 1000, width: 44, height: 44}}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-                <Text style={styles.name}>
-                  {FullName(data?.first_name, data?.last_name)}
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.Btn}
-                onPress={() => {
-                  setShowUnblock(true);
-                  setUnblockUserDetails(data);
-                }}>
-                <Text style={styles.Btntext}>Unblock</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+      {blockedUsers?.length == 0 ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 70,
+            gap: 16,
+          }}>
+          <Image
+            source={require('../../../../../../../assets/Images/usersOutline.png')}
+            style={{width: 50, height: 50}}
+          />
+          <Text style={styles.noTripsText}>No Blocked Users</Text>
         </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{gap: 20, marginTop: 24}}>
+            {blockedUsers?.map(data => (
+              <View key={data.id} style={styles.blockedListItemContainer}>
+                <View
+                  style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+                  <FastImage
+                    source={
+                      data?.profile_image ? {uri: data?.profile_image} : noDP
+                    }
+                    style={{borderRadius: 1000, width: 44, height: 44}}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                  <Text style={styles.name}>
+                    {FullName(data?.first_name, data?.last_name)}
+                  </Text>
+                </View>
 
-        <View style={{height: 110}} />
-      </ScrollView>
+                <TouchableOpacity
+                  style={styles.Btn}
+                  onPress={() => {
+                    setShowUnblock(true);
+                    setUnblockUserDetails(data);
+                  }}>
+                  <Text style={styles.Btntext}>Unblock</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+
+          <View style={{height: 110}} />
+        </ScrollView>
+      )}
 
       <UnBlockUserModal
         visible={showUnblock}
@@ -112,6 +130,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  noTripsText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 20,
+    color: COLORS.VISION,
+    textAlign: 'center',
   },
 });
 

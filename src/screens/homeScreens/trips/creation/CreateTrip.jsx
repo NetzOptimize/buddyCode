@@ -221,16 +221,12 @@ const CreateTrip = ({navigation}) => {
       });
     } catch (err) {
       // Handle error
-      console.error(
-        'Failed to create trip:',
-        err?.response?.data || err.message,
-      );
+      console.log('Failed to create trip:', err?.response?.data || err);
       Toast.show({
         type: 'error',
         text2: 'Failed to Create Trip',
       });
     } finally {
-      // Set loading state to false
       setIsLoading(false);
     }
   }

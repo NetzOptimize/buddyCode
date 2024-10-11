@@ -46,23 +46,26 @@ const UserMeta = ({
         }}
         disabled={isPrivate}>
         <Text style={styles.attributeTag}>Following</Text>
-        <Text style={styles.attributeName}>
-          {userData?.followingCount}
-        </Text> 
+        <Text style={styles.attributeName}>{userData?.followingCount}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={{alignItems: 'center', gap: 4}}
-        disabled={isPrivate}>
+        disabled={isPrivate}
+        onPress={() => {
+          NavigationService.navigate(SCREENS.LIKED_TRIPS, {
+            trips: userData?.likedTrips,
+            comments: userData?.likedComments,
+          });
+        }}>
         <Text style={styles.attributeTag}>Likes</Text>
         <Text style={styles.attributeName}>
-          {userData?.likedTrips && userData?.likedTrips?.length}
+          {(userData?.likedTrips || userData?.likedComments) &&
+            userData?.likedTrips?.length + userData?.likedComments?.length}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={{alignItems: 'center', gap: 4}}
-        disabled={isPrivate}>
+      <TouchableOpacity style={{alignItems: 'center', gap: 4}} disabled={true}>
         <Text style={styles.attributeTag}>Trips</Text>
         <Text style={styles.attributeName}>{tripCount}</Text>
       </TouchableOpacity>

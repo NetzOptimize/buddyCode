@@ -160,6 +160,7 @@ const EditProfile = ({navigation}) => {
     setValue('firstName', myUserDetails?.user?.first_name);
     setValue('lastName', myUserDetails?.user?.last_name);
     setValue('username', myUserDetails?.user?.username);
+    setValue('bio', myUserDetails?.user?.bio);
     setPhone(myUserDetails?.user?.phone);
   }, [myUserDetails, setValue]);
 
@@ -189,6 +190,10 @@ const EditProfile = ({navigation}) => {
     formData.append('last_name', data.lastName.trim());
     formData.append('phone', phone.trim());
 
+    if (data.bio && data.bio.trim()) {
+      formData.append('bio', data.bio.trim());
+    }
+
     if (currentDP) {
       formData.append('profile_image', {
         uri: currentDP,
@@ -213,7 +218,7 @@ const EditProfile = ({navigation}) => {
       console.log('profile update success');
       navigation.goBack();
     } catch (err) {
-      console.log('update user error:', err?.response?.data?.message);
+      console.log('update user error:', err?.response?.data || err);
       Toast.show({
         type: 'error',
         text1: 'Failed to update profile',
@@ -222,6 +227,10 @@ const EditProfile = ({navigation}) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatUserName = textValue => {
+    setUserName(textValue.toUpperCase());
   };
 
   return (

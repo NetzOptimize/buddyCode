@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  FlatList,
 } from 'react-native';
 
 import React, {useContext, useEffect, useState} from 'react';
@@ -22,9 +23,12 @@ import {AuthContext} from '../../../../context/AuthContext';
 import axios from 'axios';
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
 import Spinner from 'react-native-loading-spinner-overlay';
+import FastImage from 'react-native-fast-image';
 
 var plus = require('../../../../../assets/Images/plus.png');
 var close = require('../../../../../assets/Images/close.png');
+var cancel = require('../../../../../assets/Images/close.png');
+var noDP = require('../../../../../assets/Images/noDP.png');
 
 function DestinationInput({tripDestinations, setTripDestinations}) {
   const addDestination = () => {
@@ -84,7 +88,8 @@ function DestinationInput({tripDestinations, setTripDestinations}) {
 const EditTrip = ({navigation, route}) => {
   const {tripData} = route.params;
 
-  const {myUserDetails, authToken, setMyTrips} = useContext(AuthContext);
+  const {myUserDetails, authToken, setMyTrips, tripMembers, setTripMembers} =
+    useContext(AuthContext);
 
   const [tripName, setTripName] = useState('');
   const [tripDestinations, setTripDestinations] = useState(['']);
@@ -216,6 +221,21 @@ const EditTrip = ({navigation, route}) => {
       });
   }
 
+  const renderMember = ({item}) => (
+    <TouchableOpacity
+      style={styles.memberContainer}
+      onPress={() => addBuddyHandler(item)}>
+      <View style={styles.cancelBtn}>
+        <Image source={cancel} style={{width: 16, height: 16}} />
+      </View>
+      <FastImage
+        source={item.profile_image ? {uri: item.profile_image} : noDP}
+        style={styles.dp}
+      />
+      <Text style={styles.username}>@{item.username}</Text>
+    </TouchableOpacity>
+  );
+
   const deleteAlert = () => {
     Alert.alert(
       `Delete ${tripName} ?`,
@@ -255,6 +275,18 @@ const EditTrip = ({navigation, route}) => {
         console.log('could not delete trip:', err.response.data);
         setIsLoading(false);
       });
+  }
+
+  function addBuddyHandler(user) {
+    const isUserInTrip = tripMembers?.some(member => member._id === user._id);
+
+    if (!isUserInTrip) {
+      setTripMembers(prevValue => [...prevValue, user]);
+    } else {
+      setTripMembers(prevValue =>
+        prevValue.filter(member => member._id !== user._id),
+      );
+    }
   }
 
   function removeTripById(tripId) {
@@ -320,6 +352,27 @@ const EditTrip = ({navigation, route}) => {
 
           <View style={{gap: 8}}>
             <Text style={styles.label}>Buddies</Text>
+            <View style={{flexDirection: 'row', gap: 16, alignItems: 'center'}}>
+              <TouchableOpacity
+                style={styles.addBuddiesBtn}
+                onPress={() =>
+                  navigation.navigate(SCREENS.BUDDY_SEARCH, {
+                    isForChat: false,
+                    isForTrip: true,
+                  })
+                }>
+                <Image source={plus} style={{height: 32, width: 32}} />
+              </TouchableOpacity>
+
+              <FlatList
+                data={tripMembers}
+                renderItem={renderMember}
+                keyExtractor={item => item._id}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+              />
+            </View>
           </View>
 
           <View style={{gap: 8}}>
@@ -429,5 +482,37 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: FONTS.MAIN_SEMI,
     color: COLORS.ERROR,
+  },
+  addBuddiesBtn: {
+    borderWidth: 2,
+    borderColor: COLORS.SWEDEN,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 48,
+    height: 48,
+  },
+  memberContainer: {
+    marginRight: 16,
+    flexDirection: 'Column',
+    alignItems: 'center',
+    gap: 4,
+  },
+  cancelBtn: {
+    borderRadius: 100,
+    backgroundColor: COLORS.ERROR,
+    top: 16,
+    right: -16,
+    zIndex: 9999,
+  },
+  dp: {
+    width: 48,
+    height: 48,
+    borderRadius: 1000,
+  },
+  username: {
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 12,
+    color: COLORS.LIGHT,
   },
 });

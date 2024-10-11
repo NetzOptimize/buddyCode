@@ -44,12 +44,12 @@ const ProfileSettings = ({navigation}) => {
         navigation.navigate(SCREENS.DELETE_STEP1);
       },
     },
-    {
-      id: 4,
-      name: 'Terms of Conditions',
-      image: require('../../../../../../assets/Images/settings/clipboard.png'),
-      actions: () => {},
-    },
+    // {
+    //   id: 4,
+    //   name: 'Terms of Conditions',
+    //   image: require('../../../../../../assets/Images/settings/clipboard.png'),
+    //   actions: () => {},
+    // },
     {
       id: 5,
       name: 'Logout',

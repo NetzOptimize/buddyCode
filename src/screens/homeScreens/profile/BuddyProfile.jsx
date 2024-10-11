@@ -37,6 +37,8 @@ import ReportUserModal from '../../../components/modal/ReportUserModal';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';
 import axios from 'axios';
 import RequestedButton from '../../../components/buttons/RequestedButton';
+import CommentBottomSheet from '../../../components/profileComponents/CommentBottomSheet';
+import {fetchTripComments} from '../../../redux/slices/tripCommentsSlice';
 
 var lock = require('../../../../assets/Images/lock.png');
 var block = require('../../../../assets/Images/block.png');
@@ -59,6 +61,14 @@ const BuddyProfile = ({route, navigation}) => {
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
   const {blockedUsers} = useSelector(state => state.blockedUsers);
+
+  const [showComments, setShowComments] = useState(false);
+
+  const handleViewComments = tripId => {
+    dispatch(fetchTripComments(tripId)).then(() => {
+      setShowComments(true);
+    });
+  };
 
   useEffect(() => {
     if (
@@ -244,7 +254,7 @@ const BuddyProfile = ({route, navigation}) => {
 
         <View style={styles.userDetailsContainer}>
           <ProfileImage
-            source={buddyData.profile_image}
+            source={buddyData?.profile_image}
             onPress={() => setShowProfileImage(true)}
             showProfileImage={showProfileImage}
             handleClose={() => setShowProfileImage(false)}
@@ -278,7 +288,21 @@ const BuddyProfile = ({route, navigation}) => {
                 isPrivate={isPrivate || isBlocked}
               />
 
-              {isPrivate || isBlocked ? null : (
+              {isPrivate || isBlocked ? null : buddyTrips.length == 0 ? (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    alignSelf: 'center',
+                    marginTop: 94,
+                  }}>
+                  <Image
+                    source={require('../../../../assets/Images/suitcase.png')}
+                    style={{width: 40, height: 40}}
+                  />
+                  <Text style={styles.noTripsText}>No Trips Yet</Text>
+                </View>
+              ) : (
                 <View style={styles.homeTripCardContainer}>
                   {buddyTrips.map((trip, i) => (
                     <ProfileTripCard
@@ -341,6 +365,13 @@ const BuddyProfile = ({route, navigation}) => {
         }
         reportThisUser={buddyDetails}
       />
+
+      <CommentBottomSheet
+        visible={showComments}
+        onClose={() => {
+          setShowComments(false);
+        }}
+      />
     </RegularBG>
   );
 };
@@ -400,6 +431,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_REG,
     color: COLORS.LIGHT,
     fontSize: 12,
+    textAlign: 'center',
+  },
+  noTripsText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 20,
+    color: COLORS.VISION,
     textAlign: 'center',
   },
 });

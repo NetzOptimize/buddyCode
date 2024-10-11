@@ -41,7 +41,7 @@ export default function ForgotUserDetails({navigation, route}) {
   });
 
   const onSubmit = data => {
-    if (Heading === 'Forget Username?') {
+    if (Heading === 'Forgot Username?') {
       forgetUsername(data.email);
     } else {
       forgetPassword(data.email);
@@ -162,5 +162,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: FONTS.MAIN_REG,
   },
-
 });

@@ -35,12 +35,12 @@ const MyOptionsBtn = () => {
       image: require('../../../assets/Images/settings.png'),
       action: () => NavigationService.navigate(SCREENS.PROFILE_SETTINGS),
     },
-    {
-      id: 3,
-      title: 'Contact Us',
-      image: require('../../../assets/Images/messageIcon.png'),
-      action: () => console.log('pressed'),
-    },
+    // {
+    //   id: 3,
+    //   title: 'Contact Us',
+    //   image: require('../../../assets/Images/messageIcon.png'),
+    //   action: () => console.log('pressed'),
+    // },
     {
       id: 4,
       title: 'Logout',

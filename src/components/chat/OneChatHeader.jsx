@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   menuOptionContainer: {
     borderRadius: 10,
     backgroundColor: '#4E4E4E',
-    width: 160,
+    width: 180,
   },
   menuOption: {
     flexDirection: 'row',

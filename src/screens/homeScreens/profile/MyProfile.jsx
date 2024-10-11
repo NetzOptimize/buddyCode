@@ -6,6 +6,7 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 
@@ -125,6 +126,22 @@ const MyProfile = () => {
             myMeta={true}
           />
 
+          {myAllTrips?.trips?.length == 0 && (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'center',
+                marginTop: 94,
+              }}>
+              <Image
+                source={require('../../../../assets/Images/suitcase.png')}
+                style={{width: 40, height: 40}}
+              />
+              <Text style={styles.noTripsText}>No Trips Yet</Text>
+            </View>
+          )}
+
           <View style={styles.homeTripCardContainer}>
             {myAllTrips?.trips?.map((trip, i) => {
               return (
@@ -135,7 +152,7 @@ const MyProfile = () => {
                   onViewTrip={() =>
                     NavigationService.navigate(SCREENS.VIEW_MY_TRIP, {
                       tripData: trip,
-                      isMyTrip: true,
+                      isMyTrip: trip?.owner?._id == myUserDetails?.user?._id,
                     })
                   }
                 />
@@ -205,6 +222,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_REG,
     fontSize: 14,
     color: COLORS.HULK,
+  },
+  noTripsText: {
+    fontFamily: FONTS.MAIN_REG,
+    fontSize: 20,
+    color: COLORS.VISION,
+    textAlign: 'center',
   },
 });
 

@@ -102,7 +102,11 @@ function CommentBox({comment, tripId}) {
           }
           style={{width: 30, height: 30, borderRadius: 1000, marginTop: 4}}
         />
-        <View style={{width: '75%'}}>
+        <View
+          style={{
+            width:
+              myUserDetails?.user?._id == comment?.user_id._id ? '73%' : '83%',
+          }}>
           <Text style={styles.name}>
             {comment.user_id.first_name} {comment.user_id.last_name}
           </Text>

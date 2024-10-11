@@ -2,9 +2,7 @@ export const SCREENS = {
   LOGIN: 'login',
   REGISTER: 'signUp',
   FORGOT_USER: 'forgotUserDetails',
-
   BUDDY_SEARCH: 'buddySearch',
-
   OTP_SCREEN: 'OTPverification',
   COMPLETE_PROFILE: 'completeProfile',
   CHANGE_USER_DETAILS: 'changeUserDetails',
@@ -13,6 +11,7 @@ export const SCREENS = {
   MY_PROFILE: 'myProfile',
   MY_FOLLOWER_FOLLOWING: 'myFollowerFollowing',
   BUDDY_FOLLOWER_FOLLOWING: 'BuddyFollowerFollowing',
+  LIKED_TRIPS: 'likedTrips',
   MY_CHATS: 'myChats',
   ONE_CHAT: 'oneChat',
   GROUP_CHAT: 'groupChat',

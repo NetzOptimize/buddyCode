@@ -53,18 +53,18 @@ const BuddyOptionsBtn = ({isBlocked, buddyDetails}) => {
           state: true,
         }),
     },
-    {
-      id: 3,
-      title: 'See shared activities',
-      image: require('../../../assets/Images/usersOutline.png'),
-      action: () => console.log('pressed'),
-    },
-    {
-      id: 4,
-      title: 'Share this profile',
-      image: require('../../../assets/Images/share.png'),
-      action: () => console.log('pressed'),
-    },
+    // {
+    //   id: 3,
+    //   title: 'See shared activities',
+    //   image: require('../../../assets/Images/usersOutline.png'),
+    //   action: () => console.log('pressed'),
+    // },
+    // {
+    //   id: 4,
+    //   title: 'Share this profile',
+    //   image: require('../../../assets/Images/share.png'),
+    //   action: () => console.log('pressed'),
+    // },
   ];
 
   return (

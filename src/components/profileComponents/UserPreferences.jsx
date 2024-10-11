@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
   tagBox: {
     flexDirection: 'row',
     width: '100%',
-    justifyContent: 'space-evenly',
     alignSelf: 'center',
     marginTop: 20,
     flexWrap: 'wrap',

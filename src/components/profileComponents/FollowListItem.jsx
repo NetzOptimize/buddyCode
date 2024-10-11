@@ -10,6 +10,7 @@ import {AuthContext} from '../../context/AuthContext';
 
 import axios from 'axios';
 import {ENDPOINT} from '../../constants/endpoints/endpoints';
+import RequestedButton from '../buttons/RequestedButton';
 
 // **image
 var noDP = require('../../../assets/Images/noDP.png');
@@ -34,8 +35,6 @@ const FollowListItem = ({
     return `${firstName} ${lastName}`;
   }
 
-  console.log('isRequested:', isRequested);
-
   async function handleFollow(buddyId) {
     const userData = {
       followee: buddyId,
@@ -54,7 +53,10 @@ const FollowListItem = ({
         },
       });
     } catch (error) {
-      console.log('Failed to follow or unfollow:', error.response.data);
+      console.log(
+        'Failed to follow or unfollow:',
+        error?.response?.data || error,
+      );
     } finally {
       setLoading(false);
       getFollowersFollowings();
@@ -85,6 +87,29 @@ const FollowListItem = ({
       });
   }
 
+  function removeReq(buddyId) {
+    const data = {
+      followee: buddyId,
+    };
+
+    axios
+      .post(ENDPOINT.UNFOLLOW_USER, data, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('removed request', res.data);
+        setIsRequested(false);
+      })
+      .catch(err => {
+        console.log('failed to take action', err.response.data);
+      })
+      .finally(() => {
+        getFollowersFollowings();
+      });
+  }
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -99,21 +124,21 @@ const FollowListItem = ({
         </Text>
       </TouchableOpacity>
 
-      {myUserDetails?.user?._id !== data?._id ? (
-        isFollowed ? (
-          <FollowedButton
-            onPress={() => unFollow(data?._id)}
-            loading={loading}
-            disabled={loading}
-          />
-        ) : (
-          <FollowButton
-            onPress={() => handleFollow(data?._id)}
-            loading={loading}
-            disabled={loading}
-          />
-        )
-      ) : null}
+      {data?._id == myUserDetails?.user?._id ? null : data?.isFollowing ? (
+        <FollowedButton
+          onPress={() => unFollow(data?._id)}
+          loading={loading}
+          disabled={loading}
+        />
+      ) : data?.hasRequested ? (
+        <RequestedButton onPress={() => removeReq(data?._id)} />
+      ) : (
+        <FollowButton
+          onPress={() => handleFollow(data?._id)}
+          loading={loading}
+          disabled={loading}
+        />
+      )}
     </View>
   );
 };

@@ -112,11 +112,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 18,
     color: COLORS.LIGHT,
+    textAlign: 'center',
   },
   title2: {
     fontFamily: FONTS.MAIN_REG,
     fontSize: 14,
     color: COLORS.LIGHT,
+    textAlign: 'center',
   },
   acceptBtn: {
     height: 44,

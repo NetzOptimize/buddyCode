@@ -77,12 +77,12 @@ const NotificationSettings = ({navigation}) => {
       body: 'Get notified of likes, comments, favorites, mentions and friend requests.',
       action: () => toggleSwitch('interactions', !isAllowed.interactions),
     },
-    {
-      id: 'suggested_trips',
-      title: 'Suggested trips',
-      body: 'Get trips recommendations based on your interests.',
-      action: () => toggleSwitch('suggested_trips', !isAllowed.suggested_trips),
-    },
+    // {
+    //   id: 'suggested_trips',
+    //   title: 'Suggested trips',
+    //   body: 'Get trips recommendations based on your interests.',
+    //   action: () => toggleSwitch('suggested_trips', !isAllowed.suggested_trips),
+    // },
     {
       id: 'new_trips_from_buddies',
       title: 'New trips from Buddies you follow',

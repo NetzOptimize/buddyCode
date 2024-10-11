@@ -170,14 +170,14 @@ const TripCoverImage = ({tripData, source, setSource}) => {
               <Image source={cam} style={{width: 20, height: 20}} />
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.actionBtn}
               onPress={() => {
                 setSource(null);
                 updateCoverImg(tripInfo?.trip?._id);
               }}>
               <Image source={deleteIcon} style={{width: 20, height: 20}} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
 
