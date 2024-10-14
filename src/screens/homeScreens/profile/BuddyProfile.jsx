@@ -55,14 +55,14 @@ const BuddyProfile = ({route, navigation}) => {
     setBlockUserData,
     sentFollowReq,
     GetSentFollowRequests,
+    showComments,
+    setShowComments,
   } = useContext(AuthContext);
   const {buddyData} = route.params;
 
   const dispatch = useDispatch();
   const {buddyDetails, loading} = useSelector(state => state.buddyDetails);
   const {blockedUsers} = useSelector(state => state.blockedUsers);
-
-  const [showComments, setShowComments] = useState(false);
 
   const handleViewComments = tripId => {
     dispatch(fetchTripComments(tripId)).then(() => {
@@ -238,11 +238,7 @@ const BuddyProfile = ({route, navigation}) => {
                 />
               ) : (
                 <FollowButton
-                  onPress={() =>
-                    handleFollowUnfollow(
-                      buddyData?.id ? buddyData?.id : buddyData?._id,
-                    )
-                  }
+                  onPress={() => handleFollowUnfollow(buddyDetails?.user?.id)}
                   loading={followLoading}
                   disabled={followLoading}
                 />
@@ -254,17 +250,26 @@ const BuddyProfile = ({route, navigation}) => {
 
         <View style={styles.userDetailsContainer}>
           <ProfileImage
-            source={buddyData?.profile_image}
+            source={buddyDetails?.user?.profile_image}
             onPress={() => setShowProfileImage(true)}
             showProfileImage={showProfileImage}
             handleClose={() => setShowProfileImage(false)}
           />
 
-          <Text style={styles.name}>
-            {getFullName(buddyData?.first_name, buddyData?.last_name)}
-          </Text>
+          {!loading && (
+            <>
+              <Text style={styles.name}>
+                {getFullName(
+                  buddyDetails?.user?.first_name,
+                  buddyDetails?.user?.last_name,
+                )}
+              </Text>
 
-          <Text style={styles.username}>@{buddyData?.username}</Text>
+              <Text style={styles.username}>
+                @{buddyDetails?.user?.username}
+              </Text>
+            </>
+          )}
         </View>
 
         <View>

@@ -54,6 +54,7 @@ const OneChat = ({navigation, route}) => {
     username,
     is_chat_approved,
     buddydata,
+    complete_chat_data,
   } = route.params;
 
   const {myUserDetails, UpdateChatRemoveBubble, AddOneChat, authToken} =
@@ -219,8 +220,8 @@ const OneChat = ({navigation, route}) => {
       title: `${title}`,
       body: body,
       receivers: [receiversID],
-      notification_type: 'chat',
-      navigate_to: 'ChatScreens',
+      notification_type: 'one_chat',
+      navigate_to: JSON.stringify(complete_chat_data),
     };
 
     axios
@@ -231,7 +232,10 @@ const OneChat = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('Notification sent');
+        console.log(
+          'Notification sent',
+          JSON.parse(res.data.data.fields.navigate_to),
+        );
       })
       .catch(err => {
         console.log('error sending notification:', err.response.data);
@@ -579,6 +583,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingLeft: 34,
+    paddingRight: 34,
   },
   messageBox: {
     maxHeight: 118,

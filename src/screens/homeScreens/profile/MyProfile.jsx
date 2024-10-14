@@ -46,12 +46,13 @@ const MyProfile = () => {
     authToken,
     GetAllTrips,
     GetSentFollowRequests,
+    showComments,
+    setShowComments,
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
 
   const [page, setPage] = useState(2);
-  const [showComments, setShowComments] = useState(false);
 
   const handleViewComments = tripId => {
     dispatch(fetchTripComments(tripId)).then(() => {

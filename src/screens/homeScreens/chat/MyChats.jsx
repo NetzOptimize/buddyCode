@@ -76,6 +76,10 @@ const MyChats = () => {
     dispatch(fetchChatList(myUserDetails?.user?._id)).then(() => {
       setIsLoading(false);
     });
+
+    setShowPendingChats(false);
+    GetFollowRequests();
+    GetSentFollowRequests();
   };
 
   function searchChats(searchText, chats) {
@@ -195,6 +199,7 @@ const MyChats = () => {
           username: chatData.to_user.username,
           is_chat_approved: true,
           buddydata: chatData.to_user,
+          complete_chat_data: chatData,
         });
       } else {
         NavigationService.navigate(SCREENS.ONE_CHAT, {
@@ -206,6 +211,7 @@ const MyChats = () => {
           username: chatData.from_user.username,
           is_chat_approved: chatData.is_chat_approved,
           buddydata: chatData.from_user,
+          complete_chat_data: chatData,
         });
       }
     }
@@ -232,7 +238,7 @@ const MyChats = () => {
         NavigationService.navigate(SCREENS.GROUP_CHAT);
       })
       .catch(err => {
-        console.log('Failed to get chat', err.response.data);
+        console.log('Failed to get chat', err?.response?.data || err);
       });
   }
 

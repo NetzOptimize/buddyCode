@@ -156,8 +156,6 @@ const MyFollowerFollowing = ({navigation, route}) => {
 
   let currentTabList;
 
-  console.log(followers?.docs[0]);
-
   if (activeTab == 'Followers') {
     currentTabList = (
       <>

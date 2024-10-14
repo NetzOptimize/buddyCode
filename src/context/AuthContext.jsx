@@ -60,6 +60,9 @@ export const AuthProvider = ({children}) => {
   const [pollType, setPollType] = useState('Question type');
   const [PollsVisible, setPollsVisible] = useState(false);
 
+  // **open comment box state
+  const [showComments, setShowComments] = useState(false);
+
   useEffect(() => {
     if (authToken) {
       VerifyToken(authToken);
@@ -722,6 +725,7 @@ export const AuthProvider = ({children}) => {
         setLoading,
         Logout1,
         logoutLoader,
+        setLogoutLoader,
         myAllTrips,
         buddyTrips,
         setBuddyTrips,
@@ -771,6 +775,8 @@ export const AuthProvider = ({children}) => {
         UpdateGroupChat,
         tripMembers,
         setTripMembers,
+        showComments,
+        setShowComments,
       }}>
       {children}
     </AuthContext.Provider>

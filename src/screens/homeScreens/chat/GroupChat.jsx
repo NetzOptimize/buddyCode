@@ -528,8 +528,8 @@ const GroupChat = ({navigation}) => {
       title: `${title}`,
       body: body,
       receivers: allMembers,
-      notification_type: 'chat',
-      navigate_to: 'ChatScreens',
+      notification_type: 'group_chat',
+      navigate_to: localGroupDetails.chatData._id,
     };
 
     axios

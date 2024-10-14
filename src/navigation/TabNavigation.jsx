@@ -45,7 +45,7 @@ var profile = require('../../assets/Images/bottomTab/profile.png');
 var profileSelect = require('../../assets/Images/bottomTab/profileSelect.png');
 
 // **redux
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import GradientText from '../components/home/GradientText';
 import {FONTS} from '../constants/theme/theme';
 
@@ -60,6 +60,8 @@ import messaging from '@react-native-firebase/messaging';
 import {ENDPOINT} from '../constants/endpoints/endpoints';
 import axios from 'axios';
 import LikedTrips from '../screens/homeScreens/profile/userMeta/LikedTrips';
+import NavigationService from '../config/NavigationService';
+import {fetchTripComments} from '../redux/slices/tripCommentsSlice';
 
 const MyProfileStack = () => {
   return (
@@ -124,8 +126,15 @@ const TripsStack = () => {
 };
 
 export default function TabNavigation() {
-  const {myUserDetails, authToken} = useContext(AuthContext);
+  const {
+    myUserDetails,
+    authToken,
+    setLocalGroupDetails,
+    setLogoutLoader,
+    setShowComments,
+  } = useContext(AuthContext);
 
+  const dispatch = useDispatch();
   const {chatList} = useSelector(state => state.chatList);
 
   let totalCount = 0;
@@ -171,8 +180,6 @@ export default function TabNavigation() {
   const getDeviceToken = async () => {
     let token = await messaging().getToken();
 
-    console.log('token:', token);
-
     saveDeviceToken(token);
   };
 
@@ -203,15 +210,105 @@ export default function TabNavigation() {
       .getInitialNotification()
       .then(async remoteMessage => {
         if (remoteMessage) {
-          console.log(
-            'notification caused the app to open from quit state',
-            remoteMessage.notification,
-          );
+          console.log('notification caused the app to open from quit state');
+
+          if (remoteMessage?.data?.notification_type === 'one_chat') {
+            const chatData = JSON.parse(remoteMessage?.data?.navigate_to);
+            setTimeout(() => {
+              openOneChat(chatData);
+            }, 1000);
+          }
+
+          if (remoteMessage?.data?.notification_type === 'group_chat') {
+            setLogoutLoader(true);
+
+            setTimeout(() => {
+              handleOpenGroupChat(remoteMessage?.data?.navigate_to);
+            }, 3000);
+          }
+
+          if (remoteMessage?.data?.notification_type === 'interactions') {
+            if (remoteMessage?.data?.trip_id) {
+              if (remoteMessage?.data?.trip_owner == myUserDetails?.user?._id) {
+                handleViewComments(remoteMessage?.data?.trip_id);
+                NavigationService.navigate('MyProfileStack');
+              } else {
+                const data = {
+                  id: remoteMessage?.data?.trip_owner,
+                };
+
+                NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
+                  buddyData: data,
+                });
+
+                handleGetBuddyDetails(
+                  remoteMessage?.data?.trip_owner,
+                  remoteMessage?.data?.trip_id,
+                );
+              }
+            }
+          }
+
+          if (
+            remoteMessage?.data?.notification_type === 'new_trips_from_buddies'
+          ) {
+            setTimeout(() => {
+              NavigationService.navigate('TripsStack');
+            }, 100);
+          }
+
+          if (remoteMessage?.notification?.title === 'New follow request') {
+            setTimeout(() => {
+              NavigationService.navigate('MyChatScreens');
+            }, 100);
+          }
         }
       });
 
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('opened from background state', remoteMessage.notification);
+      console.log('opened from background state', remoteMessage);
+      if (remoteMessage?.data?.notification_type === 'one_chat') {
+        const chatData = JSON.parse(remoteMessage?.data?.navigate_to);
+        openOneChat(chatData);
+      }
+
+      if (remoteMessage?.data?.notification_type === 'group_chat') {
+        handleOpenGroupChat(remoteMessage?.data?.navigate_to);
+      }
+
+      if (remoteMessage?.data?.notification_type === 'interactions') {
+        if (remoteMessage?.data?.trip_id) {
+          if (remoteMessage?.data?.trip_owner == myUserDetails?.user?._id) {
+            handleViewComments(remoteMessage?.data?.trip_id);
+            NavigationService.navigate('MyProfileStack');
+          } else {
+            const data = {
+              id: remoteMessage?.data?.trip_owner,
+            };
+
+            NavigationService.navigate(SCREENS.BUDDY_PROFILE, {
+              buddyData: data,
+            });
+
+            handleGetBuddyDetails(
+              remoteMessage?.data?.trip_owner,
+              remoteMessage?.data?.trip_id,
+            );
+          }
+        }
+      }
+
+      if (remoteMessage?.data?.notification_type === 'new_trips_from_buddies') {
+        setTimeout(() => {
+          NavigationService.navigate('TripsStack');
+        }, 100);
+      }
+
+      if (remoteMessage?.notification?.title === 'New follow request') {
+        setTimeout(() => {
+          NavigationService.navigate('MyChatScreens');
+        }, 100);
+      }
     });
 
     messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -224,6 +321,91 @@ export default function TabNavigation() {
 
     return unsubscribe;
   }, []);
+
+  function openOneChat(chatData) {
+    if (myUserDetails?.user?._id === chatData?.from_user_id) {
+      NavigationService.navigate(SCREENS.ONE_CHAT, {
+        agoraTargetUsername: chatData.to_user.agoraDetails[0].username,
+        name: `${chatData.to_user.first_name} ${chatData.to_user.last_name}`,
+        chatID: chatData._id,
+        chatUserID: chatData.to_user_id,
+        profileImage: chatData.to_user.profile_image,
+        username: chatData.to_user.username,
+        is_chat_approved: true,
+        buddydata: chatData.to_user,
+        complete_chat_data: chatData,
+      });
+    } else {
+      NavigationService.navigate(SCREENS.ONE_CHAT, {
+        agoraTargetUsername: chatData.from_user.agoraDetails[0].username,
+        name: `${chatData.to_user.first_name} ${chatData.to_user.last_name}`,
+        chatID: chatData._id,
+        chatUserID: chatData.from_user_id,
+        profileImage: chatData.from_user.profile_image,
+        username: chatData.from_user.username,
+        is_chat_approved: chatData.is_chat_approved,
+        buddydata: chatData.from_user,
+        complete_chat_data: chatData,
+      });
+    }
+  }
+
+  function handleOpenGroupChat(chatId) {
+    const url = `${ENDPOINT.GET_CHAT}/${myUserDetails?.user?._id}`;
+
+    axios
+      .get(url, {
+        params: {
+          chatId: chatId,
+        },
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then(res => {
+        console.log('get chat data success');
+        setLocalGroupDetails({
+          chatData: res.data.data.chat,
+          tripId: res.data.data.trip_id._id,
+        });
+        NavigationService.navigate(SCREENS.GROUP_CHAT);
+      })
+      .catch(err => {
+        console.log('Failed to get chat', err.response.data);
+      })
+      .finally(() => {
+        setLogoutLoader(false);
+      });
+  }
+
+  async function handleGetBuddyDetails(buddyId, tripId) {
+    try {
+      const response = await axios.get(
+        `${ENDPOINT.GET_BUDDY_DETAILS}/${buddyId}`,
+        {
+          headers: {Authorization: 'Bearer ' + authToken},
+          timeout: 10000,
+        },
+      );
+
+      if (
+        !response.data.data.isFollowing &&
+        response.data.data.user.is_private
+      ) {
+        return null;
+      } else {
+        handleViewComments(tripId);
+      }
+    } catch (error) {
+      console.log(error?.response?.data || error);
+    }
+  }
+
+  const handleViewComments = tripId => {
+    dispatch(fetchTripComments(tripId)).then(() => {
+      setShowComments(true);
+    });
+  };
 
   return (
     <Tab.Navigator

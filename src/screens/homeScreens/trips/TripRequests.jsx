@@ -235,6 +235,8 @@ const TripRequests = ({navigation}) => {
               <SentCards key={data._id} data={data} />
             ))}
           </View>
+
+          <View style={{height: 110}} />
         </ScrollView>
       )}
     </RegularBG>

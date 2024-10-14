@@ -206,7 +206,12 @@ const ReportUserModal = ({visible, onClose, reportThisUser}) => {
             to someone under 18, visit our Help Center.
           </Text>
 
-          <LearnMoreButton title={'Learn More'} />
+          <LearnMoreButton
+            title={'Learn More'}
+            onPress={() =>
+              Linking.openURL('https://buddypasstrips.com/about-us/')
+            }
+          />
         </View>
       </>
     );
