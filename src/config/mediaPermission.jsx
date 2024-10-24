@@ -40,14 +40,12 @@ export async function handleCameraPermission() {
     const cameraPermission = await check(permissionType);
 
     if (cameraPermission === RESULTS.GRANTED) {
-      console.log('Camera permission granted');
       return true;
     } else {
       console.log('Camera permission not granted, requesting...');
       const cameraRequestResult = await request(permissionType);
 
       if (cameraRequestResult === RESULTS.GRANTED) {
-        console.log('Camera permission granted after request');
         return true;
       } else {
         console.log('Camera permission denied after request');
@@ -104,8 +102,6 @@ export async function handleMediaLibraryPermission() {
       console.log('Media library permission granted');
       return true;
     } else {
-      console.log('Media library permission not granted, requesting...');
-
       const requestResults = await Promise.all(
         Array.isArray(permissionType)
           ? permissionType.map(p => request(p))
@@ -120,7 +116,6 @@ export async function handleMediaLibraryPermission() {
         console.log('Media library permission granted after request');
         return true;
       } else {
-        console.log('Media library permission denied after request');
         openSettings();
         return false;
       }
@@ -141,7 +136,6 @@ export async function handleNotificationPermission() {
     const {status} = await requestNotifications(['alert', 'sound']);
 
     if (status === RESULTS.GRANTED) {
-      console.log('Notification permission granted');
       return true;
     } else if (status === RESULTS.DENIED) {
       console.log('Notification permission denied');

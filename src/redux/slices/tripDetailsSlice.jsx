@@ -33,7 +33,7 @@ export const fetchTripData = createAsyncThunk(
 // Define the initial state
 const initialState = {
   tripInfo: null,
-  loading: false,
+  loading: true,
   error: null,
 };
 

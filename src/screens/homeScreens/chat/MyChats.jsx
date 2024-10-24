@@ -29,6 +29,30 @@ import axios from 'axios';
 // ** Agora imports
 import {ChatClient} from 'react-native-agora-chat';
 
+const renderOption = (data, showPendingChats) => (
+  <TouchableOpacity
+    key={data.id}
+    style={styles.reqOpContainer}
+    onPress={data.action}>
+    <View style={{flexDirection: 'row', alignItems: 'center', gap: 24}}>
+      <Image source={data.image} style={{width: 50, height: 50}} />
+      <Text style={styles.opText}>{data.name}</Text>
+    </View>
+    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      {data.length > 0 && (
+        <View
+          style={{
+            borderRadius: 1000,
+            backgroundColor: showPendingChats ? COLORS.ERROR : COLORS.THANOS,
+          }}>
+          <Text style={styles.count}>{data.length}</Text>
+        </View>
+      )}
+      <Image source={arrow} style={{width: 24, height: 24}} />
+    </View>
+  </TouchableOpacity>
+);
+
 const MyChats = () => {
   const {
     myUserDetails,
@@ -154,7 +178,9 @@ const MyChats = () => {
       image: require('../../../../assets/Images/friendReq.png'),
       length: followReq.length,
       action: () => {
-        NavigationService.navigate(SCREENS.FRIEND_REQ);
+        NavigationService.navigate('MyChatStack', {
+          screen: SCREENS.FRIEND_REQ,
+        });
       },
     },
     {
@@ -163,9 +189,12 @@ const MyChats = () => {
       image: require('../../../../assets/Images/likes.png'),
       length: 0,
       action: () => {
-        NavigationService.navigate(SCREENS.LIKED_TRIPS, {
-          trips: myUserDetails?.likedTrips,
-          comments: myUserDetails?.likedComments,
+        NavigationService.navigate('MyChatStack', {
+          screen: SCREENS.LIKED_TRIPS,
+          params: {
+            trips: myUserDetails?.likedTrips,
+            comments: myUserDetails?.likedComments,
+          },
         });
       },
     },
@@ -185,6 +214,20 @@ const MyChats = () => {
     });
   }
 
+  const ShowOptions = [
+    {
+      id: 4,
+      name: showPendingChats ? 'Show All Chat' : 'Chat requests',
+      image: showPendingChats
+        ? require('../../../../assets/Images/approvedChat.png')
+        : require('../../../../assets/Images/pendingChat.png'),
+      length: showPendingChats ? approvedChat?.length : approvalPending,
+      action: () => {
+        showPendingChatsFN();
+      },
+    },
+  ];
+
   function handleOpenChat(chatData) {
     if (chatData.chatType === 'group') {
       handleOpenGroupChat(chatData._id);
@@ -200,11 +243,14 @@ const MyChats = () => {
           is_chat_approved: true,
           buddydata: chatData.to_user,
           complete_chat_data: chatData,
+          user_inactive:
+            chatData.to_user.status == 'inactive' ||
+            chatData.to_user.is_deleted,
         });
       } else {
         NavigationService.navigate(SCREENS.ONE_CHAT, {
           agoraTargetUsername: chatData.from_user.agoraDetails[0].username,
-          name: `${chatData.to_user.first_name} ${chatData.to_user.last_name}`,
+          name: `${chatData.from_user.first_name} ${chatData.from_user.last_name}`,
           chatID: chatData._id,
           chatUserID: chatData.from_user_id,
           profileImage: chatData.from_user.profile_image,
@@ -212,6 +258,9 @@ const MyChats = () => {
           is_chat_approved: chatData.is_chat_approved,
           buddydata: chatData.from_user,
           complete_chat_data: chatData,
+          user_inactive:
+            chatData.from_user.status == 'inactive' ||
+            chatData.from_user.is_deleted,
         });
       }
     }
@@ -263,35 +312,12 @@ const MyChats = () => {
           />
         }>
         <View style={{gap: 16, marginTop: 10}}>
-          {ReqOptions.slice(
-            showPendingChats ? 3 : 0,
-            showPendingChats ? 4 : 4,
-          ).map(data => (
-            <TouchableOpacity
-              key={data.id}
-              style={styles.reqOpContainer}
-              onPress={data.action}>
-              <View
-                style={{flexDirection: 'row', alignItems: 'center', gap: 24}}>
-                <Image source={data.image} style={{width: 50, height: 50}} />
-                <Text style={styles.opText}>{data.name}</Text>
-              </View>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                {data.length > 0 && (
-                  <View
-                    style={{
-                      borderRadius: 1000,
-                      backgroundColor: showPendingChats
-                        ? COLORS.ERROR
-                        : COLORS.THANOS,
-                    }}>
-                    <Text style={styles.count}>{data.length}</Text>
-                  </View>
-                )}
-                <Image source={arrow} style={{width: 24, height: 24}} />
-              </View>
-            </TouchableOpacity>
-          ))}
+          {!showPendingChats
+            ? ReqOptions.slice(
+                showPendingChats ? 3 : 0,
+                showPendingChats ? 4 : 4,
+              ).map(data => renderOption(data, showPendingChats))
+            : ShowOptions.map(data => renderOption(data, showPendingChats))}
         </View>
 
         <View style={styles.hr} />
@@ -303,13 +329,15 @@ const MyChats = () => {
           : searchText === ''
           ? approvedChat
           : filteredChats
-        )?.map((chatData, i) => (
-          <ChatListItem
-            key={i}
-            chatData={chatData}
-            onPress={() => handleOpenChat(chatData)}
-          />
-        ))}
+        )?.map((chatData, i) => {
+          return (
+            <ChatListItem
+              key={i}
+              chatData={chatData}
+              onPress={() => handleOpenChat(chatData)}
+            />
+          );
+        })}
 
         <View style={{height: 104}} />
       </ScrollView>

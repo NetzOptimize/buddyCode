@@ -26,6 +26,10 @@ export default function ChatListItem({chatData, ...allProps}) {
       const user = isCurrentUserSender
         ? chatData?.to_user
         : chatData?.from_user;
+
+      if (user.status == 'inactive' || user.is_deleted) {
+        return 'Buddypass User';
+      }
       return `${user?.first_name} ${user?.last_name}`;
     }
   };
@@ -57,6 +61,14 @@ export default function ChatListItem({chatData, ...allProps}) {
       const profileImage = isCurrentUserSender
         ? chatData?.to_user?.profile_image
         : chatData?.from_user?.profile_image;
+      const user = isCurrentUserSender
+        ? chatData?.to_user
+        : chatData?.from_user;
+
+      if (user.status == 'inactive' || user.is_deleted) {
+        return noDp;
+      }
+
       return profileImage ? {uri: profileImage} : noDp;
     }
   };

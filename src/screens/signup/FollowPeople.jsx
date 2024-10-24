@@ -14,7 +14,6 @@ import axios from 'axios';
 import ImageBG from '../../components/background/ImageBG';
 import BackButton from '../../components/buttons/BackButton';
 import {COLORS, FONTS} from '../../constants/theme/theme';
-import Toast from 'react-native-toast-message';
 import FastImage from 'react-native-fast-image';
 import {AuthContext} from '../../context/AuthContext';
 

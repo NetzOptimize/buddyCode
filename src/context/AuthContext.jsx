@@ -8,6 +8,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ChatClient, ChatOptions} from 'react-native-agora-chat';
 
+import NetInfo from '@react-native-community/netinfo';
+
 // ** Agora Key
 // import {AGORA_APP_KEY} from '@env';
 
@@ -16,6 +18,7 @@ const AGORA_APP_KEY = '41695554#960499';
 // ** redux
 import {useDispatch} from 'react-redux';
 import {fetchChatList} from '../redux/slices/chatListSlice';
+import Toast from 'react-native-toast-message';
 
 export const AuthProvider = ({children}) => {
   const dispatch = useDispatch();
@@ -62,14 +65,27 @@ export const AuthProvider = ({children}) => {
 
   // **open comment box state
   const [showComments, setShowComments] = useState(false);
+  const [currentTab, setCurrentTab] = useState(0);
+
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
-    if (authToken) {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (authToken && isConnected) {
       VerifyToken(authToken);
     }
 
     isLoggedIn();
-  }, [authToken]);
+  }, [authToken, isConnected]);
 
   function VerifyToken(token) {
     const url = ENDPOINT.USER_DETAILS;
@@ -89,11 +105,25 @@ export const AuthProvider = ({children}) => {
         agoraLogin(myUserInfo.data);
         GetAllTrips(myUserInfo.data.user._id);
 
-        // **saving token
-        AsyncStorage.setItem('authToken', token).then(() => {
-          setAuthToken(token);
+        if (
+          myUserInfo.data.user.is_deleted ||
+          myUserInfo.data.user.status == 'inactive'
+        ) {
+          Toast.show({
+            type: 'error',
+            text1: 'Authentication Failed.',
+            text2: 'Authentication failed, please login again to know more',
+          });
+
           setShowSplash(false);
-        });
+          Logout1();
+        } else {
+          // **saving token
+          AsyncStorage.setItem('authToken', token).then(() => {
+            setAuthToken(token);
+            setShowSplash(false);
+          });
+        }
       })
       .catch(err => {
         console.log(
@@ -777,6 +807,10 @@ export const AuthProvider = ({children}) => {
         setTripMembers,
         showComments,
         setShowComments,
+        currentTab,
+        setCurrentTab,
+        isConnected,
+        setIsConnected,
       }}>
       {children}
     </AuthContext.Provider>

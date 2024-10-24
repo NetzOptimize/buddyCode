@@ -23,6 +23,7 @@ import BlockButton from '../buttons/BlockButton';
 var optionsBtn = require('../../../assets/Images/moreButton.png');
 
 var noDP = require('../../../assets/Images/noDP.png');
+var bpUser = require('../../../assets/Images/noDP.png');
 
 const OneChatHeader = ({
   goBack,
@@ -33,6 +34,8 @@ const OneChatHeader = ({
   profileImage,
   buddydata,
   setIsDeleted,
+  showDeleteChat = true,
+  user_inactive,
 }) => {
   const {myUserDetails, authToken} = useContext(AuthContext);
 
@@ -50,14 +53,18 @@ const OneChatHeader = ({
         });
       },
     },
-    {
-      id: 2,
-      title: 'Delete Chat',
-      image: require('../../../assets/Images/delete.png'),
-      action: () => {
-        setOpen(true);
-      },
-    },
+    ...(showDeleteChat
+      ? [
+          {
+            id: 2,
+            title: 'Delete Chat',
+            image: require('../../../assets/Images/delete.png'),
+            action: () => {
+              setOpen(true);
+            },
+          },
+        ]
+      : []),
   ];
 
   async function deleteChat1() {
@@ -113,47 +120,58 @@ const OneChatHeader = ({
       <View style={{flexDirection: 'row'}}>
         <BackButton onPress={goBack} />
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 16}}>
-          <FastImage
-            source={profileImage ? {uri: profileImage} : noDP}
-            style={styles.dpStyle}
-          />
+          {user_inactive ? (
+            <FastImage source={bpUser} style={styles.dpStyle} />
+          ) : (
+            <FastImage
+              source={profileImage ? {uri: profileImage} : noDP}
+              style={styles.dpStyle}
+            />
+          )}
+
           <View>
-            <Text style={styles.name}>{name}</Text>
-            {username && <Text style={styles.username}>@{username}</Text>}
+            <Text style={styles.name}>
+              {user_inactive ? 'Buddypass User' : name}
+            </Text>
+            {username && !user_inactive && (
+              <Text style={styles.username}>@{username}</Text>
+            )}
           </View>
         </View>
       </View>
-      <Menu style={{alignSelf: 'flex-end'}}>
-        <MenuTrigger>
-          <View style={{alignSelf: 'flex-end'}}>
-            <Image source={optionsBtn} style={styles.menuIcon} />
-          </View>
-        </MenuTrigger>
+      {!user_inactive && (
+        <Menu style={{alignSelf: 'flex-end'}}>
+          <MenuTrigger>
+            <View style={{alignSelf: 'flex-end'}}>
+              <Image source={optionsBtn} style={styles.menuIcon} />
+            </View>
+          </MenuTrigger>
 
-        <MenuOptions
-          customStyles={{
-            optionsWrapper: styles.menuOptionWrapper,
-            optionsContainer: styles.menuOptionContainer,
-          }}>
-          {options.map(data => (
-            <MenuOption
-              onSelect={data?.action}
-              style={styles.menuOption}
-              key={data?.id}>
-              <Image source={data?.image} style={{width: 20, height: 20}} />
-              <Text
-                style={[
-                  styles.popTitle,
-                  {
-                    color: COLORS.LIGHT,
-                  },
-                ]}>
-                {data?.title}
-              </Text>
-            </MenuOption>
-          ))}
-        </MenuOptions>
-      </Menu>
+          <MenuOptions
+            customStyles={{
+              optionsWrapper: styles.menuOptionWrapper,
+              optionsContainer: styles.menuOptionContainer,
+            }}>
+            {options.map(data => (
+              <MenuOption
+                onSelect={data?.action}
+                style={styles.menuOption}
+                key={data?.id}>
+                <Image source={data?.image} style={{width: 20, height: 20}} />
+                <Text
+                  style={[
+                    styles.popTitle,
+                    {
+                      color: COLORS.LIGHT,
+                    },
+                  ]}>
+                  {data?.title}
+                </Text>
+              </MenuOption>
+            ))}
+          </MenuOptions>
+        </Menu>
+      )}
 
       <Modal transparent visible={open}>
         <SafeAreaView style={styles.bodyContainer}>

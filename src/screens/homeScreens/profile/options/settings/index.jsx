@@ -22,14 +22,26 @@ const ProfileSettings = ({navigation}) => {
     },
     {
       id: 1,
-      name: 'FAQ',
-      image: require('../../../../../../assets/Images/settings/faq.png'),
+      name: 'Privacy Policy',
+      image: require('../../../../../../assets/Images/settings/clipboard.png'),
       actions: () => {
-        navigation.navigate(SCREENS.FAQ);
+        navigation.navigate(SCREENS.FAQ, {
+          type: 'privacy',
+        });
       },
     },
     {
       id: 2,
+      name: 'FAQ',
+      image: require('../../../../../../assets/Images/settings/faq.png'),
+      actions: () => {
+        navigation.navigate(SCREENS.FAQ, {
+          type: 'faq',
+        });
+      },
+    },
+    {
+      id: 3,
       name: 'Notification Settings',
       image: require('../../../../../../assets/Images/settings/bell.png'),
       actions: () => {
@@ -37,21 +49,23 @@ const ProfileSettings = ({navigation}) => {
       },
     },
     {
-      id: 3,
+      id: 4,
       name: 'My Account ',
       image: require('../../../../../../assets/Images/settings/user.png'),
       actions: () => {
         navigation.navigate(SCREENS.DELETE_STEP1);
       },
     },
-    // {
-    //   id: 4,
-    //   name: 'Terms of Conditions',
-    //   image: require('../../../../../../assets/Images/settings/clipboard.png'),
-    //   actions: () => {},
-    // },
     {
       id: 5,
+      name: 'Terms of Conditions',
+      image: require('../../../../../../assets/Images/settings/clipboard.png'),
+      actions: () => {
+        navigation.navigate(SCREENS.TERMS);
+      },
+    },
+    {
+      id: 6,
       name: 'Logout',
       image: require('../../../../../../assets/Images/logout.png'),
       actions: () => {
@@ -75,7 +89,7 @@ const ProfileSettings = ({navigation}) => {
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
               <Image source={data.image} style={{width: 24, height: 24}} />
               <Text
-                style={data.id == 5 ? styles.logoutText : styles.settingsText}>
+                style={data.id == 6 ? styles.logoutText : styles.settingsText}>
                 {data.name}
               </Text>
             </View>

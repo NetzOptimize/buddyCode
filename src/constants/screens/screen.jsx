@@ -20,7 +20,7 @@ export const SCREENS = {
   PRIVACY_SETTINGS: 'privacySettings',
   BLOCKED_LIST: 'blockedList',
   TRIPS_LIST: 'tripsList',
-  VIEW_MY_TRIP: 'viewMyTrip',
+  VIEW_MY_TRIP: 'ViewMyTrip',
   NOTIFI_SETTTINGS: 'notificationSettings',
   FAQ: 'faqsScreen',
   EDIT_PROFILE: 'editProfile',
@@ -32,4 +32,6 @@ export const SCREENS = {
   ALL_TRIP_PAYMENTS: 'allTripPayments',
   CREATE_TRIP: 'createTrip',
   EDIT_TRIP: 'editTrip',
+  TERMS: 'Terms',
+  NO_CONNECTION: 'NoConnection',
 };

@@ -38,19 +38,32 @@ const TripPaymentCard = ({
           }}>
           <View style={styles.nameTimeContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <FastImage
-                source={
-                  userInfo?.profile_image
-                    ? {uri: userInfo?.profile_image}
-                    : noDP
-                }
-                style={{width: 44, height: 44, borderRadius: 100}}
-              />
+              {userInfo?.is_deleted || userInfo?.status == 'inactive' ? (
+                <FastImage
+                  source={noDP}
+                  style={{width: 44, height: 44, borderRadius: 100}}
+                />
+              ) : (
+                <FastImage
+                  source={
+                    userInfo?.profile_image
+                      ? {uri: userInfo?.profile_image}
+                      : noDP
+                  }
+                  style={{width: 44, height: 44, borderRadius: 100}}
+                />
+              )}
               <View style={{marginLeft: 10}}>
                 <Text style={[styles.regularTextstyle, {fontSize: 14}]}>
-                  {userInfo?.first_name} {userInfo?.last_name}
+                  {userInfo?.is_deleted || userInfo?.status == 'inactive'
+                    ? 'Buddypass User'
+                    : `${userInfo?.first_name} ${userInfo?.last_name}`}
                 </Text>
-                <Text style={styles.username}>@{userInfo?.username}</Text>
+                <Text style={styles.username}>
+                  {userInfo?.is_deleted || userInfo?.status == 'inactive'
+                    ? null
+                    : `@${userInfo?.username}`}
+                </Text>
               </View>
             </View>
             <View
@@ -126,13 +139,25 @@ const TripPaymentCard = ({
         setShowDetails(true);
       }}
       disabled={disabled}>
-      <FastImage
-        source={userInfo?.profile_image ? {uri: userInfo?.profile_image} : noDP}
-        style={{width: 44, height: 44, borderRadius: 100}}
-      />
+      {userInfo?.is_deleted || userInfo?.status == 'inactive' ? (
+        <FastImage
+          source={noDP}
+          style={{width: 44, height: 44, borderRadius: 100}}
+        />
+      ) : (
+        <FastImage
+          source={
+            userInfo?.profile_image ? {uri: userInfo?.profile_image} : noDP
+          }
+          style={{width: 44, height: 44, borderRadius: 100}}
+        />
+      )}
+
       <View style={{width: '84%'}}>
         <Text style={styles.regularTextstyle}>
-          {userInfo?.first_name} {userInfo?.last_name}
+          {userInfo?.is_deleted || userInfo?.status == 'inactive'
+            ? 'Buddypass User'
+            : `${userInfo?.first_name} ${userInfo?.last_name}`}
         </Text>
         <Text
           style={[

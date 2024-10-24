@@ -18,6 +18,8 @@ import EditTripButton from '../../../components/trip/View/EditTripButton';
 import TripNavigationBtns from '../../../components/trip/View/TripNavigationBtns';
 import TripCoverImage from '../../../components/trip/View/TripCoverImage';
 
+import {CommonActions} from '@react-navigation/native';
+
 import {useDispatch, useSelector} from 'react-redux';
 import {
   fetchTripData,
@@ -51,13 +53,14 @@ const ViewMyTrip = ({route, navigation}) => {
     setMyTrips,
     myUserDetails,
     setLocalGroupDetails,
+    currentTab,
+    setCurrentTab,
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
 
   const {tripInfo, loading, error} = useSelector(state => state.tripDetails);
   const [showAllEvents, setShowAllEvents] = useState(true);
-  const [currentTab, setCurrentTab] = useState(0);
   const [tripCover, setTripCover] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(null);
   const [createEvent, setCreateEvent] = useState(false);
@@ -75,9 +78,10 @@ const ViewMyTrip = ({route, navigation}) => {
   );
 
   const formatTripName = name => {
-    const TripName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    const TripName =
+      name?.charAt(0).toUpperCase() + name?.slice(1).toLowerCase();
 
-    return TripName.length > 19 ? TripName.slice(0, 19) + '...' : TripName;
+    return TripName?.length > 19 ? TripName?.slice(0, 19) + '...' : TripName;
   };
 
   useEffect(() => {
@@ -232,13 +236,13 @@ const ViewMyTrip = ({route, navigation}) => {
     EventBuddies.push(element);
   });
 
-  function handleOpenGroupChat(chatId) {
+  function handleOpenGroupChat(tripinfo) {
     const url = `${ENDPOINT.GET_CHAT}/${myUserDetails?.user?._id}`;
 
     axios
       .get(url, {
         params: {
-          chatId: chatId,
+          chatId: tripinfo?.trip?.chatId,
         },
         headers: {
           Authorization: 'Bearer ' + authToken,
@@ -264,7 +268,14 @@ const ViewMyTrip = ({route, navigation}) => {
           title={formatTripName(
             tripInfo ? tripInfo?.trip.trip_name : tripData.trip_name,
           )}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{name: SCREENS.TRIPS_LIST}],
+              }),
+            );
+          }}
         />
         {isMyTrip ? (
           <EditTripButton
@@ -282,156 +293,158 @@ const ViewMyTrip = ({route, navigation}) => {
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
       />
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={() => dispatch(fetchTripData(tripData?._id))}
-            color="#7879F1"
-          />
-        }>
-        {currentTab == 0 && (
-          <View style={{marginTop: 16}}>
-            <TripCoverImage
-              tripData={tripData}
-              source={tripCover}
-              setSource={setTripCover}
-              tripInfo={tripInfo}
+      {!loading && (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => dispatch(fetchTripData(tripData?._id))}
+              color="#7879F1"
             />
+          }>
+          {currentTab == 0 && (
+            <View style={{marginTop: 16}}>
+              <TripCoverImage
+                tripData={tripInfo}
+                source={tripCover}
+                setSource={setTripCover}
+                tripInfo={tripInfo}
+              />
 
-            {tripInfo && (
-              <>
-                <View style={{marginTop: 30}}>
-                  <Text style={styles.label}>Buddies</Text>
-                  <TripBuddies tripData={tripData} />
-                </View>
+              {tripInfo && (
+                <>
+                  <View style={{marginTop: 30}}>
+                    <Text style={styles.label}>Buddies</Text>
+                    <TripBuddies tripData={tripInfo?.trip} />
+                  </View>
 
-                <TouchableOpacity
-                  style={styles.chatBtn}
-                  onPress={() => handleOpenGroupChat(tripData.chatId)}>
-                  <Image source={chatIcon} style={{width: 20, height: 20}} />
-                  <Text style={styles.chatBtnText}>Group Chat</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.infoBudget}>Budget</Text>
-                <TripBudgetBar tripInfo={tripInfo} />
-              </>
-            )}
-          </View>
-        )}
-
-        {currentTab == 1 && (
-          <View style={{marginTop: 16}}>
-            {tripInfo && (
-              <>
-                <TripBudget tripInfo={tripInfo} />
-              </>
-            )}
-          </View>
-        )}
-
-        {currentTab == 2 && (
-          <View style={{marginTop: 16}}>
-            {tripInfo && (
-              <>
-                <CustomCalendar
-                  minDate={tripInfo?.trip?.trip_starting_time}
-                  maxDate={tripInfo?.trip?.trip_ending_time}
-                  eventDates={myEventDates}
-                  setShowAllEvents={setShowAllEvents}
-                />
-
-                {tripInfo?.events?.length !== 0 && (
                   <TouchableOpacity
-                    style={styles.viewAllEventsBtn}
-                    onPress={() => {
-                      setShowAllEvents(true);
-                      setSelectedDate(null);
-                    }}>
-                    <Text style={styles.viewAllText}>View All</Text>
+                    style={styles.chatBtn}
+                    onPress={() => handleOpenGroupChat(tripInfo)}>
+                    <Image source={chatIcon} style={{width: 20, height: 20}} />
+                    <Text style={styles.chatBtnText}>Group Chat</Text>
                   </TouchableOpacity>
-                )}
 
-                {(showAllEvents
-                  ? todayEvents.length > 0
-                  : filterTodayEvents.length > 0) && (
-                  <View style={styles.dividerContainer}>
-                    <View style={styles.hr} />
-                    <Text style={styles.eventLabel}>On going Events</Text>
-                    <View style={styles.hr} />
+                  <Text style={styles.infoBudget}>Budget</Text>
+                  <TripBudgetBar tripInfo={tripInfo} />
+                </>
+              )}
+            </View>
+          )}
+
+          {currentTab == 1 && (
+            <View style={{marginTop: 16}}>
+              {tripInfo && (
+                <>
+                  <TripBudget tripInfo={tripInfo} />
+                </>
+              )}
+            </View>
+          )}
+
+          {currentTab == 2 && (
+            <View style={{marginTop: 16}}>
+              {tripInfo && (
+                <>
+                  <CustomCalendar
+                    minDate={tripInfo?.trip?.trip_starting_time}
+                    maxDate={tripInfo?.trip?.trip_ending_time}
+                    eventDates={myEventDates}
+                    setShowAllEvents={setShowAllEvents}
+                  />
+
+                  {tripInfo?.events?.length !== 0 && (
+                    <TouchableOpacity
+                      style={styles.viewAllEventsBtn}
+                      onPress={() => {
+                        setShowAllEvents(true);
+                        setSelectedDate(null);
+                      }}>
+                      <Text style={styles.viewAllText}>View All</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {(showAllEvents
+                    ? todayEvents.length > 0
+                    : filterTodayEvents.length > 0) && (
+                    <View style={styles.dividerContainer}>
+                      <View style={styles.hr} />
+                      <Text style={styles.eventLabel}>On going Events</Text>
+                      <View style={styles.hr} />
+                    </View>
+                  )}
+
+                  <View style={{gap: 16, marginTop: 16}}>
+                    {todayEvents.length > 0 &&
+                      (showAllEvents ? todayEvents : filterTodayEvents).map(
+                        data => (
+                          <TripCard
+                            key={data?._id}
+                            eventData={data}
+                            tripInfo={tripInfo}
+                          />
+                        ),
+                      )}
                   </View>
-                )}
 
-                <View style={{gap: 16, marginTop: 16}}>
-                  {todayEvents.length > 0 &&
-                    (showAllEvents ? todayEvents : filterTodayEvents).map(
-                      data => (
+                  {(showAllEvents
+                    ? upcomingEvents.length > 0
+                    : filterUpcomingEvents.length > 0) && (
+                    <View style={styles.dividerContainer}>
+                      <View style={[styles.hr, {width: '25%'}]} />
+                      <Text style={styles.eventLabel}>Up Coming Events</Text>
+                      <View style={[styles.hr, {width: '25%'}]} />
+                    </View>
+                  )}
+
+                  <View style={{gap: 16, marginTop: 16}}>
+                    {upcomingEvents.length > 0 &&
+                      (showAllEvents
+                        ? upcomingEvents
+                        : filterUpcomingEvents
+                      ).map(data => (
                         <TripCard
                           key={data?._id}
                           eventData={data}
                           tripInfo={tripInfo}
                         />
-                      ),
-                    )}
-                </View>
-
-                {(showAllEvents
-                  ? upcomingEvents.length > 0
-                  : filterUpcomingEvents.length > 0) && (
-                  <View style={styles.dividerContainer}>
-                    <View style={[styles.hr, {width: '25%'}]} />
-                    <Text style={styles.eventLabel}>Up Coming Events</Text>
-                    <View style={[styles.hr, {width: '25%'}]} />
+                      ))}
                   </View>
-                )}
 
-                <View style={{gap: 16, marginTop: 16}}>
-                  {upcomingEvents.length > 0 &&
-                    (showAllEvents ? upcomingEvents : filterUpcomingEvents).map(
-                      data => (
+                  {(showAllEvents
+                    ? completedEvents.length > 0
+                    : filterCompletedEvents.length > 0) && (
+                    <View style={styles.dividerContainer}>
+                      <View style={[styles.hr, {width: '30%'}]} />
+                      <Text style={styles.eventLabel}>Past Events</Text>
+                      <View style={[styles.hr, {width: '30%'}]} />
+                    </View>
+                  )}
+
+                  <View style={{gap: 16, marginTop: 16}}>
+                    {completedEvents.length > 0 &&
+                      (showAllEvents
+                        ? completedEvents
+                        : filterCompletedEvents
+                      ).map(data => (
                         <TripCard
                           key={data?._id}
                           eventData={data}
                           tripInfo={tripInfo}
+                          isComplete={true}
+                          EventBuddies={EventBuddies}
                         />
-                      ),
-                    )}
-                </View>
-
-                {(showAllEvents
-                  ? completedEvents.length > 0
-                  : filterCompletedEvents.length > 0) && (
-                  <View style={styles.dividerContainer}>
-                    <View style={[styles.hr, {width: '30%'}]} />
-                    <Text style={styles.eventLabel}>Past Events</Text>
-                    <View style={[styles.hr, {width: '30%'}]} />
+                      ))}
                   </View>
-                )}
+                </>
+              )}
+            </View>
+          )}
 
-                <View style={{gap: 16, marginTop: 16}}>
-                  {completedEvents.length > 0 &&
-                    (showAllEvents
-                      ? completedEvents
-                      : filterCompletedEvents
-                    ).map(data => (
-                      <TripCard
-                        key={data?._id}
-                        eventData={data}
-                        tripInfo={tripInfo}
-                        isComplete={true}
-                        EventBuddies={EventBuddies}
-                      />
-                    ))}
-                </View>
-              </>
-            )}
-          </View>
-        )}
-
-        <View style={{height: 110}} />
-      </ScrollView>
+          <View style={{height: 110}} />
+        </ScrollView>
+      )}
 
       {currentTab == 1 && (
         <View style={styles.paymentBtnsContainer}>

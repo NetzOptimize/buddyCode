@@ -55,6 +55,8 @@ const OneChat = ({navigation, route}) => {
     is_chat_approved,
     buddydata,
     complete_chat_data,
+    showDeleteChat,
+    user_inactive,
   } = route.params;
 
   const {myUserDetails, UpdateChatRemoveBubble, AddOneChat, authToken} =
@@ -232,13 +234,10 @@ const OneChat = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log(
-          'Notification sent',
-          JSON.parse(res.data.data.fields.navigate_to),
-        );
+        console.log('Notification sent');
       })
       .catch(err => {
-        console.log('error sending notification:', err.response.data);
+        console.log('error sending notification:', err?.response?.data || err);
       });
   };
 
@@ -253,19 +252,21 @@ const OneChat = ({navigation, route}) => {
       let msgListener = {
         onMessagesReceived(messages) {
           console.log('one to one chat listener', messages);
-          const newMessages = messages.map(message => ({
-            content: message.body.hasOwnProperty('content')
-              ? message.body.content
-              : message.body.remotePath,
-            direction:
-              message.from === myUserDetails?.user?.agoraDetails[0]?.username
-                ? 'right'
-                : 'left',
-            isText: message.body.hasOwnProperty('content') ? 'True' : 'False',
-            from: message.from,
-          }));
 
-          setMyMessages(oldMessages => [...oldMessages, ...newMessages]);
+          if (messages[0].from == agoraTargetUsername.toLowerCase()) {
+            const newMessages = messages.map(message => ({
+              content: message.body.hasOwnProperty('content')
+                ? message.body.content
+                : message.body.remotePath,
+              direction:
+                message.from === myUserDetails?.user?.agoraDetails[0]?.username
+                  ? 'right'
+                  : 'left',
+              isText: message.body.hasOwnProperty('content') ? 'True' : 'False',
+              from: message.from,
+            }));
+            setMyMessages(oldMessages => [...oldMessages, ...newMessages]);
+          }
 
           setTimeout(() => {
             scrollViewRef.current?.scrollToEnd();
@@ -356,6 +357,12 @@ const OneChat = ({navigation, route}) => {
         }, 10);
       })
       .catch(reason => {
+        Toast.show({
+          type: 'error',
+          text1: 'Server Error',
+          text2: 'Failed to fetch previous chat',
+        });
+
         console.log('Failed to load previous messages', reason);
         setLoading(false);
       });
@@ -488,6 +495,8 @@ const OneChat = ({navigation, route}) => {
         profileImage={profileImage}
         buddydata={buddydata}
         setIsDeleted={setIsDeleted}
+        showDeleteChat={showDeleteChat}
+        user_inactive={user_inactive}
       />
       <ScrollView
         ref={scrollViewRef}
@@ -506,18 +515,21 @@ const OneChat = ({navigation, route}) => {
           ))}
         </View>
       </ScrollView>
-      <View style={styles.messageBoxContainer}>
-        <TextInput
-          placeholder="Message"
-          multiline={true}
-          ref={messageInputRef}
-          placeholderTextColor="#f2f2f2"
-          style={styles.messageBox}
-          value={messageContent}
-          onChangeText={text => setMessageContent(text)}
-        />
-        {SendMessageButton}
-      </View>
+
+      {!user_inactive && (
+        <View style={styles.messageBoxContainer}>
+          <TextInput
+            placeholder="Message"
+            multiline={true}
+            ref={messageInputRef}
+            placeholderTextColor="#f2f2f2"
+            style={styles.messageBox}
+            value={messageContent}
+            onChangeText={text => setMessageContent(text)}
+          />
+          {SendMessageButton}
+        </View>
+      )}
 
       <OpenCamModal
         visible={openCamPropmt}

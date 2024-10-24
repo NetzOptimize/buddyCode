@@ -200,6 +200,12 @@ const EditTrip = ({navigation, route}) => {
       formData.append(`destination[${index}]`, data);
     });
 
+    if (tripMembers?.length > 0) {
+      tripMembers.forEach((data, index) => {
+        formData.append(`members[${index}]`, data?._id);
+      });
+    }
+
     axios({
       method: 'PUT',
       url: `${ENDPOINT.UPDATE_TRIP}/${tripData?.trip?._id}`,
@@ -214,7 +220,7 @@ const EditTrip = ({navigation, route}) => {
         navigation.goBack();
       })
       .catch(err => {
-        console.log('Failed to update Trip', err.response.data);
+        console.log('Failed to update Trip', err?.response?.data);
       })
       .finally(() => {
         setIsLoading(false);
@@ -272,7 +278,7 @@ const EditTrip = ({navigation, route}) => {
         removeTripById(tripData?.trip?._id);
       })
       .catch(err => {
-        console.log('could not delete trip:', err.response.data);
+        console.log('could not delete trip:', err?.response?.data);
         setIsLoading(false);
       });
   }
@@ -389,7 +395,7 @@ const EditTrip = ({navigation, route}) => {
 
       <View style={styles.actionBtn}>
         <ActionButton
-          title={'Create Trip'}
+          title={'Save & Update'}
           onPress={handleValidation}
           loading={loading}
         />

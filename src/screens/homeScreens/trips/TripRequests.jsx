@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 
 import {
   StyleSheet,
@@ -17,9 +17,13 @@ import {AuthContext} from '../../../context/AuthContext';
 import FastImage from 'react-native-fast-image';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {ENDPOINT} from '../../../constants/endpoints/endpoints';
+import {useFocusEffect} from '@react-navigation/native';
 
 var placeholderImg = require('../../../../assets/Images/placeholderIMG.png');
 var noDP = require('../../../../assets/Images/noDP.png');
+
+import {CommonActions} from '@react-navigation/native';
+import {SCREENS} from '../../../constants/screens/screen';
 
 const InviteCards = ({data, onRejectInvite, onAcceptInvite}) => {
   return (
@@ -145,10 +149,29 @@ const SentCards = ({data}) => {
 };
 
 const TripRequests = ({navigation}) => {
-  const {tripInvites, sentInvites, authToken, myUserDetails, GetTripInvites} =
-    useContext(AuthContext);
+  const {
+    tripInvites,
+    sentInvites,
+    authToken,
+    myUserDetails,
+    GetTripInvites,
+    GetSentTripInvites,
+  } = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        await GetTripInvites(myUserDetails?.user?._id);
+        await GetSentTripInvites(myUserDetails?.user?._id);
+      };
+
+      fetchData();
+
+      return () => {};
+    }, []),
+  );
 
   const RequestAction = (action, reqID) => {
     const RequestActionURL = `${ENDPOINT.TRIP_INVITE_ACTION}/${reqID}`;
@@ -196,7 +219,14 @@ const TripRequests = ({navigation}) => {
       <View style={{marginTop: 16}}>
         <BackButton
           title={'Trip Requests'}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{name: SCREENS.TRIPS_LIST}],
+              }),
+            );
+          }}
         />
       </View>
 

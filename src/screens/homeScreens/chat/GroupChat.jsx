@@ -42,6 +42,7 @@ import GroupChatHeader from '../../../components/chat/GroupChatHeader';
 import CreatePoll from '../../../components/chat/CreatePoll';
 import Toast from 'react-native-toast-message';
 import * as Progress from 'react-native-progress';
+import {SCREENS} from '../../../constants/screens/screen';
 
 var img = require('../../../../assets/Images/img.png');
 var poll = require('../../../../assets/Images/poll.png');
@@ -581,6 +582,12 @@ const GroupChat = ({navigation}) => {
         }, 10);
       })
       .catch(reason => {
+        Toast.show({
+          type: 'error',
+          text1: 'Server Error',
+          text2: 'Failed to fetch previous chat',
+        });
+
         console.log('Failed to load previous messages', reason);
         setLoading(false);
       });
@@ -628,7 +635,17 @@ const GroupChat = ({navigation}) => {
   }
 
   function handleOpenTrip() {
-    console.log('open trip');
+    const tripId = {_id: localGroupDetails?.tripId};
+    const myTrip =
+      localGroupDetails?.chatData?.owner?._id == myUserDetails?.user?._id;
+
+    navigation.navigate('TripsStack', {
+      screen: SCREENS.VIEW_MY_TRIP,
+      params: {
+        tripData: tripId,
+        isMyTrip: myTrip,
+      },
+    });
   }
 
   return (

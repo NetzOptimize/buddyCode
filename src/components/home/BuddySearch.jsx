@@ -150,6 +150,7 @@ const BuddySearch = ({navigation, route}) => {
         username: data.username,
         is_chat_approved: true,
         buddydata: data,
+        showDeleteChat: false,
       });
     } else {
       NavigationService.navigate(SCREENS.BUDDY_PROFILE, {

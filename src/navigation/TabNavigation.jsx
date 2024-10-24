@@ -25,6 +25,7 @@ import BuddyProfile from '../screens/homeScreens/profile/BuddyProfile';
 import FAQsScreen from '../screens/homeScreens/profile/options/settings/FAQsScreen';
 import EditProfile from '../screens/homeScreens/profile/options/editProfile';
 import UserPreferences from '../screens/homeScreens/profile/options/editProfile/UserPreferences';
+import Terms from '../screens/homeScreens/profile/options/settings/Terms';
 
 // **chat screens
 import MyChats from '../screens/homeScreens/chat/MyChats';
@@ -80,6 +81,7 @@ const MyProfileStack = () => {
         component={NotificationSettings}
       />
       <Stack.Screen name={SCREENS.FAQ} component={FAQsScreen} />
+      <Stack.Screen name={SCREENS.TERMS} component={Terms} />
       <Stack.Screen name={SCREENS.BLOCKED_LIST} component={BlockedList} />
       <Stack.Screen name={SCREENS.EDIT_PROFILE} component={EditProfile} />
       <Stack.Screen
@@ -107,6 +109,8 @@ const MyChatStack = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name={SCREENS.MY_CHATS} component={MyChats} />
       <Stack.Screen name={SCREENS.FRIEND_REQ} component={FriendReq} />
+      <Stack.Screen name={SCREENS.LIKED_TRIPS} component={LikedTrips} />
+      <Stack.Screen name={SCREENS.BUDDY_PROFILE} component={BuddyProfile} />
     </Stack.Navigator>
   );
 };
@@ -132,6 +136,7 @@ export default function TabNavigation() {
     setLocalGroupDetails,
     setLogoutLoader,
     setShowComments,
+    setCurrentTab,
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
@@ -152,10 +157,6 @@ export default function TabNavigation() {
       const hasPermission = await handleCameraPermission();
       getNotificationPermission();
       getLibraryPermission();
-
-      if (hasPermission) {
-        console.log('hasAutoPermission');
-      }
     };
 
     const getNotificationPermission = async () => {
@@ -167,9 +168,6 @@ export default function TabNavigation() {
 
     const getLibraryPermission = async () => {
       const hasPermission = await handleMediaLibraryPermission();
-      if (hasPermission) {
-        console.log('hasMediaLibraryPermission');
-      }
     };
 
     setTimeout(() => {
@@ -210,13 +208,18 @@ export default function TabNavigation() {
       .getInitialNotification()
       .then(async remoteMessage => {
         if (remoteMessage) {
-          console.log('notification caused the app to open from quit state');
+          console.log(
+            'notification caused the app to open from quit state',
+            remoteMessage,
+          );
 
           if (remoteMessage?.data?.notification_type === 'one_chat') {
             const chatData = JSON.parse(remoteMessage?.data?.navigate_to);
+            setLogoutLoader(true);
+
             setTimeout(() => {
               openOneChat(chatData);
-            }, 1000);
+            }, 3000);
           }
 
           if (remoteMessage?.data?.notification_type === 'group_chat') {
@@ -249,18 +252,61 @@ export default function TabNavigation() {
             }
           }
 
-          if (
-            remoteMessage?.data?.notification_type === 'new_trips_from_buddies'
-          ) {
-            setTimeout(() => {
-              NavigationService.navigate('TripsStack');
-            }, 100);
+          if (remoteMessage?.data?.sub_type === 'follow_request') {
+            if (
+              remoteMessage?.notification?.title !== 'Follow request accepted'
+            ) {
+              setTimeout(() => {
+                NavigationService.navigate('MyChatStack', {
+                  screen: SCREENS.MY_CHATS,
+                });
+              }, 500);
+            } else {
+              const data = {
+                id: remoteMessage?.data?.user_id,
+              };
+              setLogoutLoader(true);
+              setTimeout(() => {
+                setLogoutLoader(false);
+
+                NavigationService.navigate('MyProfileStack', {
+                  screen: SCREENS.BUDDY_PROFILE,
+                  params: {
+                    buddyData: data,
+                  },
+                });
+              }, 3000);
+            }
           }
 
-          if (remoteMessage?.notification?.title === 'New follow request') {
-            setTimeout(() => {
-              NavigationService.navigate('MyChatScreens');
-            }, 100);
+          if (remoteMessage?.data?.sub_type === 'trip_request') {
+            setLogoutLoader(true);
+
+            if (
+              remoteMessage?.notification?.title !== 'Follow request accepted'
+            ) {
+              setTimeout(() => {
+                setLogoutLoader(false);
+                NavigationService.navigate('TripsStack', {
+                  screen: SCREENS.TRIP_REQUESTS,
+                });
+              }, 3000);
+            }
+          }
+
+          if (remoteMessage?.data?.navigate_to == 'campaigns_and_events') {
+            setCurrentTab(2);
+
+            const tripId = {_id: remoteMessage?.data?.trip_id};
+            const isMyTrip =
+              remoteMessage?.data?.owner_id == myUserDetails?.user?._id;
+            NavigationService.navigate('TripsStack', {
+              screen: SCREENS.VIEW_MY_TRIP,
+              params: {
+                tripData: tripId,
+                isMyTrip: isMyTrip,
+              },
+            });
           }
         }
       });
@@ -269,7 +315,11 @@ export default function TabNavigation() {
       console.log('opened from background state', remoteMessage);
       if (remoteMessage?.data?.notification_type === 'one_chat') {
         const chatData = JSON.parse(remoteMessage?.data?.navigate_to);
-        openOneChat(chatData);
+        NavigationService.navigate(SCREENS.MY_PROFILE);
+        setLogoutLoader(true);
+        setTimeout(() => {
+          openOneChat(chatData);
+        }, 500);
       }
 
       if (remoteMessage?.data?.notification_type === 'group_chat') {
@@ -298,16 +348,56 @@ export default function TabNavigation() {
         }
       }
 
-      if (remoteMessage?.data?.notification_type === 'new_trips_from_buddies') {
-        setTimeout(() => {
-          NavigationService.navigate('TripsStack');
-        }, 100);
+      if (remoteMessage?.data?.sub_type === 'follow_request') {
+        if (remoteMessage?.notification?.title !== 'Follow request accepted') {
+          setTimeout(() => {
+            NavigationService.navigate('MyChatStack', {
+              screen: SCREENS.MY_CHATS,
+            });
+          }, 500);
+        } else {
+          const data = {
+            id: remoteMessage?.data?.user_id,
+          };
+          setLogoutLoader(true);
+          setTimeout(() => {
+            setLogoutLoader(false);
+
+            NavigationService.navigate('MyProfileStack', {
+              screen: SCREENS.BUDDY_PROFILE,
+              params: {
+                buddyData: data,
+              },
+            });
+          }, 3000);
+        }
       }
 
-      if (remoteMessage?.notification?.title === 'New follow request') {
+      if (remoteMessage?.data?.sub_type === 'trip_request') {
+        setLogoutLoader(true);
+
         setTimeout(() => {
-          NavigationService.navigate('MyChatScreens');
-        }, 100);
+          setLogoutLoader(false);
+
+          NavigationService.navigate('TripsStack', {
+            screen: SCREENS.TRIP_REQUESTS,
+          });
+        }, 3000);
+      }
+
+      if (remoteMessage?.data?.navigate_to == 'campaigns_and_events') {
+        setCurrentTab(2);
+
+        const tripId = {_id: remoteMessage?.data?.trip_id};
+        const isMyTrip =
+          remoteMessage?.data?.owner_id == myUserDetails?.user?._id;
+        NavigationService.navigate('TripsStack', {
+          screen: SCREENS.VIEW_MY_TRIP,
+          params: {
+            tripData: tripId,
+            isMyTrip: isMyTrip,
+          },
+        });
       }
     });
 
@@ -323,6 +413,7 @@ export default function TabNavigation() {
   }, []);
 
   function openOneChat(chatData) {
+    setLogoutLoader(false);
     if (myUserDetails?.user?._id === chatData?.from_user_id) {
       NavigationService.navigate(SCREENS.ONE_CHAT, {
         agoraTargetUsername: chatData.to_user.agoraDetails[0].username,
@@ -334,11 +425,13 @@ export default function TabNavigation() {
         is_chat_approved: true,
         buddydata: chatData.to_user,
         complete_chat_data: chatData,
+        user_inactive:
+          chatData.to_user.status == 'inactive' || chatData.to_user.is_deleted,
       });
     } else {
       NavigationService.navigate(SCREENS.ONE_CHAT, {
         agoraTargetUsername: chatData.from_user.agoraDetails[0].username,
-        name: `${chatData.to_user.first_name} ${chatData.to_user.last_name}`,
+        name: `${chatData.from_user.first_name} ${chatData.from_user.last_name}`,
         chatID: chatData._id,
         chatUserID: chatData.from_user_id,
         profileImage: chatData.from_user.profile_image,
@@ -346,6 +439,9 @@ export default function TabNavigation() {
         is_chat_approved: chatData.is_chat_approved,
         buddydata: chatData.from_user,
         complete_chat_data: chatData,
+        user_inactive:
+          chatData.from_user.status == 'inactive' ||
+          chatData.from_user.is_deleted,
       });
     }
   }
@@ -431,7 +527,7 @@ export default function TabNavigation() {
       />
 
       <Tab.Screen
-        name="MyChatScreens"
+        name="MyChatStack"
         component={MyChatStack}
         options={{
           tabBarIcon: ({focused}) => {

@@ -118,7 +118,11 @@ const TripsList = () => {
           <View style={{position: 'absolute', top: 16, right: 0}}>
             <TouchableOpacity
               style={styles.searchBtn}
-              onPress={() => NavigationService.navigate(SCREENS.TRIP_REQUESTS)}>
+              onPress={() => {
+                NavigationService.navigate('TripsStack', {
+                  screen: SCREENS.TRIP_REQUESTS,
+                });
+              }}>
               {checkNotifications && <View style={styles.notificationDot} />}
               <Image source={bell} style={{width: 20, height: 20}} />
             </TouchableOpacity>
@@ -166,7 +170,9 @@ const TripsList = () => {
                     <TouchableOpacity
                       style={styles.searchBtn}
                       onPress={() =>
-                        NavigationService.navigate(SCREENS.TRIP_REQUESTS)
+                        NavigationService.navigate('TripsStack', {
+                          screen: SCREENS.TRIP_REQUESTS,
+                        })
                       }>
                       {checkNotifications && (
                         <View style={styles.notificationDot} />

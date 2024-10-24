@@ -20,7 +20,6 @@ import NavigationService from '../../../../config/NavigationService';
 import {SCREENS} from '../../../../constants/screens/screen';
 
 import {useSelector} from 'react-redux';
-import {fetchBuddyDetails} from '../../../redux/slices/buddyDetailsSlice';
 
 import {ENDPOINT} from '../../../../constants/endpoints/endpoints';
 import axios from 'axios';

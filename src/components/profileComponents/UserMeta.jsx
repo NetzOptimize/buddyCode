@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {COLORS, FONTS} from '../../constants/theme/theme';
 
 import NavigationService from '../../config/NavigationService';
 import {SCREENS} from '../../constants/screens/screen';
+import {AuthContext} from '../../context/AuthContext';
 
 const UserMeta = ({
   userData,
@@ -11,6 +12,8 @@ const UserMeta = ({
   myMeta = false,
   isPrivate = false,
 }) => {
+  const {myUserDetails} = useContext(AuthContext);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -56,6 +59,7 @@ const UserMeta = ({
           NavigationService.navigate(SCREENS.LIKED_TRIPS, {
             trips: userData?.likedTrips,
             comments: userData?.likedComments,
+            isMyData: userData?.user?._id == myUserDetails?.user?._id,
           });
         }}>
         <Text style={styles.attributeTag}>Likes</Text>

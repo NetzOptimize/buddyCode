@@ -1,5 +1,12 @@
 import React, {useContext, useState} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Linking,
+} from 'react-native';
 import axios from 'axios';
 
 // ** components
@@ -80,13 +87,21 @@ const Login = ({navigation}) => {
             myToken: res.data.data.token,
           });
         } else if (data.user.is_deleted) {
-          showAlert(res.data.data.token);
+          if (data.user.deleted_by == 'admin') {
+            const text1 = 'Account terminated by the Buddypass Team';
+            const text2 =
+              'Your account has been terminated, if you disagree with this decision please click on the Contact button to contact Buddypass Team.';
+
+            showAdminDeleteAlert(text1, text2);
+          } else {
+            showAlert(res.data.data.token);
+          }
         } else if (data.user.status === 'inactive') {
-          Toast.show({
-            type: 'error',
-            text1: 'Account Suspended',
-            text2: 'Please contact the Buddypass team to resolve.',
-          });
+          const text1 = 'Account Suspended';
+          const text2 =
+            'Your account has been suspended, to resolve click on the Contact button to contact the Buddypass Team';
+
+          showAdminDeleteAlert(text1, text2);
         } else if (data.user.is_locked) {
           Toast.show({
             type: 'error',
@@ -114,7 +129,7 @@ const Login = ({navigation}) => {
           });
         }
 
-        if (err?.response?.data?.status == 400) {
+        if (err.response.data.message) {
           Toast.show({
             type: 'error',
             text1: 'Sign-In failed',
@@ -137,6 +152,27 @@ const Login = ({navigation}) => {
         {
           text: 'Login',
           onPress: () => StopDeletion(token),
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  const showAdminDeleteAlert = (title, body) => {
+    Alert.alert(
+      title,
+      body,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('No Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Contact',
+          onPress: () => {
+            Linking.openURL('mailto:hello@buddypasstrips.com?');
+          },
         },
       ],
       {cancelable: false},

@@ -12,6 +12,7 @@ import {
 import {COLORS, FONTS} from '../../../constants/theme/theme';
 
 var noDP = require('../../../../assets/Images/noDP.png');
+var bpUser = require('../../../../assets/Images/noDP.png');
 var close = require('../../../../assets/Images/close.png');
 var view = require('../../../../assets/Images/input/viewPassword.png');
 var adminStar = require('../../../../assets/Images/admin.png');
@@ -24,16 +25,32 @@ const TripBuddies = ({tripData}) => {
   TripMembers.push(tripData?.owner);
   TripMembers.push(...tripData?.members);
 
+  const getName = member => {
+    if (member?.is_deleted || member?.status == 'inactive') {
+      return 'Buddypass User';
+    }
+
+    return `${member?.first_name} ${member?.last_name}`;
+  };
+
   return (
     <View style={{marginBottom: 20, flexDirection: 'row'}}>
       {TripMembers?.slice(0, 5).map((members, k) => (
         <View key={k}>
-          <Image
-            source={
-              members?.profile_image ? {uri: members?.profile_image} : noDP
-            }
-            style={[styles.tripMembers, {marginLeft: k == 0 ? 0 : -5}]}
-          />
+          {members?.is_deleted || members?.status == 'inactive' ? (
+            <Image
+              source={bpUser}
+              style={[styles.tripMembers, {marginLeft: k == 0 ? 0 : -5}]}
+            />
+          ) : (
+            <Image
+              source={
+                members?.profile_image ? {uri: members?.profile_image} : noDP
+              }
+              style={[styles.tripMembers, {marginLeft: k == 0 ? 0 : -5}]}
+            />
+          )}
+
           {k == 0 && <Image source={adminStar} style={styles.star} />}
         </View>
       ))}
@@ -74,24 +91,29 @@ const TripBuddies = ({tripData}) => {
                 {TripMembers?.map((member, i) => (
                   <View style={styles.modalBuddyBox} key={i}>
                     <View style={{position: 'relative'}}>
-                      <Image
-                        source={
-                          member?.profile_image
-                            ? {uri: member?.profile_image}
-                            : noDP
-                        }
-                        style={styles.DPstyle}
-                      />
+                      {member?.is_deleted || member?.status == 'inactive' ? (
+                        <Image source={bpUser} style={styles.DPstyle} />
+                      ) : (
+                        <Image
+                          source={
+                            member?.profile_image
+                              ? {uri: member?.profile_image}
+                              : noDP
+                          }
+                          style={styles.DPstyle}
+                        />
+                      )}
+
                       {i == 0 && (
                         <Image source={adminStar} style={styles.star} />
                       )}
                     </View>
                     <View style={{padding: 8}}>
-                      <Text style={styles.modalName}>
-                        {member?.first_name} {member?.last_name}
-                      </Text>
+                      <Text style={styles.modalName}>{getName(member)}</Text>
                       <Text style={styles.modalUsername}>
-                        @{member?.username}
+                        {member?.is_deleted || member?.status == 'inactive'
+                          ? ''
+                          : `@${member?.username}`}
                       </Text>
                     </View>
                   </View>

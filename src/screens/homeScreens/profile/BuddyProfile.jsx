@@ -7,6 +7,7 @@ import {
   ScrollView,
   BackHandler,
   Image,
+  RefreshControl,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 
@@ -39,6 +40,7 @@ import axios from 'axios';
 import RequestedButton from '../../../components/buttons/RequestedButton';
 import CommentBottomSheet from '../../../components/profileComponents/CommentBottomSheet';
 import {fetchTripComments} from '../../../redux/slices/tripCommentsSlice';
+import Toast from 'react-native-toast-message';
 
 var lock = require('../../../../assets/Images/lock.png');
 var block = require('../../../../assets/Images/block.png');
@@ -93,20 +95,35 @@ const BuddyProfile = ({route, navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(
-        fetchBuddyDetails(buddyData?.id ? buddyData?.id : buddyData?._id),
-      );
-      GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
-      VerifyToken(authToken);
-      setIsRequested(
-        sentFollowReq.some(
-          user => user._id === (buddyData?.id ? buddyData?.id : buddyData?._id),
-        ),
-      );
+      reload();
     }, [buddyData?.id ? buddyData?.id : buddyData?._id]),
   );
 
+  async function reload() {
+    dispatch(fetchBuddyDetails(buddyData?.id ? buddyData?.id : buddyData?._id));
+    await GetBuddyTrips(buddyData?.id ? buddyData?.id : buddyData?._id);
+    await VerifyToken(authToken);
+    setIsRequested(
+      sentFollowReq.some(
+        user => user._id === (buddyData?.id ? buddyData?.id : buddyData?._id),
+      ),
+    );
+  }
+
   useEffect(() => {
+    if (
+      buddyDetails?.user?.status == 'inactive' ||
+      buddyDetails?.user?.is_deleted
+    ) {
+      Toast.show({
+        type: 'info',
+        text1: 'Account inactive or deleted',
+        text2: 'This buddypass account is either inactive or deleted',
+      });
+
+      handleBackPress();
+    }
+
     setIsFollowed(buddyDetails?.isFollowing);
   }, [buddyDetails]);
 
@@ -150,66 +167,60 @@ const BuddyProfile = ({route, navigation}) => {
         },
       });
 
-      if (response.data.data.status !== 'pending') {
+      const status = response.data.data.status;
+
+      if (status !== 'pending') {
         setIsFollowed(prevValue => !prevValue);
-      } else if (response.data.data.status == 'pending') {
+      } else {
         setIsRequested(true);
       }
 
       GetSentFollowRequests();
-
       dispatch(fetchBuddyDetails(buddyId));
     } catch (error) {
-      console.log(
-        'Failed to follow or unfollow:',
-        error.response.data,
-        ENDPOINT.FOLLOW_USER,
-        userData,
-      );
+      console.error('Failed to follow or unfollow', error);
     } finally {
       setFollowLoading(false);
     }
   }
 
-  function unFollow() {
+  async function unFollow(buddyId) {
     const data = {
-      followee: buddyData?.id ? buddyData?.id : buddyData?._id,
+      followee: buddyId,
     };
 
-    axios
-      .post(ENDPOINT.UNFOLLOW_USER, data, {
+    try {
+      const response = await axios.post(ENDPOINT.UNFOLLOW_USER, data, {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
-      })
-      .then(res => {
-        setIsFollowed(prevValue => !prevValue);
-        setIsRequested(false);
-        GetSentFollowRequests();
-      })
-      .catch(err => {
-        console.log('failed to take action', err.response.data);
       });
+
+      setIsFollowed(prevValue => !prevValue);
+      setIsRequested(false);
+      GetSentFollowRequests();
+    } catch (err) {
+      console.log('Failed to take action', err?.response?.data || err);
+    }
   }
 
-  function removeReq() {
+  async function removeReq(buddyId) {
     const data = {
-      followee: buddyData?.id ? buddyData?.id : buddyData?._id,
+      followee: buddyId,
     };
 
-    axios
-      .post(ENDPOINT.UNFOLLOW_USER, data, {
+    try {
+      const response = await axios.post(ENDPOINT.UNFOLLOW_USER, data, {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
-      })
-      .then(res => {
-        console.log('removed request', res.data);
-        setIsRequested(false);
-      })
-      .catch(err => {
-        console.log('failed to take action', err.response.data);
       });
+
+      console.log('removed request', response.data);
+      setIsRequested(false);
+    } catch (err) {
+      console.log('Failed to take action', err?.response?.data || err);
+    }
   }
 
   const checkThisId = buddyData?.id ? buddyData?.id : buddyData?._id;
@@ -218,7 +229,15 @@ const BuddyProfile = ({route, navigation}) => {
 
   return (
     <RegularBG>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={() => reload()}
+            color="#7879F1"
+          />
+        }>
         <View style={styles.backOpContainer}>
           <BackButton onPress={handleBackPress} />
           {isBlocked ? (
@@ -228,11 +247,17 @@ const BuddyProfile = ({route, navigation}) => {
             />
           ) : (
             <View style={styles.actionButtonsBox}>
-              {isRequested ? (
-                <RequestedButton onPress={removeReq} />
+              {isRequested && !isFollowed ? (
+                <RequestedButton
+                  onPress={() =>
+                    removeReq(buddyData?.id ? buddyData?.id : buddyData?._id)
+                  }
+                />
               ) : isFollowed ? (
                 <FollowedButton
-                  onPress={unFollow}
+                  onPress={() =>
+                    unFollow(buddyData?.id ? buddyData?.id : buddyData?._id)
+                  }
                   loading={followLoading}
                   disabled={followLoading}
                 />
@@ -251,7 +276,6 @@ const BuddyProfile = ({route, navigation}) => {
         <View style={styles.userDetailsContainer}>
           <ProfileImage
             source={buddyDetails?.user?.profile_image}
-            onPress={() => setShowProfileImage(true)}
             showProfileImage={showProfileImage}
             handleClose={() => setShowProfileImage(false)}
           />
@@ -264,7 +288,6 @@ const BuddyProfile = ({route, navigation}) => {
                   buddyDetails?.user?.last_name,
                 )}
               </Text>
-
               <Text style={styles.username}>
                 @{buddyDetails?.user?.username}
               </Text>

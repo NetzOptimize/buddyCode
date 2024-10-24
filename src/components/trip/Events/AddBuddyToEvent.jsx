@@ -39,36 +39,46 @@ export default function AddBuddyToEvent({
           </TouchableOpacity>
           <View style={styles.addBuddyView}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              {tripMembers?.map((user, i) => (
-                <TouchableOpacity
-                  key={i}
-                  style={styles.addBuddyBox}
-                  onPress={() => {
-                    BuddyAddedFN(user);
-                  }}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Image
-                      source={
-                        user.profile_image ? {uri: user.profile_image} : noDP
-                      }
-                      style={styles.buddyDp}
-                    />
-                    <Text
-                      style={
-                        styles.buddyname
-                      }>{`${user.first_name} ${user.last_name}`}</Text>
-                  </View>
+              {tripMembers?.map((user, i) => {
+                return (
+                  <TouchableOpacity
+                    key={i}
+                    style={styles.addBuddyBox}
+                    onPress={() => {
+                      BuddyAddedFN(user);
+                    }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      {user?.is_deleted || user?.status == 'inactive' ? (
+                        <Image source={noDP} style={styles.buddyDp} />
+                      ) : (
+                        <Image
+                          source={
+                            user.profile_image
+                              ? {uri: user.profile_image}
+                              : noDP
+                          }
+                          style={styles.buddyDp}
+                        />
+                      )}
 
-                  {BuddyAdded?.map(buddy => buddy._id).includes(user._id) ? (
-                    <Image
-                      source={addBuddyCheckSelect}
-                      style={styles.unSelectBuddy}
-                    />
-                  ) : (
-                    <View style={styles.unSelectBuddy} />
-                  )}
-                </TouchableOpacity>
-              ))}
+                      <Text style={styles.buddyname}>
+                        {user?.is_deleted || user?.status == 'inactive'
+                          ? 'Buddypass User'
+                          : `${user.first_name} ${user.last_name}`}
+                      </Text>
+                    </View>
+
+                    {BuddyAdded?.map(buddy => buddy._id).includes(user._id) ? (
+                      <Image
+                        source={addBuddyCheckSelect}
+                        style={styles.unSelectBuddy}
+                      />
+                    ) : (
+                      <View style={styles.unSelectBuddy} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
           </View>
           <TouchableOpacity

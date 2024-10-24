@@ -351,42 +351,48 @@ const SplitPayment = ({selectedEvent, onClose}) => {
                 <ScrollView showsVerticalScrollIndicator={false}>
                   {selectedEvent?.members
                     ?.filter(user => user._id !== myUserDetails?.user._id)
-                    .map((user, i) => (
-                      <TouchableOpacity
-                        style={styles.addBuddyBox}
-                        key={i}
-                        onPress={() => BuddyAddedFN(user)}>
-                        {BuddyAdded.map(buddy => buddy._id).includes(
-                          user._id,
-                        ) ? (
-                          <Image
-                            source={addBuddyCheckSelect}
-                            style={styles.unSelectBuddy}
-                          />
-                        ) : (
-                          <View style={styles.unSelectBuddy} />
-                        )}
+                    .map((user, i) => {
+                      if (user.is_deleted || user.status == 'inactive') {
+                        return null;
+                      }
 
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                          }}>
-                          <Image
-                            source={
-                              user.profile_image
-                                ? {uri: user.profile_image}
-                                : noDP
-                            }
-                            style={styles.buddyDp}
-                          />
-                          <Text
-                            style={
-                              styles.buddyname
-                            }>{`${user.first_name} ${user.last_name}`}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    ))}
+                      return (
+                        <TouchableOpacity
+                          style={styles.addBuddyBox}
+                          key={i}
+                          onPress={() => BuddyAddedFN(user)}>
+                          {BuddyAdded.map(buddy => buddy._id).includes(
+                            user._id,
+                          ) ? (
+                            <Image
+                              source={addBuddyCheckSelect}
+                              style={styles.unSelectBuddy}
+                            />
+                          ) : (
+                            <View style={styles.unSelectBuddy} />
+                          )}
+
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}>
+                            <Image
+                              source={
+                                user.profile_image
+                                  ? {uri: user.profile_image}
+                                  : noDP
+                              }
+                              style={styles.buddyDp}
+                            />
+                            <Text
+                              style={
+                                styles.buddyname
+                              }>{`${user.first_name} ${user.last_name}`}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
                 </ScrollView>
               </View>
             )}
@@ -394,34 +400,38 @@ const SplitPayment = ({selectedEvent, onClose}) => {
             {splitBy == 'Amount' && (
               <>
                 <View style={styles.BuddyAmountContainer}>
-                  {BuddyAdded?.map((data, i) => (
-                    <View key={i} style={{width: '48%', marginTop: 10}}>
-                      <View style={styles.splitBox}>
-                        <Image
-                          source={
-                            data.profile_image
-                              ? {uri: data.profile_image}
-                              : noDP
-                          }
-                          style={styles.buddyDp2}
-                        />
-                        <TextInput
-                          style={[styles.splitInput]}
-                          placeholder="$"
-                          placeholderTextColor={'#f2f2f2'}
-                          value={splitAmounts[data.username]?.toString() || ''}
-                          onChangeText={amount =>
-                            handleSplitAmountChange(data.username, amount)
-                          }
-                          keyboardType="numeric"
-                        />
-                      </View>
+                  {BuddyAdded?.map((data, i) => {
+                    return (
+                      <View key={i} style={{width: '48%', marginTop: 10}}>
+                        <View style={styles.splitBox}>
+                          <Image
+                            source={
+                              data.profile_image
+                                ? {uri: data.profile_image}
+                                : noDP
+                            }
+                            style={styles.buddyDp2}
+                          />
+                          <TextInput
+                            style={[styles.splitInput]}
+                            placeholder="$"
+                            placeholderTextColor={'#f2f2f2'}
+                            value={
+                              splitAmounts[data.username]?.toString() || ''
+                            }
+                            onChangeText={amount =>
+                              handleSplitAmountChange(data.username, amount)
+                            }
+                            keyboardType="numeric"
+                          />
+                        </View>
 
-                      <Text style={[styles.payAllSummary, {marginTop: 4}]}>
-                        @{data.username}
-                      </Text>
-                    </View>
-                  ))}
+                        <Text style={[styles.payAllSummary, {marginTop: 4}]}>
+                          @{data.username}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
 
                 <View style={styles.yourAmountBox}>

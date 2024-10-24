@@ -151,9 +151,12 @@ const MyProfile = () => {
                   key={i}
                   viewComments={() => handleViewComments(trip._id)}
                   onViewTrip={() =>
-                    NavigationService.navigate(SCREENS.VIEW_MY_TRIP, {
-                      tripData: trip,
-                      isMyTrip: trip?.owner?._id == myUserDetails?.user?._id,
+                    NavigationService.navigate('TripsStack', {
+                      screen: SCREENS.VIEW_MY_TRIP,
+                      params: {
+                        tripData: trip,
+                        isMyTrip: trip?.owner?._id == myUserDetails?.user?._id,
+                      },
                     })
                   }
                 />

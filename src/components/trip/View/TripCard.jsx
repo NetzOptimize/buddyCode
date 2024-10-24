@@ -71,13 +71,21 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
             📍 {eventData?.event_location}
           </Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {eventData.members.slice(0, 5).map((data, i) => (
-              <FastImage
-                key={i}
-                source={data.profile_image ? {uri: data.profile_image} : noDP}
-                style={styles.imgStyle}
-              />
-            ))}
+            {eventData.members.slice(0, 5).map((data, i) => {
+              if (data?.is_deleted || data.status == 'inactive') {
+                return (
+                  <FastImage key={i} source={noDP} style={styles.imgStyle} />
+                );
+              }
+
+              return (
+                <FastImage
+                  key={i}
+                  source={data.profile_image ? {uri: data.profile_image} : noDP}
+                  style={styles.imgStyle}
+                />
+              );
+            })}
 
             {eventData.members.length > 5 && (
               <View style={styles.eventMembersBox}>

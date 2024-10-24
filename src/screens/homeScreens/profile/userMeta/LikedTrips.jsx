@@ -19,6 +19,7 @@ var heart = require('../../../../../assets/Images/heart.png');
 var redHeart = require('../../../../../assets/Images/redHeart.png');
 var comment = require('../../../../../assets/Images/comment.png');
 var noDP = require('../../../../../assets/Images/noDP.png');
+var bpUser = require('../../../../../assets/Images/noDP.png');
 var location = require('../../../../../assets/Images/location.png');
 
 import LottieView from 'lottie-react-native';
@@ -62,7 +63,7 @@ const HeaderTabs = ({onBack, activeTab, setActiveTab}) => {
   );
 };
 
-const LikedTripCard = ({tripData}) => {
+const LikedTripCard = ({tripData, isMyData}) => {
   const {myUserDetails, authToken, VerifyToken} = useContext(AuthContext);
 
   const dispatch = useDispatch();
@@ -146,36 +147,38 @@ const LikedTripCard = ({tripData}) => {
       </TouchableOpacity>
 
       <View style={{padding: 8}}>
-        <View style={styles.actionBtnContainer}>
-          <TouchableOpacity style={styles.iconBox} onPress={LikeTrip}>
-            {showAni ? (
-              <View style={{position: 'absolute', right: -4.2}}>
-                <LottieView
-                  source={require('../../../../../assets/like.json')}
-                  style={{height: 44, width: 44}}
-                  autoPlay
-                  loop={false}
-                  resizeMode="cover"
-                  onAnimationFinish={() => setShowAni(false)}
+        {isMyData && (
+          <View style={styles.actionBtnContainer}>
+            <TouchableOpacity style={styles.iconBox} onPress={LikeTrip}>
+              {showAni ? (
+                <View style={{position: 'absolute', right: -4.2}}>
+                  <LottieView
+                    source={require('../../../../../assets/like.json')}
+                    style={{height: 44, width: 44}}
+                    autoPlay
+                    loop={false}
+                    resizeMode="cover"
+                    onAnimationFinish={() => setShowAni(false)}
+                  />
+                </View>
+              ) : (
+                <Image
+                  source={like ? redHeart : heart}
+                  style={{height: 20, width: 20}}
                 />
-              </View>
-            ) : (
-              <Image
-                source={like ? redHeart : heart}
-                style={{height: 20, width: 20}}
-              />
-            )}
+              )}
 
-            <Text style={styles.num}>{tripState?.likes_count}</Text>
-          </TouchableOpacity>
+              <Text style={styles.num}>{tripState?.likes_count}</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.iconBox}
-            onPress={() => handleViewComments(tripData?._id)}>
-            <Image source={comment} style={{height: 20, width: 20}} />
-            <Text style={styles.num}>{tripState?.comments_count}</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={styles.iconBox}
+              onPress={() => handleViewComments(tripData?._id)}>
+              <Image source={comment} style={{height: 20, width: 20}} />
+              <Text style={styles.num}>{tripState?.comments_count}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={{gap: 4, marginTop: 8}}>
           <Text style={styles.tripTitle}>
@@ -184,6 +187,17 @@ const LikedTripCard = ({tripData}) => {
 
           <View style={styles.dpContainer}>
             {tripMembers?.map((data, i) => {
+              if (data.status == 'inactive' || data.is_deleted) {
+                return (
+                  <FastImage
+                    key={i}
+                    source={noDP}
+                    style={styles.membersDp}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                );
+              }
+
               return (
                 <FastImage
                   key={i}
@@ -213,7 +227,7 @@ const LikedTripCard = ({tripData}) => {
   );
 };
 
-const LikedComments = ({data}) => {
+const LikedComments = ({data, isMyData}) => {
   const {authToken} = useContext(AuthContext);
 
   const [like, setLike] = useState(true);
@@ -245,9 +259,20 @@ const LikedComments = ({data}) => {
       });
   };
 
+  let imgURL = data?.comment_id?.user_id?.profile_image;
+
   if (!data.comment_id) {
     return null;
   }
+
+  function fullName(data) {
+    if (data.status == 'inactive' || data.is_deleted) {
+      return 'Buddypass User';
+    }
+    return `${data.first_name} ${data.last_name}`;
+  }
+
+  const user = data?.comment_id?.user_id;
 
   return (
     <View>
@@ -260,30 +285,41 @@ const LikedComments = ({data}) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
-          <Image
-            source={noDP}
-            style={{width: 30, height: 30, borderRadius: 100}}
-          />
+          {user.status == 'inactive' || user.is_deleted ? (
+            <Image
+              source={bpUser}
+              style={{width: 30, height: 30, borderRadius: 100}}
+            />
+          ) : (
+            <Image
+              source={imgURL ? {uri: imgURL} : noDP}
+              style={{width: 30, height: 30, borderRadius: 100}}
+            />
+          )}
 
           <View
             style={{
-              width: '75%',
+              width: isMyData ? '75%' : '87%',
             }}>
-            <Text style={styles.nameText}>FirstName LastName</Text>
+            <Text style={styles.nameText}>
+              {fullName(data?.comment_id?.user_id)}
+            </Text>
             <Text style={styles.commentText}>
               {data.comment_id?.description}
             </Text>
           </View>
 
-          <TouchableOpacity
-            style={{alignItems: 'center', gap: 6}}
-            onPress={() => LikeTripComment(data?.comment_id?._id)}>
-            <Image
-              source={like ? redHeart : heart}
-              style={{width: 20, height: 20}}
-            />
-            <Text style={styles.likeCount}>{likeCount}</Text>
-          </TouchableOpacity>
+          {isMyData && (
+            <TouchableOpacity
+              style={{alignItems: 'center', gap: 6}}
+              onPress={() => LikeTripComment(data?.comment_id?._id)}>
+              <Image
+                source={like ? redHeart : heart}
+                style={{width: 20, height: 20}}
+              />
+              <Text style={styles.likeCount}>{likeCount}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -301,7 +337,7 @@ const LikedComments = ({data}) => {
 
 const LikedTrips = ({navigation, route}) => {
   const {myUserDetails} = useContext(AuthContext);
-  const {trips, comments} = route.params;
+  const {trips, comments, isMyData} = route.params;
 
   const [activeTab, setActiveTab] = useState('trips');
 
@@ -311,7 +347,11 @@ const LikedTrips = ({navigation, route}) => {
     BodyContent = (
       <View style={styles.homeTripCardContainer}>
         {trips?.map(trip => (
-          <LikedTripCard key={trip?._id} tripData={trip?.trip_id} />
+          <LikedTripCard
+            key={trip?._id}
+            tripData={trip?.trip_id}
+            isMyData={isMyData}
+          />
         ))}
       </View>
     );
@@ -319,7 +359,9 @@ const LikedTrips = ({navigation, route}) => {
     BodyContent = (
       <View>
         {comments?.map(data => {
-          return <LikedComments key={data?._id} data={data} />;
+          return (
+            <LikedComments key={data?._id} data={data} isMyData={isMyData} />
+          );
         })}
       </View>
     );

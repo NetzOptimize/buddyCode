@@ -418,11 +418,25 @@ const CreateEvent = ({
                         justifyContent: 'space-between',
                       }}>
                       <View>
-                        {BuddyAdded.map((name, i) => (
-                          <Text style={[styles.textStyle, {margin: 4}]} key={i}>
-                            {`${name.first_name} ${name.last_name}`}
-                          </Text>
-                        ))}
+                        {BuddyAdded?.map((name, i) => {
+                          if (name.status == 'inactive' || name.is_deleted) {
+                            return (
+                              <Text
+                                key={i}
+                                style={[styles.textStyle, {margin: 4}]}>
+                                Buddypass User
+                              </Text>
+                            );
+                          }
+
+                          return (
+                            <Text
+                              style={[styles.textStyle, {margin: 4}]}
+                              key={i}>
+                              {`${name.first_name} ${name.last_name}`}
+                            </Text>
+                          );
+                        })}
                       </View>
                       <TouchableOpacity
                         onPress={() => setAddBuddyVisible(true)}>

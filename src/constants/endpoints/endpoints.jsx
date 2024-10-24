@@ -5,6 +5,7 @@ const BASE_URL = 'http://api.buddypassadmin.com:4000/api';
 export const ENDPOINT = {
   LOGIN: BASE_URL + '/v1/app/auth/login',
   SIGN_UP: BASE_URL + '/v1/app/auth/register',
+  TERMS: BASE_URL + '/v1/admin/content/get',
   VERIFY_OTP: BASE_URL + '/v1/app/auth/verify-otp',
   RESEND_OTP: BASE_URL + '/v1/app/auth/resend-otp',
   COMPLETE_PROFILE: BASE_URL + '/v1/app/auth/complete-profile',
@@ -68,6 +69,5 @@ export const ENDPOINT = {
   ADD_VOTE: BASE_URL + '/v1/app/poll/vote/create',
   REPORT_REASONS: BASE_URL + '/v1/app/reporting-reasons',
   REPORT_USER: BASE_URL + '/v1/app/user-reports',
-
   NOTIFI_ALLOWED: BASE_URL + '/v1/app/notification-settings',
 };

@@ -136,6 +136,17 @@ const ProfileTripCard = ({tripData, viewComments, onViewTrip}) => {
 
           <View style={styles.dpContainer}>
             {tripMembers?.map((data, i) => {
+              if (data.is_deleted || data.status == 'inactive') {
+                return (
+                  <FastImage
+                    key={i}
+                    source={noDP}
+                    style={styles.membersDp}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                );
+              }
+
               return (
                 <FastImage
                   key={i}

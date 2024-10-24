@@ -25,43 +25,55 @@ import FollowPeople from '../screens/signup/FollowPeople';
 import ForgotUserDetails from '../screens/login/forgotDetailsScreens/ForgotUserDetails';
 import ChangeUserDetails from '../screens/login/forgotDetailsScreens/ChangeUserDetails';
 import BuddySearch from '../components/home/BuddySearch';
+import NoConnection from '../components/home/NoConnection';
 
 export default function MyStack() {
-  const {authToken, showSplash} = useContext(AuthContext);
+  const {authToken, showSplash, isConnected} = useContext(AuthContext);
 
-  let NavigationStack = (
-    <>
-      <Stack.Screen name={SCREENS.LOGIN} component={Login} />
-      <Stack.Screen name={SCREENS.REGISTER} component={SignUp} />
-      <Stack.Screen name={SCREENS.OTP_SCREEN} component={OTPverification} />
-      <Stack.Screen
-        name={SCREENS.COMPLETE_PROFILE}
-        component={CompleteProfile}
-      />
-      <Stack.Screen
-        name={SCREENS.SELECT_PREFERENCES}
-        component={SelectPreferences}
-      />
-      <Stack.Screen
-        name={SCREENS.CHANGE_USER_DETAILS}
-        component={ChangeUserDetails}
-      />
-      <Stack.Screen name={SCREENS.FOLLOW_PEOPLE} component={FollowPeople} />
-      <Stack.Screen name={SCREENS.FORGOT_USER} component={ForgotUserDetails} />
-    </>
-  );
+  let NavigationStack;
 
-  if (authToken) {
+  if (!isConnected) {
     NavigationStack = (
-      <>
-        <Stack.Screen name={'TabNavigation'} component={TabNavigation} />
-        <Stack.Screen name={SCREENS.CREATE_TRIP} component={CreateTrip} />
-        <Stack.Screen name={SCREENS.EDIT_TRIP} component={EditTrip} />
-        <Stack.Screen name={SCREENS.ONE_CHAT} component={OneChat} />
-        <Stack.Screen name={SCREENS.GROUP_CHAT} component={GroupChat} />
-        <Stack.Screen name={SCREENS.BUDDY_SEARCH} component={BuddySearch} />
-      </>
+      <Stack.Screen name={SCREENS.NO_CONNECTION} component={NoConnection} />
     );
+  } else {
+    if (!authToken) {
+      NavigationStack = (
+        <>
+          <Stack.Screen name={SCREENS.LOGIN} component={Login} />
+          <Stack.Screen name={SCREENS.REGISTER} component={SignUp} />
+          <Stack.Screen name={SCREENS.OTP_SCREEN} component={OTPverification} />
+          <Stack.Screen
+            name={SCREENS.COMPLETE_PROFILE}
+            component={CompleteProfile}
+          />
+          <Stack.Screen
+            name={SCREENS.SELECT_PREFERENCES}
+            component={SelectPreferences}
+          />
+          <Stack.Screen
+            name={SCREENS.CHANGE_USER_DETAILS}
+            component={ChangeUserDetails}
+          />
+          <Stack.Screen name={SCREENS.FOLLOW_PEOPLE} component={FollowPeople} />
+          <Stack.Screen
+            name={SCREENS.FORGOT_USER}
+            component={ForgotUserDetails}
+          />
+        </>
+      );
+    } else if (authToken) {
+      NavigationStack = (
+        <>
+          <Stack.Screen name={'TabNavigation'} component={TabNavigation} />
+          <Stack.Screen name={SCREENS.CREATE_TRIP} component={CreateTrip} />
+          <Stack.Screen name={SCREENS.EDIT_TRIP} component={EditTrip} />
+          <Stack.Screen name={SCREENS.ONE_CHAT} component={OneChat} />
+          <Stack.Screen name={SCREENS.GROUP_CHAT} component={GroupChat} />
+          <Stack.Screen name={SCREENS.BUDDY_SEARCH} component={BuddySearch} />
+        </>
+      );
+    }
   }
 
   return (
