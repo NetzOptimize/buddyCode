@@ -5,8 +5,12 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert,
   FlatList,
+  Alert,
+  Modal,
+  SafeAreaView,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 
 import React, {useContext, useEffect, useState} from 'react';
@@ -30,58 +34,171 @@ var close = require('../../../../../assets/Images/close.png');
 var cancel = require('../../../../../assets/Images/close.png');
 var noDP = require('../../../../../assets/Images/noDP.png');
 
+import {useDebouncedCallback} from 'use-debounce';
+
 function DestinationInput({tripDestinations, setTripDestinations}) {
-  const addDestination = () => {
-    setTripDestinations([...tripDestinations, '']);
-  };
+  const [showPop, setShowPop] = useState(false);
+  const [suggestedLocations, setSuggestedLocations] = useState([]);
+  const [loading, setIsLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   const removeDestination = index => {
-    const updatedDestinations = [...tripDestinations];
-    updatedDestinations.splice(index, 1);
-    setTripDestinations(updatedDestinations);
+    if (tripDestinations.length == 1) {
+      setTripDestinations(['']);
+    } else {
+      const updatedDestinations = [...tripDestinations];
+      updatedDestinations.splice(index, 1);
+      setTripDestinations(updatedDestinations);
+    }
   };
 
-  const handleTextChange = (text, index) => {
-    const updatedDestinations = [...tripDestinations];
-    updatedDestinations[index] = text;
-    setTripDestinations(updatedDestinations);
-  };
+  const debounced = useDebouncedCallback(location => {
+    setIsLoading(true);
+    setSuggestedLocations([]);
+    fetchLocationData(location);
+  }, 500);
+
+  async function fetchLocationData(location) {
+    const accessToken =
+      'pk.eyJ1IjoiYnVkZHlwYXNzIiwiYSI6ImNsbnRueng5ZTAwb3gybHJ6Mm9sNzBzYnEifQ.-rDxKn6LNhZu4IpCXDHtlA';
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+      location,
+    )}.json?access_token=${accessToken}`;
+
+    try {
+      const response = await axios.get(url);
+      setSuggestedLocations(response.data.features);
+    } catch (error) {
+      console.error('Error fetching location data:', error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function onClose() {
+    setShowPop(false);
+    setSuggestedLocations([]);
+    setIsLoading(false);
+    setSearchText('');
+  }
 
   return (
-    <View style={{gap: 8}}>
-      <Text style={styles.label}>Trip Destination</Text>
+    <>
       <View style={{gap: 8}}>
+        <Text style={styles.label}>Trip Destination</Text>
+
         {tripDestinations.map((destination, index) => (
           <View
             key={index}
             style={
-              index !== 0 ? styles.multiDestination : styles.singleDestination
+              destination !== ''
+                ? styles.multiDestination
+                : styles.singleDestination
             }>
-            <SmallTextInput
-              placeholder="Trip Destination"
-              value={destination}
-              onChangeText={text => {
-                const capitalizedText =
-                  text.charAt(0).toUpperCase() + text.slice(1);
-
-                handleTextChange(capitalizedText, index);
-              }}
-            />
-            {tripDestinations.length > 1 && (
-              <TouchableOpacity onPress={() => removeDestination(index)}>
-                <Image source={close} style={{width: 24, height: 24}} />
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              style={styles.tripPeriod2}
+              onPress={() => setShowPop(true)}
+              disabled={destination !== ''}>
+              <Text style={styles.tripPeriodTextPlace}>
+                {destination == '' ? 'Trip Destination' : destination}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => removeDestination(index)}>
+              <Image source={close} style={{width: 24, height: 24}} />
+            </TouchableOpacity>
           </View>
         ))}
-        <TouchableOpacity
-          style={styles.addDestination}
-          onPress={addDestination}>
-          <Image source={plus} style={{width: 24, height: 24}} />
-          <Text style={styles.addDestinationTextStyle}>Add Destination</Text>
-        </TouchableOpacity>
+
+        {tripDestinations[0] !== '' && (
+          <View style={{gap: 8}}>
+            <TouchableOpacity
+              style={styles.addDestination}
+              onPress={() => setShowPop(true)}>
+              <Image source={plus} style={{width: 24, height: 24}} />
+              <Text style={styles.addDestinationTextStyle}>
+                Add More Destination
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-    </View>
+
+      <Modal visible={showPop} transparent animationType="fade">
+        <SafeAreaView style={styles.destinationSafeArea}>
+          <View
+            style={{
+              width: '90%',
+            }}>
+            <>
+              <View style={styles.destinationLocationInputBox}>
+                <TextInput
+                  style={styles.destinationTextInput}
+                  placeholder={'Search Destination'}
+                  placeholderTextColor={COLORS.VISION}
+                  value={searchText}
+                  onChangeText={text => {
+                    debounced(text);
+                    setSearchText(text);
+                  }}
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearchText('');
+                  }}>
+                  <Image source={close} style={{width: 20, height: 20}} />
+                </TouchableOpacity>
+              </View>
+              {suggestedLocations?.length > 0 && (
+                <View style={styles.suggestLocationContainer}>
+                  <ScrollView
+                    contentContainerStyle={{gap: 24}}
+                    style={{padding: 8}}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="always">
+                    {suggestedLocations?.map((data, i) => {
+                      return (
+                        <TouchableOpacity
+                          key={i}
+                          onPress={() => {
+                            onClose();
+                            if (tripDestinations == '') {
+                              setTripDestinations([data?.place_name]);
+                            } else {
+                              setTripDestinations([
+                                ...tripDestinations,
+                                data?.place_name,
+                              ]);
+                            }
+                          }}>
+                          <Text style={styles.suggestedLocationText}>
+                            {data?.place_name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                    <View style={{height: 16}} />
+                  </ScrollView>
+                </View>
+              )}
+
+              {loading && (
+                <View style={{marginTop: 16}}>
+                  <ActivityIndicator size={'large'} color={COLORS.THANOS} />
+                </View>
+              )}
+            </>
+
+            <TouchableOpacity style={styles.locationCloseBtn} onPress={onClose}>
+              <Text
+                style={{fontFamily: FONTS.MAIN_SEMI, color: COLORS.GREY_DARK}}>
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
+    </>
   );
 }
 
@@ -230,6 +347,7 @@ const EditTrip = ({navigation, route}) => {
       })
       .finally(() => {
         setIsLoading(false);
+        navigation.goBack();
       });
   }
 
@@ -536,5 +654,64 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.MAIN_SEMI,
     fontSize: 12,
     color: COLORS.LIGHT,
+  },
+
+  // **Modal destination
+  destinationSafeArea: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  suggestedLocationText: {
+    fontFamily: FONTS.MAIN_REG,
+    color: COLORS.LIGHT,
+    fontSize: 14,
+  },
+  suggestLocationContainer: {
+    backgroundColor: '#3A3A3A',
+    padding: 8,
+    borderRadius: 10,
+    marginTop: 8,
+    maxHeight: 208,
+  },
+  destinationTextInput: {
+    width: '90%',
+    backgroundColor: COLORS.GREY_LIGHT,
+    height: 50,
+    borderRadius: 100,
+    paddingLeft: 16,
+    paddingRight: 16,
+    fontSize: 14,
+    fontFamily: FONTS.MAIN_REG,
+    color: COLORS.LIGHT,
+  },
+  destinationLocationInputBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.GREY_LIGHT,
+    height: 50,
+    borderRadius: 100,
+  },
+  locationCloseBtn: {
+    width: '50%',
+    height: 48,
+    backgroundColor: COLORS.LIGHT,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 16,
+  },
+  tripPeriod2: {
+    width: '100%',
+    backgroundColor: COLORS.GREY_LIGHT,
+    minHeight: 50,
+    borderRadius: 100,
+    justifyContent: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
 });

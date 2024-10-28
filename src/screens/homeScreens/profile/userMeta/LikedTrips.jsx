@@ -136,6 +136,12 @@ const LikedTripCard = ({tripData, isMyData}) => {
       });
   }
 
+  const destination = tripState?.destination[0];
+  const isLong = destination?.length > 20;
+  const displayDestination = isLong
+    ? destination.slice(0, 20) + '...'
+    : destination;
+
   return (
     <View style={styles.CardContainer}>
       <TouchableOpacity>
@@ -211,7 +217,7 @@ const LikedTripCard = ({tripData, isMyData}) => {
 
           <View style={styles.locationContainer}>
             <Image source={location} style={{width: 12, height: 12}} />
-            <Text style={styles.tripLocation}>{tripState?.destination[0]}</Text>
+            <Text style={styles.tripLocation}>{displayDestination}</Text>
           </View>
         </View>
       </View>

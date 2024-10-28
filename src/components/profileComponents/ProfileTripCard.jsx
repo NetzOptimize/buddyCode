@@ -85,6 +85,12 @@ const ProfileTripCard = ({tripData, viewComments, onViewTrip}) => {
       });
   }
 
+  const destination = tripState?.destination[0];
+  const isLong = destination?.length > 20;
+  const displayDestination = isLong
+    ? destination.slice(0, 20) + '...'
+    : destination;
+
   return (
     <View style={styles.CardContainer}>
       <TouchableOpacity onPress={onViewTrip}>
@@ -160,7 +166,7 @@ const ProfileTripCard = ({tripData, viewComments, onViewTrip}) => {
 
           <View style={styles.locationContainer}>
             <Image source={location} style={{width: 12, height: 12}} />
-            <Text style={styles.tripLocation}>{tripState?.destination[0]}</Text>
+            <Text style={styles.tripLocation}>{displayDestination}</Text>
           </View>
         </View>
       </View>

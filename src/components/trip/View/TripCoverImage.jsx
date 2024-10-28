@@ -135,6 +135,13 @@ const TripCoverImage = ({tripData, source, setSource}) => {
       });
   }
 
+  const destination =
+    tripInfo?.trip?.destination[0] || tripData?.destination[0];
+  const isLong = destination?.length > 25;
+  const displayDestination = isLong
+    ? destination.slice(0, 25) + '...'
+    : destination;
+
   if (!source) {
     return (
       <View>
@@ -155,11 +162,7 @@ const TripCoverImage = ({tripData, source, setSource}) => {
 
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <Image source={location} style={{width: 12, height: 12}} />
-              <Text style={styles.locationText}>
-                {tripInfo
-                  ? tripInfo?.trip?.destination[0]
-                  : tripData?.destination[0]}
-              </Text>
+              <Text style={styles.locationText}>{displayDestination}</Text>
             </View>
           </View>
 
@@ -169,15 +172,6 @@ const TripCoverImage = ({tripData, source, setSource}) => {
               onPress={() => setOpen(true)}>
               <Image source={cam} style={{width: 20, height: 20}} />
             </TouchableOpacity>
-
-            {/* <TouchableOpacity
-              style={styles.actionBtn}
-              onPress={() => {
-                setSource(null);
-                updateCoverImg(tripInfo?.trip?._id);
-              }}>
-              <Image source={deleteIcon} style={{width: 20, height: 20}} />
-            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -212,11 +206,7 @@ const TripCoverImage = ({tripData, source, setSource}) => {
 
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <Image source={location} style={{width: 12, height: 12}} />
-              <Text style={styles.locationText}>
-                {tripInfo
-                  ? tripInfo?.trip?.destination[0]
-                  : tripData?.destination[0]}
-              </Text>
+              <Text style={styles.locationText}>{displayDestination}</Text>
             </View>
           </View>
 
@@ -307,10 +297,11 @@ const styles = StyleSheet.create({
     color: COLORS.LIGHT,
   },
   daysLocationBox: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+    width: '100%',
+    justifyContent: 'space-between',
   },
   actionBtn: {
     width: 32,
