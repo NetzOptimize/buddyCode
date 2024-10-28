@@ -88,8 +88,14 @@ function DestinationInput({tripDestinations, setTripDestinations}) {
 const EditTrip = ({navigation, route}) => {
   const {tripData} = route.params;
 
-  const {myUserDetails, authToken, setMyTrips, tripMembers, setTripMembers} =
-    useContext(AuthContext);
+  const {
+    myUserDetails,
+    authToken,
+    setMyTrips,
+    setMyAllTrips,
+    tripMembers,
+    setTripMembers,
+  } = useContext(AuthContext);
 
   const [tripName, setTripName] = useState('');
   const [tripDestinations, setTripDestinations] = useState(['']);
@@ -153,7 +159,7 @@ const EditTrip = ({navigation, route}) => {
       destination => destination.trim() === '',
     );
 
-    if (tripName == '') {
+    if (tripName.trim() == '') {
       Toast.show({
         type: 'error',
         text2: 'Please enter Trip Name',
@@ -278,9 +284,33 @@ const EditTrip = ({navigation, route}) => {
         removeTripById(tripData?.trip?._id);
       })
       .catch(err => {
-        console.log('could not delete trip:', err?.response?.data);
+        console.log('could not delete trip:', err?.response?.data || err);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
+  }
+
+  function removeTripById(tripId) {
+    navigation.navigate(SCREENS.TRIPS_LIST);
+
+    setMyTrips(prevState => {
+      const updatedTrips = prevState.trips.filter(trip => trip._id !== tripId);
+
+      return {
+        ...prevState,
+        trips: updatedTrips,
+      };
+    });
+
+    setMyAllTrips(prevState => {
+      const updatedTrips = prevState.trips.filter(trip => trip._id !== tripId);
+
+      return {
+        ...prevState,
+        trips: updatedTrips,
+      };
+    });
   }
 
   function addBuddyHandler(user) {
@@ -293,20 +323,6 @@ const EditTrip = ({navigation, route}) => {
         prevValue.filter(member => member._id !== user._id),
       );
     }
-  }
-
-  function removeTripById(tripId) {
-    setIsLoading(false);
-
-    setMyTrips(prevState => {
-      const updatedTrips = prevState.trips.filter(trip => trip._id !== tripId);
-
-      return {
-        ...prevState,
-        trips: updatedTrips,
-      };
-    });
-    navigation.navigate(SCREENS.TRIPS_LIST);
   }
 
   return (

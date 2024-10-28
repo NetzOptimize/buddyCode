@@ -39,7 +39,6 @@ const TripsList = () => {
     GetSentTripInvites,
     tripInvites,
     setTripMembers,
-    tripsLoading,
   } = useContext(AuthContext);
 
   const [showSearch, setShowSearch] = useState(false);

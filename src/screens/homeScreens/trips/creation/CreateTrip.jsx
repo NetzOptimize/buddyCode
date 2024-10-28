@@ -142,7 +142,7 @@ const CreateTrip = ({navigation}) => {
       destination => destination.trim() === '',
     );
 
-    if (tripName == '') {
+    if (tripName.trim() == '') {
       Toast.show({
         type: 'error',
         text2: 'Please enter Trip Name',

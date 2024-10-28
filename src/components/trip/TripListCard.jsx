@@ -55,15 +55,28 @@ const TripListCard = ({Trip, onPress}) => {
         <Text style={styles.tripName}>{formatTripName(tripName)}</Text>
 
         <View style={styles.dpContainer}>
-          {TripMembers?.map((member, i) => (
-            <FastImage
-              key={i}
-              source={
-                member?.profile_image ? {uri: member?.profile_image} : noDP
-              }
-              style={styles.membersDp}
-            />
-          ))}
+          {TripMembers?.map((member, i) => {
+            if (member.is_deleted || member.status == 'inactive') {
+              return (
+                <FastImage
+                  key={i}
+                  source={noDP}
+                  style={styles.membersDp}
+                  resizeMode={FastImage.resizeMode.cover}
+                />
+              );
+            }
+
+            return (
+              <FastImage
+                key={i}
+                source={
+                  member?.profile_image ? {uri: member?.profile_image} : noDP
+                }
+                style={styles.membersDp}
+              />
+            );
+          })}
         </View>
 
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>

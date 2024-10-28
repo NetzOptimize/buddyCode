@@ -91,50 +91,66 @@ function CommentBox({comment, tripId}) {
       });
   };
 
+  const userInactive =
+    comment.user_id.status == 'inactive' || comment.user_id.is_deleted;
+
+  const myComment = myUserDetails?.user?._id == comment?.user_id._id;
+
   return (
     <View style={{marginTop: 10}}>
       <View style={styles.commentBox}>
-        <FastImage
-          source={
-            comment.user_id.profile_image
-              ? {uri: comment.user_id.profile_image}
-              : noDP
-          }
-          style={{width: 30, height: 30, borderRadius: 1000, marginTop: 4}}
-        />
+        {userInactive ? (
+          <FastImage
+            source={noDP}
+            style={{width: 30, height: 30, borderRadius: 1000, marginTop: 4}}
+          />
+        ) : (
+          <FastImage
+            source={
+              comment.user_id.profile_image
+                ? {uri: comment.user_id.profile_image}
+                : noDP
+            }
+            style={{width: 30, height: 30, borderRadius: 1000, marginTop: 4}}
+          />
+        )}
         <View
           style={{
-            width:
-              myUserDetails?.user?._id == comment?.user_id._id ? '73%' : '83%',
+            width: myComment ? '73%' : userInactive ? '89%' : '83%',
           }}>
           <Text style={styles.name}>
-            {comment.user_id.first_name} {comment.user_id.last_name}
+            {userInactive
+              ? 'Buddypass User'
+              : `${comment.user_id.first_name} ${comment.user_id.last_name}`}
           </Text>
           <Text style={styles.comment}>{comment.description}</Text>
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 8,
-          }}>
-          <TouchableOpacity
-            onPress={() => LikeTripComment(comment?._id)}
-            style={{alignItems: 'center'}}>
-            <FastImage
-              source={like ? redHeart : heart}
-              style={{width: 18, height: 18}}
-            />
-            <Text style={styles.likeCount}>{likeCount}</Text>
-          </TouchableOpacity>
 
-          {myUserDetails?.user?._id == comment?.user_id._id && (
+        {!userInactive && (
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 8,
+            }}>
             <TouchableOpacity
-              onPress={() => deleteComment(comment?._id)}
+              onPress={() => LikeTripComment(comment?._id)}
               style={{alignItems: 'center'}}>
-              <Image source={deleteIcon} style={{width: 24, height: 24}} />
+              <FastImage
+                source={like ? redHeart : heart}
+                style={{width: 18, height: 18}}
+              />
+              <Text style={styles.likeCount}>{likeCount}</Text>
             </TouchableOpacity>
-          )}
-        </View>
+
+            {myUserDetails?.user?._id == comment?.user_id._id && (
+              <TouchableOpacity
+                onPress={() => deleteComment(comment?._id)}
+                style={{alignItems: 'center'}}>
+                <Image source={deleteIcon} style={{width: 24, height: 24}} />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
 
       <View style={{borderBottomWidth: 1, borderColor: COLORS.SWEDEN}} />

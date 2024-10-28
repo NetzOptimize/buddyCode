@@ -811,6 +811,7 @@ export const AuthProvider = ({children}) => {
         setCurrentTab,
         isConnected,
         setIsConnected,
+        setMyAllTrips,
       }}>
       {children}
     </AuthContext.Provider>

@@ -137,6 +137,7 @@ export default function TabNavigation() {
     setLogoutLoader,
     setShowComments,
     setCurrentTab,
+    VerifyToken,
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
@@ -208,10 +209,7 @@ export default function TabNavigation() {
       .getInitialNotification()
       .then(async remoteMessage => {
         if (remoteMessage) {
-          console.log(
-            'notification caused the app to open from quit state',
-            remoteMessage,
-          );
+          console.log('notification caused the app to open from quit state');
 
           if (remoteMessage?.data?.notification_type === 'one_chat') {
             const chatData = JSON.parse(remoteMessage?.data?.navigate_to);
@@ -312,7 +310,7 @@ export default function TabNavigation() {
       });
 
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('opened from background state', remoteMessage);
+      console.log('opened from background state');
       if (remoteMessage?.data?.notification_type === 'one_chat') {
         const chatData = JSON.parse(remoteMessage?.data?.navigate_to);
         NavigationService.navigate(SCREENS.MY_PROFILE);
@@ -402,17 +400,38 @@ export default function TabNavigation() {
     });
 
     messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('handled in background', remoteMessage);
+      console.log('handled in background yaha');
+
+      if (remoteMessage?.data?.is_deleted == 'true') {
+        VerifyToken(authToken);
+      }
+
+      if (remoteMessage?.data?.is_suspended == 'true') {
+        setTimeout(() => {
+          VerifyToken(authToken);
+        }, 2000);
+      }
     });
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('new fcm message arrived', JSON.stringify(remoteMessage));
+      console.log('new fcm message arrived', remoteMessage.data);
+      if (remoteMessage?.data?.is_deleted == 'true') {
+        VerifyToken(authToken);
+      }
+
+      if (remoteMessage?.data?.is_suspended == 'true') {
+        setTimeout(() => {
+          VerifyToken(authToken);
+        }, 2000);
+      }
     });
 
     return unsubscribe;
   }, []);
 
   function openOneChat(chatData) {
+    console.log('chatData:', chatData);
+
     setLogoutLoader(false);
     if (myUserDetails?.user?._id === chatData?.from_user_id) {
       NavigationService.navigate(SCREENS.ONE_CHAT, {

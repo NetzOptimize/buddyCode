@@ -249,8 +249,12 @@ const TripRequests = ({navigation}) => {
             {tripInvites?.map(data => {
               if (data.status == 'approved' || data.status == 'declined') {
                 return null;
+              } else if (
+                data.trip_owner.status == 'inactive' ||
+                data.trip_owner.is_deleted
+              ) {
+                return null;
               }
-
               return (
                 <InviteCards
                   key={data._id}
@@ -261,9 +265,15 @@ const TripRequests = ({navigation}) => {
               );
             })}
 
-            {sentInvites?.map(data => (
-              <SentCards key={data._id} data={data} />
-            ))}
+            {sentInvites?.map(data => {
+              if (
+                data.trip_owner.status == 'inactive' ||
+                data.trip_owner.is_deleted
+              ) {
+                return null;
+              }
+              return <SentCards key={data._id} data={data} />;
+            })}
           </View>
 
           <View style={{height: 110}} />

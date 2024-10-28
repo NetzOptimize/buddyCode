@@ -194,6 +194,7 @@ const MyChats = () => {
           params: {
             trips: myUserDetails?.likedTrips,
             comments: myUserDetails?.likedComments,
+            isMyData: true,
           },
         });
       },

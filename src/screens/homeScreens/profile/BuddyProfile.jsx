@@ -277,6 +277,7 @@ const BuddyProfile = ({route, navigation}) => {
           <ProfileImage
             source={buddyDetails?.user?.profile_image}
             showProfileImage={showProfileImage}
+            onPress={() => setShowProfileImage(true)}
             handleClose={() => setShowProfileImage(false)}
           />
 

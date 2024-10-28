@@ -48,15 +48,23 @@ const TripListHeader = ({Trip}) => {
         </View>
 
         <View style={styles.dpContainer}>
-          {TripMembers?.map((member, i) => (
-            <FastImage
-              key={i}
-              source={
-                member?.profile_image ? {uri: member?.profile_image} : noDP
-              }
-              style={styles.membersDp}
-            />
-          ))}
+          {TripMembers?.map((member, i) => {
+            if (member.status == 'inactive' || member.is_delted) {
+              return (
+                <FastImage key={i} source={noDP} style={styles.membersDp} />
+              );
+            }
+
+            return (
+              <FastImage
+                key={i}
+                source={
+                  member?.profile_image ? {uri: member?.profile_image} : noDP
+                }
+                style={styles.membersDp}
+              />
+            );
+          })}
         </View>
       </View>
 
