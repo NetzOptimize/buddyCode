@@ -164,6 +164,7 @@ const TripPaymentCard = ({
             styles.regularTextstyle,
             {
               fontFamily: FONTS.MAIN_SEMI,
+              fontSize: 10,
             },
           ]}>
           {userEvent?.event_name}

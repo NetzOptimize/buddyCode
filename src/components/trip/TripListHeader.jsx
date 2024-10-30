@@ -27,6 +27,12 @@ const TripListHeader = ({Trip}) => {
   TripMembers.push(...Trip?.members);
   TripMembers.push(Trip?.owner);
 
+  const destination = Trip.destination[0];
+  const isLong = destination?.length > 55;
+  const displayDestination = isLong
+    ? destination.slice(0, 55) + '...'
+    : destination;
+
   return (
     <ImageBackground
       source={coverImage ? {uri: coverImage} : cover}
@@ -42,9 +48,17 @@ const TripListHeader = ({Trip}) => {
 
         <Text style={styles.headerTitle}>{tripName}</Text>
 
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            gap: 4,
+            alignSelf: 'center',
+            paddingLeft: 20,
+            paddingRight: 20,
+          }}>
           <Image source={location} style={{width: 12, height: 12}} />
-          <Text style={styles.location}>{Trip?.destination[0]}</Text>
+          <Text style={styles.location}>{displayDestination}</Text>
         </View>
 
         <View style={styles.dpContainer}>
@@ -124,11 +138,15 @@ const styles = StyleSheet.create({
     fontSize: 26,
     color: 'white',
     marginTop: 8,
+    textAlign: 'center',
+    padding: 10,
   },
   location: {
     fontFamily: FONTS.MAIN_REG,
     fontSize: 10,
     color: 'white',
+    textAlign: 'center',
+    alignSelf: 'center',
   },
   membersDp: {
     width: 14,

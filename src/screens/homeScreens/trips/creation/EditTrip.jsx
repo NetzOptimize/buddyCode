@@ -220,7 +220,7 @@ const EditTrip = ({navigation, route}) => {
   const [tripEndDate, setTripEndDate] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
   const [showCalendar2, setShowCalendar2] = useState(false);
-  const [charsLeft, setCharsLeft] = useState(25);
+  const [charsLeft, setCharsLeft] = useState(20);
   const [fundGoals, setFundGoals] = useState('');
   useEffect(() => {
     setTripName(tripData?.trip?.trip_name);
@@ -233,7 +233,7 @@ const EditTrip = ({navigation, route}) => {
   const [loading, setIsLoading] = useState(false);
 
   const handleTripNameChange = text => {
-    const maxLength = 25;
+    const maxLength = 20;
     if (text.length <= maxLength) {
       const remainingChars = maxLength - text.length;
       const capitalizedText = text.charAt(0).toUpperCase() + text.slice(1);

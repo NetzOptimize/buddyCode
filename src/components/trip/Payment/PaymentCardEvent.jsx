@@ -29,6 +29,16 @@ function PaymentCardEvent({isSelected, onPress, eventData}) {
     minute: '2-digit',
   });
 
+  const displayLocation =
+    eventData?.event_location.length > 22
+      ? eventData?.event_location.slice(0, 22) + '...'
+      : eventData?.event_location;
+
+  const displayName =
+    eventData?.event_name?.length > 16
+      ? eventData?.event_name?.slice(0, 16) + '...'
+      : eventData?.event_name;
+
   return (
     <TouchableOpacity
       style={isSelected ? styles.selectedEventCardBody : styles.eventCardBody}
@@ -42,14 +52,14 @@ function PaymentCardEvent({isSelected, onPress, eventData}) {
       <View style={styles.dotTime}>
         <View style={styles.timeDot} />
         <Text style={styles.eventTime}>
-          {startTime} - {endTime} {eventData?.event_name}
+          {startTime} - {endTime}
         </Text>
       </View>
 
-      <Text style={styles.eventTitle}>{eventData?.event_name}</Text>
+      <Text style={styles.eventTitle}>{displayName}</Text>
 
       <View style={styles.rowSpaceBetween}>
-        <Text style={styles.eventLocation}>📍 {eventData?.event_location}</Text>
+        <Text style={styles.eventLocation}>📍 {displayLocation}</Text>
         <View style={styles.alignEnd}>
           {matchedPayment?.amount && isPaymentPending && (
             <Text style={[styles.amountText, {color: COLORS.ERROR}]}>

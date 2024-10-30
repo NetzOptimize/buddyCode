@@ -24,6 +24,8 @@ const GroupChatHeader = ({
   profileImage,
   onViewTrip,
 }) => {
+  const displayName = name.length >= 20 ? name.slice(0, 20) + '...' : name;
+
   return (
     <View style={styles.container}>
       <View style={{flexDirection: 'row'}}>
@@ -36,7 +38,7 @@ const GroupChatHeader = ({
             style={styles.dpStyle}
           />
           <View>
-            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.name}>{displayName}</Text>
             <Text style={styles.username}>
               {memberCount} {memberCount > 1 ? 'Buddies' : 'Buddy'}
             </Text>

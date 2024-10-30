@@ -9,11 +9,11 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect, useContext, useRef} from 'react';
+import React, {useState, useContext, useRef} from 'react';
 
 import {COLORS, FONTS} from '../../../constants/theme/theme';
-import SmallTextInput from '../../inputs/SmallTextInput';
 import DatePicker from 'react-native-date-picker';
 import EventCalendar from './EventCalendar';
 import axios from 'axios';
@@ -32,6 +32,128 @@ import {fetchTripData} from '../../../redux/slices/tripDetailsSlice';
 import AddBuddyToEvent from './AddBuddyToEvent';
 import ActionButton from '../../buttons/ActionButton';
 
+import {useDebouncedCallback} from 'use-debounce';
+
+function DestinationInput({setLocation, location}) {
+  const [showPop, setShowPop] = useState(false);
+  const [suggestedLocations, setSuggestedLocations] = useState([]);
+  const [loading, setIsLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
+  const debounced = useDebouncedCallback(location => {
+    setIsLoading(true);
+    setSuggestedLocations([]);
+    fetchLocationData(location);
+  }, 500);
+
+  async function fetchLocationData(location) {
+    const accessToken =
+      'pk.eyJ1IjoiYnVkZHlwYXNzIiwiYSI6ImNsbnRueng5ZTAwb3gybHJ6Mm9sNzBzYnEifQ.-rDxKn6LNhZu4IpCXDHtlA';
+
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+      location,
+    )}.json?access_token=${accessToken}`;
+
+    try {
+      const response = await axios.get(url);
+      setSuggestedLocations(response.data.features);
+    } catch (error) {
+      console.error('Error fetching location data:', error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function onClose() {
+    setShowPop(false);
+    setSuggestedLocations([]);
+    setIsLoading(false);
+    setSearchText('');
+  }
+
+  return (
+    <>
+      <TouchableOpacity
+        style={styles.timeBtn2}
+        onPress={() => setShowPop(true)}>
+        <Text style={styles.tripPeriodTextPlace}>
+          {location == '' ? 'Location *' : location}
+        </Text>
+        <Image source={locationIcon} style={{width: 14, height: 14}} />
+      </TouchableOpacity>
+
+      <Modal visible={showPop} transparent animationType="fade">
+        <SafeAreaView style={styles.destinationSafeArea}>
+          <View
+            style={{
+              width: '90%',
+            }}>
+            <>
+              <View style={styles.destinationLocationInputBox}>
+                <TextInput
+                  style={styles.destinationTextInput}
+                  placeholder={'Search Destination'}
+                  placeholderTextColor={COLORS.VISION}
+                  value={searchText}
+                  onChangeText={text => {
+                    debounced(text);
+                    setSearchText(text);
+                  }}
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearchText('');
+                  }}>
+                  <Image source={close} style={{width: 20, height: 20}} />
+                </TouchableOpacity>
+              </View>
+              {suggestedLocations?.length > 0 && (
+                <View style={styles.suggestLocationContainer}>
+                  <ScrollView
+                    contentContainerStyle={{gap: 24}}
+                    style={{padding: 8}}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="always">
+                    {suggestedLocations?.map((data, i) => {
+                      return (
+                        <TouchableOpacity
+                          key={i}
+                          onPress={() => {
+                            onClose();
+                            setLocation(data?.place_name);
+                          }}>
+                          <Text style={styles.suggestedLocationText}>
+                            {data?.place_name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                    <View style={{height: 16}} />
+                  </ScrollView>
+                </View>
+              )}
+
+              {loading && (
+                <View style={{marginTop: 16}}>
+                  <ActivityIndicator size={'large'} color={COLORS.THANOS} />
+                </View>
+              )}
+            </>
+
+            <TouchableOpacity style={styles.locationCloseBtn} onPress={onClose}>
+              <Text
+                style={{fontFamily: FONTS.MAIN_SEMI, color: COLORS.GREY_DARK}}>
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
+    </>
+  );
+}
+
 const CreateEvent = ({
   visible,
   onClose,
@@ -47,6 +169,7 @@ const CreateEvent = ({
   const scrollViewRef = useRef(null);
 
   const [name, setName] = useState('');
+  const [charsLeft, setCharsLeft] = useState(20);
   const [description, setDescription] = useState('');
   const [cost, setCost] = useState('');
   const [location, setLocation] = useState('');
@@ -76,6 +199,16 @@ const CreateEvent = ({
 
   const [addBuddyVisible, setAddBuddyVisible] = useState(false);
   const [BuddyAdded, setBuddyAdded] = useState([]);
+
+  const handleEventNameChange = text => {
+    const maxLength = 20;
+    if (text.length <= maxLength) {
+      const remainingChars = maxLength - text.length;
+      const capitalizedText = text.charAt(0).toUpperCase() + text.slice(1);
+      setName(capitalizedText);
+      setCharsLeft(remainingChars);
+    }
+  };
 
   function BuddyAddedFN(id) {
     if (!BuddyAdded.includes(id)) {
@@ -199,7 +332,7 @@ const CreateEvent = ({
 
   const removeFormatting = formattedValue => {
     let unformattedValue = formattedValue.replace(/[$,]/g, '');
-    return parseInt(unformattedValue, 10) || 0; // Return 0 if the string is empty
+    return parseInt(unformattedValue, 10) || 0;
   };
 
   function handleFundText(value) {
@@ -285,13 +418,18 @@ const CreateEvent = ({
             style={{marginTop: 12}}
             showsVerticalScrollIndicator={false}>
             <View style={{gap: 16}}>
-              <TextInput
-                style={styles.inputStyle}
-                placeholder="Event name*"
-                placeholderTextColor={COLORS.VISION}
-                value={name}
-                onChangeText={text => setName(text)}
-              />
+              <View style={{gap: 8}}>
+                <TextInput
+                  style={styles.inputStyle}
+                  placeholder="Event name*"
+                  placeholderTextColor={COLORS.VISION}
+                  value={name}
+                  onChangeText={text => handleEventNameChange(text)}
+                />
+                <Text style={styles.charsLeft}>
+                  {charsLeft} characters left
+                </Text>
+              </View>
 
               <TextInput
                 placeholder="Type the note here..."
@@ -302,20 +440,42 @@ const CreateEvent = ({
                 onChangeText={text => setDescription(text)}
               />
 
-              <TouchableOpacity
-                style={styles.calendarBtn}
-                onPress={() => setIsCalendarOpen(true)}>
-                <Text style={styles.calendarText}>
-                  {eventDate == 'Select Event Date'
-                    ? eventDate
-                    : eventDate
-                        .split('-')
-                        .slice(1)
-                        .concat(eventDate.split('-').slice(0, 1))
-                        .join('-')}
-                </Text>
-                <Image source={calendarIcon} style={{width: 14, height: 16}} />
-              </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}>
+                <TouchableOpacity
+                  style={styles.timeBtn}
+                  onPress={() => setIsCalendarOpen(true)}>
+                  <Text style={styles.calendarText}>
+                    {eventDate == 'Select Event Date'
+                      ? eventDate
+                      : eventDate
+                          .split('-')
+                          .slice(1)
+                          .concat(eventDate.split('-').slice(0, 1))
+                          .join('-')}
+                  </Text>
+                  <Image
+                    source={calendarIcon}
+                    style={{width: 14, height: 16}}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.timeBtn}>
+                  <TextInput
+                    style={styles.miniInput}
+                    value={cost}
+                    placeholder="Cost *"
+                    placeholderTextColor={COLORS.VISION}
+                    onChangeText={handleFundText}
+                    keyboardType="numeric"
+                  />
+                  <Image source={costIcon} style={{width: 14, height: 14}} />
+                </TouchableOpacity>
+              </View>
 
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -351,35 +511,7 @@ const CreateEvent = ({
                 </TouchableOpacity>
               </View>
 
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <TouchableOpacity style={styles.timeBtn}>
-                  <TextInput
-                    style={styles.miniInput}
-                    value={cost}
-                    placeholder="Cost *"
-                    placeholderTextColor={COLORS.VISION}
-                    onChangeText={handleFundText}
-                    keyboardType="numeric"
-                  />
-
-                  <Image source={costIcon} style={{width: 14, height: 14}} />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.timeBtn}>
-                  <TextInput
-                    style={styles.miniInput}
-                    value={location}
-                    placeholder="Location *"
-                    placeholderTextColor={COLORS.VISION}
-                    onChangeText={text => setLocation(text)}
-                  />
-                  <Image
-                    source={locationIcon}
-                    style={{width: 14, height: 14}}
-                  />
-                </TouchableOpacity>
-              </View>
+              <DestinationInput setLocation={setLocation} location={location} />
 
               <View>
                 <View
@@ -394,7 +526,7 @@ const CreateEvent = ({
                     paddingBottom: 20,
                     flexDirection: 'column',
                   }}>
-                  {BuddyAdded.length == 0 ? (
+                  {BuddyAdded?.length == 0 ? (
                     <View
                       style={{
                         flexDirection: 'row',
@@ -471,7 +603,7 @@ const CreateEvent = ({
                         style={[
                           styles.category,
                           {
-                            backgroundColor: category.includes(d.name)
+                            backgroundColor: category?.includes(d.name)
                               ? '#27AE60'
                               : '#716B6E',
                           },
@@ -482,7 +614,7 @@ const CreateEvent = ({
                           style={{
                             height: 13,
                             width: 10,
-                            borderColor: category.includes(d.name)
+                            borderColor: category?.includes(d.name)
                               ? 'white'
                               : '#FCDDEC',
                             borderRadius: 1000,
@@ -769,5 +901,90 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular',
     color: 'white',
     fontSize: 16,
+  },
+
+  // **Modal destination
+  destinationSafeArea: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  suggestedLocationText: {
+    fontFamily: FONTS.MAIN_REG,
+    color: COLORS.LIGHT,
+    fontSize: 14,
+  },
+  suggestLocationContainer: {
+    backgroundColor: '#3A3A3A',
+    padding: 8,
+    borderRadius: 10,
+    marginTop: 8,
+    maxHeight: 208,
+  },
+  destinationTextInput: {
+    width: '90%',
+    backgroundColor: COLORS.GREY_LIGHT,
+    height: 50,
+    borderRadius: 100,
+    paddingLeft: 16,
+    paddingRight: 16,
+    fontSize: 14,
+    fontFamily: FONTS.MAIN_REG,
+    color: COLORS.LIGHT,
+  },
+  destinationLocationInputBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.GREY_LIGHT,
+    height: 50,
+    borderRadius: 100,
+  },
+  locationCloseBtn: {
+    width: '50%',
+    height: 48,
+    backgroundColor: COLORS.LIGHT,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 16,
+  },
+  tripPeriod2: {
+    width: '100%',
+    backgroundColor: COLORS.GREY_LIGHT,
+    minHeight: 50,
+    borderRadius: 100,
+    justifyContent: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  tripPeriodTextPlace: {
+    fontSize: 14,
+    fontFamily: FONTS.MAIN_REG,
+    color: COLORS.LIGHT,
+  },
+  timeBtn2: {
+    minHeight: 48,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: COLORS.VISION,
+    borderRadius: 10,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  charsLeft: {
+    color: COLORS.VISION,
+    fontFamily: FONTS.MAIN_SEMI,
+    fontSize: 11,
+    textAlign: 'right',
   },
 });

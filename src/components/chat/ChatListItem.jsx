@@ -124,12 +124,12 @@ export default function ChatListItem({chatData, ...allProps}) {
               } ${
                 chatData?.last_message == null
                   ? ''
-                  : chatData?.last_message?.length > 35
-                  ? chatData?.last_message?.slice(0, 35) + '...'
+                  : chatData?.last_message?.length > 30
+                  ? chatData?.last_message?.slice(0, 30) + '...'
                   : chatData?.last_message
               }`
-            : chatData?.lastMessageDate?.length > 35
-            ? chatData?.lastMessageDate?.slice(0, 45) + '...'
+            : chatData?.lastMessageDate?.length > 30
+            ? chatData?.lastMessageDate?.slice(0, 40) + '...'
             : chatData?.last_message}
         </Text>
       </View>

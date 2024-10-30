@@ -81,7 +81,7 @@ const ViewMyTrip = ({route, navigation}) => {
     const TripName =
       name?.charAt(0).toUpperCase() + name?.slice(1).toLowerCase();
 
-    return TripName?.length > 19 ? TripName?.slice(0, 19) + '...' : TripName;
+    return TripName?.length > 16 ? TripName?.slice(0, 16) + '...' : TripName;
   };
 
   useEffect(() => {

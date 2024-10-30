@@ -43,6 +43,11 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
     EventBuddies.push(element);
   });
 
+  const displayLocation =
+    eventData?.event_location.length > 25
+      ? eventData?.event_location.slice(0, 25) + '...'
+      : eventData?.event_location;
+
   return (
     <>
       <View
@@ -67,9 +72,7 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
         <Text style={styles.eventTitle}>{eventData.event_name}</Text>
 
         <View style={styles.eventTimeOpBox}>
-          <Text style={styles.eventLocation}>
-            📍 {eventData?.event_location}
-          </Text>
+          <Text style={styles.eventLocation}>📍 {displayLocation}</Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             {eventData.members.slice(0, 5).map((data, i) => {
               if (data?.is_deleted || data.status == 'inactive') {
@@ -154,7 +157,7 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     fontFamily: FONTS.MAIN_REG,
-    fontSize: 16,
+    fontSize: 13,
     color: 'white',
   },
   eventLocation: {

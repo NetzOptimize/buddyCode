@@ -12,8 +12,8 @@ const TripListCard = ({Trip, onPress}) => {
   const coverImage = Trip?.trip_image;
 
   const tripName =
-    Trip?.trip_name.length > 12
-      ? `${Trip?.trip_name.slice(0, 12)} ...`
+    Trip?.trip_name.length > 10
+      ? `${Trip?.trip_name.slice(0, 10)} ...`
       : Trip?.trip_name;
 
   const tripDestination =
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   tripName: {
     fontFamily: FONTS.MAIN_REG,
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: 20,
     color: '#F2F2F2',
   },
