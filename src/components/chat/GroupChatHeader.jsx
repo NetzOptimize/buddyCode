@@ -24,7 +24,7 @@ const GroupChatHeader = ({
   profileImage,
   onViewTrip,
 }) => {
-  const displayName = name.length >= 20 ? name.slice(0, 20) + '...' : name;
+  const displayName = name.length >= 15 ? name.slice(0, 15) + '...' : name;
 
   return (
     <View style={styles.container}>

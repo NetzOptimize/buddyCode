@@ -99,6 +99,7 @@ const TripPaymentCard = ({
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
               }}>
               <Text style={styles.regularTextstyle}>
                 Payment - {userEvent?.event_name}
