@@ -8,6 +8,34 @@ import FastImage from 'react-native-fast-image';
 var noDP = require('../../../../assets/Images/noDP.png');
 
 const TripCard = ({tripInfo, eventData, isComplete = false}) => {
+  const getTimeZoneAbbreviation = () => {
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Ensure timeZone is valid and not empty
+      if (!timezone) {
+        throw new Error('No timeZone found');
+      }
+
+      const options = {
+        timeZone: timezone,
+        timeZoneName: 'short',
+      };
+
+      // Attempt to retrieve timeZone abbreviation
+      const timeZoneAbbreviation = Intl.DateTimeFormat('en-US', options)
+        .formatToParts()
+        .find(part => part.type === 'timeZoneName')?.value;
+
+      return timeZoneAbbreviation;
+    } catch (error) {
+      console.log('Error retrieving timeZone abbreviation:', error);
+      return null; // or handle the error as appropriate
+    }
+  };
+
+  const abbreviation = getTimeZoneAbbreviation();
+
   let TimeTitle = (
     <Text style={styles.timeTitle}>
       {`${new Date(eventData.start_time).toLocaleTimeString([], {
@@ -22,11 +50,7 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
         hour12: true,
       })}, `}
       <Text style={{fontFamily: FONTS.MAIN_BOLD}}>
-        {new Date(eventData?.event_date)?.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        })}
+        {eventData?.event_date && new Date(eventData?.event_date).toISOString().split('T')[0]}
       </Text>
     </Text>
   );
@@ -44,9 +68,9 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
   });
 
   const displayLocation =
-  eventData?.event_location.length > 25
-    ? eventData?.event_location.slice(0, 25) + '...'
-    : eventData?.event_location;
+    eventData?.event_location.length > 25
+      ? eventData?.event_location.slice(0, 25) + '...'
+      : eventData?.event_location;
 
   return (
     <>
@@ -72,9 +96,7 @@ const TripCard = ({tripInfo, eventData, isComplete = false}) => {
         <Text style={styles.eventTitle}>{eventData.event_name}</Text>
 
         <View style={styles.eventTimeOpBox}>
-          <Text style={styles.eventLocation}>
-            📍 {displayLocation}
-          </Text>
+          <Text style={styles.eventLocation}>📍 {displayLocation}</Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             {eventData.members.slice(0, 5).map((data, i) => {
               if (data?.is_deleted || data.status == 'inactive') {

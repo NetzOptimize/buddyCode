@@ -11,7 +11,7 @@ import {
   SafeAreaView,
   TextInput,
   ActivityIndicator,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from 'react-native';
 import React, {useContext, useState} from 'react';
 import RegularBG from '../../../../components/background/RegularBG';
@@ -227,6 +227,8 @@ const CreateTrip = ({navigation}) => {
   };
 
   function PickStartDate(day) {
+    console.log(day.dateString);
+
     setTripStartDate(day.dateString);
   }
 
@@ -376,6 +378,13 @@ const CreateTrip = ({navigation}) => {
     </TouchableOpacity>
   );
 
+  const selectedTripPeriod = (
+    <Text>
+      <Text style={{fontFamily: FONTS.MAIN_BOLD}}>{tripStartDate}</Text> {' '}to{' '}{' '}
+      <Text style={{fontFamily: FONTS.MAIN_BOLD}}>{tripEndDate}</Text>
+    </Text>
+  );
+
   return (
     <RegularBG>
       <View style={{marginTop: 14, marginBottom: 14}}>
@@ -417,9 +426,7 @@ const CreateTrip = ({navigation}) => {
                   }>
                   {tripStartDate == '' && tripEndDate == ''
                     ? 'Trip Period'
-                    : `${new Date(tripStartDate).toDateString()} - ${new Date(
-                        tripEndDate,
-                      ).toDateString()}`}
+                    : selectedTripPeriod}
                 </Text>
               </TouchableOpacity>
             </View>

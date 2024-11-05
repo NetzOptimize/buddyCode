@@ -99,8 +99,8 @@ function CustomCalendar({
         setSelectedDate(day.dateString);
         setShowAllEvents(false);
       }}
-      minDate={new Date(minDate)?.toISOString().slice(0, 10)}
-      maxDate={new Date(maxDate)?.toISOString().slice(0, 10)}
+      minDate={new Date(minDate).toISOString().split('T')[0]}
+      maxDate={new Date(maxDate).toISOString().split('T')[0]}
       markingType="multi-dot"
       theme={{
         calendarBackground: '#3A3A3A',

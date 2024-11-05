@@ -27,8 +27,9 @@ const EventCalendar = ({
   isCalendarOpen,
   setIsCalendarOpen,
 }) => {
-  let formattedMaxDate = new Date(maxDate);
-  formattedMaxDate.setDate(formattedMaxDate.getDate() - 1);
+  let formattedMaxDate = new Date(maxDate).toISOString().split('T')[0];
+
+  // formattedMaxDate.setDate(formattedMaxDate.getDate() - 1);
 
   return (
     <Modal transparent visible={isCalendarOpen}>
@@ -44,8 +45,8 @@ const EventCalendar = ({
           </View>
 
           <Calendar
-            current={new Date(minDate)?.toISOString().slice(0, 10)}
-            minDate={minDate}
+            current={new Date(minDate).toISOString().split('T')[0]}
+            minDate={new Date(minDate).toISOString().split('T')[0]}
             maxDate={formattedMaxDate}
             markedDates={{
               [eventDate]: {

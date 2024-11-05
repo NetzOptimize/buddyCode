@@ -445,6 +445,15 @@ const EditTrip = ({navigation, route}) => {
     }
   }
 
+  const selectedTripPeriod = (
+    <Text>
+      <Text style={{fontFamily: FONTS.MAIN_BOLD}}>{tripStartDate && new Date(tripStartDate).toISOString().split('T')[0]}</Text> to{' '}
+      <Text style={{fontFamily: FONTS.MAIN_BOLD}}>{tripEndDate && new Date(tripEndDate).toISOString().split('T')[0]}</Text>
+    </Text>
+  );
+
+  console.log()
+
   return (
     <RegularBG>
       <Spinner visible={loading} color={COLORS.THANOS} />
@@ -485,9 +494,7 @@ const EditTrip = ({navigation, route}) => {
                 }>
                 {tripStartDate == '' && tripEndDate == ''
                   ? 'Trip Period'
-                  : `${new Date(tripStartDate).toDateString()} - ${new Date(
-                      tripEndDate,
-                    ).toDateString()}`}
+                  : selectedTripPeriod}
               </Text>
             </TouchableOpacity>
           </View>
