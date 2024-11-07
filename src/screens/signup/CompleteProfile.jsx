@@ -8,6 +8,7 @@ import {
   ScrollView,
   Modal,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import React, {useState, useRef} from 'react';
 import ImageBG from '../../components/background/ImageBG';

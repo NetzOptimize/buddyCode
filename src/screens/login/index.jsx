@@ -375,6 +375,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
     gap: 16,
+    paddingRight: 10,
   },
 });
 
