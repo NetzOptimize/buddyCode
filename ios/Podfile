@@ -50,7 +50,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'BuddypassIOS' do
+target 'Buddypass' do
   config = use_native_modules!
 
   pod 'Firebase', :modular_headers => true
@@ -64,7 +64,7 @@ target 'BuddypassIOS' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'BuddypassIOSTests' do
+  target 'BuddypassTests' do
     inherit! :complete
     # Pods for testing
   end
