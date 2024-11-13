@@ -1,5 +1,6 @@
 import {createContext, useEffect, useState} from 'react';
 import {ENDPOINT} from '../constants/endpoints/endpoints';
+import {AppState} from 'react-native';
 
 export const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ import {ChatClient, ChatOptions} from 'react-native-agora-chat';
 
 const AGORA_APP_KEY = '41695554#960499';
 
-import NetInfo from "@react-native-community/netinfo";
+import NetInfo from '@react-native-community/netinfo';
 
 // ** redux
 import {useDispatch} from 'react-redux';
@@ -19,6 +20,10 @@ import Toast from 'react-native-toast-message';
 
 export const AuthProvider = ({children}) => {
   const dispatch = useDispatch();
+
+  const [appState, setAppState] = useState(AppState.currentState);
+
+  console.log('appState:', appState);
 
   const [showSplash, setShowSplash] = useState(true);
   // ** user details
@@ -64,7 +69,7 @@ export const AuthProvider = ({children}) => {
   const [showComments, setShowComments] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
 
-  const [isConnected, setIsConnected] = useState(true)
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -77,8 +82,32 @@ export const AuthProvider = ({children}) => {
   }, []);
 
   useEffect(() => {
+    const handleAppStateChange = nextAppState => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground!');
+
+        if (authToken) {
+          resetBadgeCount();
+        }
+      }
+
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
+
+  useEffect(() => {
     if (authToken && isConnected) {
       VerifyToken(authToken);
+      resetBadgeCount();
     }
 
     isLoggedIn();
@@ -109,18 +138,19 @@ export const AuthProvider = ({children}) => {
           Toast.show({
             type: 'error',
             text1: 'Authentication Failed.',
-            text2: 'Account has been suspended or deleted, please login again to know more',
+            text2:
+              'Account has been suspended or deleted, please login again to know more',
           });
 
           Logout1();
           setShowSplash(false);
-
         } else {
           // **saving token
           AsyncStorage.setItem('authToken', token).then(() => {
             setAuthToken(token);
             setShowSplash(false);
           });
+          resetBadgeCount();
         }
       })
       .catch(err => {
@@ -135,6 +165,28 @@ export const AuthProvider = ({children}) => {
         setLoading(false);
       });
   }
+
+  const resetBadgeCount = async () => {
+    const formData = new FormData();
+
+    formData.append('badge_count', 0);
+
+    try {
+      await axios({
+        method: 'put',
+        url: ENDPOINT.UPDATE_PROFILE,
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: 'Bearer ' + authToken,
+        },
+        timeout: 10000,
+      });
+      console.log('count set to 0');
+    } catch (err) {
+      console.log('failed to update count:', err?.response?.data || err);
+    }
+  };
 
   const isLoggedIn = async () => {
     try {
@@ -472,10 +524,8 @@ export const AuthProvider = ({children}) => {
         .then(() => {
           this.isInitialized = true;
           let listener = {
-            onTokenWillExpire() {
-            },
-            onTokenDidExpire() {
-            },
+            onTokenWillExpire() {},
+            onTokenDidExpire() {},
             onConnected() {
               setMessageListener();
             },
@@ -806,7 +856,8 @@ export const AuthProvider = ({children}) => {
         currentTab,
         setCurrentTab,
         isConnected,
-        setMyAllTrips
+        setMyAllTrips,
+        resetBadgeCount,
       }}>
       {children}
     </AuthContext.Provider>

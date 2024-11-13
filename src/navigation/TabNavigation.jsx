@@ -140,6 +140,7 @@ export default function TabNavigation() {
     setShowComments,
     setCurrentTab,
     VerifyToken,
+    resetBadgeCount,
   } = useContext(AuthContext);
 
   const {chatList} = useSelector(state => state.chatList);
@@ -428,7 +429,6 @@ export default function TabNavigation() {
 
     messaging().setBackgroundMessageHandler(async remoteMessage => {
       console.log('handled in background yaha');
-      await incrementBadgeCount('setBackgroundMessageHandler');
 
       if (remoteMessage?.data?.is_deleted == 'true') {
         VerifyToken(authToken);
@@ -442,7 +442,9 @@ export default function TabNavigation() {
     });
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('new fcm message arrived',);
+      console.log('new fcm message arrived');
+      resetBadgeCount();
+
       if (remoteMessage?.data?.is_deleted == 'true') {
         VerifyToken(authToken);
       }

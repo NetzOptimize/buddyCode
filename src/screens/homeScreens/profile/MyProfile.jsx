@@ -50,6 +50,7 @@ const MyProfile = () => {
     GetSentFollowRequests,
     showComments,
     setShowComments,
+    resetBadgeCount
   } = useContext(AuthContext);
 
   const dispatch = useDispatch();
@@ -69,7 +70,7 @@ const MyProfile = () => {
   useFocusEffect(
     useCallback(() => {
       VerifyToken(authToken);
-      // notifee.setBadgeCount(0).then(() => console.log('Badge count removed'));
+      resetBadgeCount();
       GetSentFollowRequests();
     }, [authToken]),
   );
