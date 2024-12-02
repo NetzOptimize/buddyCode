@@ -211,12 +211,6 @@ export default function TabNavigation() {
   };
 
   useEffect(() => {
-    const incrementBadgeCount = async type => {
-      await notifee
-        .incrementBadgeCount()
-        .then(count => console.log('badge count incremented', type));
-    };
-
     messaging()
       .getInitialNotification()
       .then(async remoteMessage => {

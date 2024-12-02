@@ -561,11 +561,12 @@ const GroupChat = ({navigation}) => {
 
   const SendNotification = (title, body) => {
     const SendNotificationURL = ENDPOINT.SEND_NOTIFICAION;
+    const recipients = allMembers.filter(id => id !== myUserDetails?.user?._id);
 
-    var user = {
+    const user = {
       title: `${title}`,
       body: body,
-      receivers: allMembers,
+      receivers: recipients,
       notification_type: 'group_chat',
       navigate_to: localGroupDetails.chatData._id,
     };

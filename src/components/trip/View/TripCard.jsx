@@ -8,33 +8,7 @@ import FastImage from 'react-native-fast-image';
 var noDP = require('../../../../assets/Images/noDP.png');
 
 const TripCard = ({tripInfo, eventData, isComplete = false}) => {
-  const getTimeZoneAbbreviation = () => {
-    try {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      // Ensure timeZone is valid and not empty
-      if (!timezone) {
-        throw new Error('No timeZone found');
-      }
-
-      const options = {
-        timeZone: timezone,
-        timeZoneName: 'short',
-      };
-
-      // Attempt to retrieve timeZone abbreviation
-      const timeZoneAbbreviation = Intl.DateTimeFormat('en-US', options)
-        .formatToParts()
-        .find(part => part.type === 'timeZoneName')?.value;
-
-      return timeZoneAbbreviation;
-    } catch (error) {
-      console.log('Error retrieving timeZone abbreviation:', error);
-      return null; // or handle the error as appropriate
-    }
-  };
-
-  const abbreviation = getTimeZoneAbbreviation();
 
   let TimeTitle = (
     <Text style={styles.timeTitle}>

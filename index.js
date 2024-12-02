@@ -10,8 +10,6 @@ import notifee, {EventType} from '@notifee/react-native';
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {
   console.log('Message handled in the quit statex!');
-
-  await notifee.incrementBadgeCount();
 });
 
 AppRegistry.registerComponent(appName, () => App);
