@@ -11,7 +11,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect, useContext, useRef} from 'react';
+import React, {useState, useContext, useRef} from 'react';
 
 import {COLORS, FONTS} from '../../../constants/theme/theme';
 import DatePicker from 'react-native-date-picker';
@@ -600,7 +600,7 @@ const CreateEvent = ({
                         style={[
                           styles.category,
                           {
-                            backgroundColor: category.includes(d.name)
+                            backgroundColor: category?.includes(d.name)
                               ? '#27AE60'
                               : '#716B6E',
                           },
@@ -611,7 +611,7 @@ const CreateEvent = ({
                           style={{
                             height: 13,
                             width: 10,
-                            borderColor: category.includes(d.name)
+                            borderColor: category?.includes(d.name)
                               ? 'white'
                               : '#FCDDEC',
                             borderRadius: 1000,

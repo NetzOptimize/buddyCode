@@ -404,7 +404,7 @@ const EditEvent = ({
       .catch(err => {
         console.log(
           'Failed to add update. An error occurred:',
-          err?.response?.data,
+          err?.response?.data || err,
         );
       })
       .finally(() => {
