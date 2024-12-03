@@ -1,0 +1,5 @@
+<!-- res/values/colors.xml -->
+<resources>
+    <color name="splash_background_color">#3A3A3A</color>    <!-- Your chosen color -->
+    <!-- Add other color definitions here -->
+</resources>

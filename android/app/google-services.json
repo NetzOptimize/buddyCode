@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "416674205561",
+    "project_id": "buddypass-notifications-2a56a",
+    "storage_bucket": "buddypass-notifications-2a56a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416674205561:android:57b9b01b55e927d35a29a8",
+        "android_client_info": {
+          "package_name": "com.buddypass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE3RteYw8wV3_OyNCiD1kUcEm_Zg_64DY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
