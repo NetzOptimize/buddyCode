@@ -1,4 +1,4 @@
-package com.buddypassios
+package com.buddypass
 
 import android.app.Application
 import com.facebook.react.PackageList
