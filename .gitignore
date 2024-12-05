@@ -79,3 +79,4 @@ yarn-error.log
 .env.development.local
 .env.test.local
 .env.production.local
+android/app/release/app-release.apk
